@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla</Description>
+    <Copyright>unosviluppatore</Copyright>
+    <AssemblyTitle>SmartReader</AssemblyTitle>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>SmartReader</AssemblyName>
+    <PackageId>SmartReader</PackageId>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <PackageLicenseUrl>https://github.com/unosviluppatore/SmartReader/blob/master/LICENSE</PackageLicenseUrl>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>unosviluppatore</Authors>
+    <PackageProjectUrl>https://github.com/unosviluppatore/SmartReader</PackageProjectUrl>
+    <PackageIconUrl>https://raw.github.com/unosviluppatore/SmartReader/master/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/unosviluppatore/SmartReader</RepositoryUrl>
+    <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.9.9" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Smart Reader Demo";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Input</h2>
+        <form class="form-horizontal" id="inputForm">
+            <div class="form-group">
+                <label for="inputUrl" class="col-sm-2 control-label">Url</label>
+                <div class="col-sm-10">
+                    <input type="url" class="form-control" id="inputUrl" placeholder="http://">
+                </div>
+            </div>            
+            <!--<div class="form-group">
+                <label for="inputLength" class="col-sm-2 control-label">Length</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="inputLength" disabled>
+                </div>
+            </div>-->
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">Analyze</button>
+                </div>
+            </div>            
+        </form>        
+    </div>
+    <div class="col-md-6">
+        <h2>Data</h2>
+        <table class="table table-hover">
+            <tr>
+                <th>Readerable</th>
+                <td id="readerable"></td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td id="title"></td>
+            </tr>
+            <tr>
+                <th>Direction</th>
+                <td id="dir"></td>
+            </tr>
+            <tr>
+                <th>Byline</th>
+                <td id="byline"></td>
+            </tr>
+            <tr>
+                <th>Author</th>
+                <td id="author"></td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td id="publicationDate"></td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td id="language"></td>
+            </tr>
+            <tr>
+                <th>Length</th>
+                <td id="length"></td>
+            </tr>
+            <tr>
+                <th>Excerpt</th>
+                <td id="excerpt"></td>
+            </tr>
+            <tr>
+                <th>Time to Read</th>
+                <td id="timeToRead"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Article</h3>
+            </div>
+            <div class="panel-body" id="articleContent">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Log</h3>                
+            </div>
+            <div class="panel-body" id="logContent">
+
+            </div>
+            <div class="panel-footer">
+                <button type="button" class="btn btn-default" id="clearLog">Clear Log</button>
+            </div>
+        </div>
+    </div>
+</div>

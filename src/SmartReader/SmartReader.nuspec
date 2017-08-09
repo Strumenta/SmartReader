@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>SmartReader</title>
+    <description>$description$</description>
+    <authors>Gabriele Tomassetti</authors>
+    <owners>sviluppatore</owners>
+    <licenseUrl>https://github.com/unosviluppatore/SmartReader/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/unosviluppatore/SmartReader</projectUrl>
+    <iconUrl>https://raw.github.com/unosviluppatore/SmartReader/master/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>For all changes see: https://github.com/unosviluppatore/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
+    <copyright>Gabriele Tomassetti 2017</copyright>
+    <tags>Readability SmartReader reader article scraping reading web</tags>
+    <dependencies>
+      <group targetFramework="netstandard1.3">
+        <dependency id="AngleSharp" version="0.9.9" />
+        <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
