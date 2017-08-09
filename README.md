@@ -85,3 +85,17 @@ if(article.IsReadable)
 - `bool` **IsReadable**<br>Indicate whether we successfully find an article
 
 It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
+
+## Demo Project
+
+The demo project is just a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
+
+## Creating The Nuget Package
+
+In case you want to build the nuget package yourself you cannot use the standard `nuget pack` because of a [bug related to .NET Core](https://github.com/NuGet/Home/issues/4491). Insted use the dotnet pack command.
+
+```
+dotnet pack --configuration Release --output "..\nupkgs"
+```
+
+The command must be issued inside the `src/SmartReader` folder, otherwise it will generate nuget packages for all projects.
