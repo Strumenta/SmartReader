@@ -7,12 +7,12 @@
     <description>$description$</description>
     <authors>Gabriele Tomassetti</authors>
     <owners>sviluppatore</owners>
-    <licenseUrl>https://github.com/unosviluppatore/SmartReader/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/unosviluppatore/SmartReader</projectUrl>
-    <iconUrl>https://raw.github.com/unosviluppatore/SmartReader/master/logo.png</iconUrl>
+    <licenseUrl>https://github.com/strumenta/SmartReader/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/strumenta/SmartReader</projectUrl>
+    <iconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <releaseNotes>For all changes see: https://github.com/unosviluppatore/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
-    <copyright>Gabriele Tomassetti 2017</copyright>
+    <releaseNotes>For all changes see: https://github.com/strumenta/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
+    <copyright>Strumenta 2017</copyright>
     <tags>Readability SmartReader reader article scraping reading web</tags>
     <dependencies>
       <group targetFramework="netstandard1.3">

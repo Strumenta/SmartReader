@@ -95,6 +95,13 @@ namespace SmartReader
 		/// <value>Default: 5</value>
 		public int MaxPages { get; set; } = 5;
 
+        /// <summary>
+        /// The default number of words an article must have in order to return a result
+        /// </summary>
+        /// <value>Default: 500</value>
+        public int wordThreshold { get; set; } = 500;
+
+
 		/// <summary>Set the Debug option and write the data on Logger</summary>
 		/// <value>Default: false</value>
 		public bool Debug { get; set; } = false;
@@ -132,6 +139,10 @@ namespace SmartReader
 		private String[] DivToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
 
 		private String[] AlterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };
+
+        private String[] PresentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
+
+        private String[] DeprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
 
 		/// <summary>
 		/// Reads content from the given URI.
@@ -511,13 +522,23 @@ namespace SmartReader
 				//    curTitle = origTitle = this._getInnerText(doc.getElementsByTagName('title')[0]);
 			}
 			catch (Exception e) {/* ignore exceptions setting the title. */}
+            
+            var titleHadHierarchicalSeparators = false;
+            int wordCount(String str)
+            {
+                return Regex.Split(str, @"\s+").Length;
+            }
 
-			if (curTitle.IndexOfAny(new char[] { '|', '-', '»' }) != -1)
-			{
-				curTitle = Regex.Replace(origTitle, @"(.*)[\|\-].*", "$1", RegexOptions.IgnoreCase);
+            // If there's a separator in the title, first remove the final part
+            if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
+            {
+                titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != 1;                
+                curTitle = Regex.Replace(origTitle, @"(.*)[\|\-\\\/>»].*", "$1", RegexOptions.IgnoreCase);
 
-				if (curTitle.Split(' ').Length < 3)
-					curTitle = Regex.Replace(origTitle, @"[^\|\-]*[\|\-](.*)", "$1", RegexOptions.IgnoreCase);
+                // If the resulting title is too short (3 words or fewer), remove
+                // the first part instead:
+                if (wordCount(curTitle) < 3)
+                    curTitle = Regex.Replace(origTitle, @"[^\|\-\\\/>»] *[\|\-\\\/>»](.*)", "$1", RegexOptions.IgnoreCase);
 			}
 			else if (curTitle.IndexOf(": ") != -1)
 			{
@@ -537,9 +558,9 @@ namespace SmartReader
 				{
 					curTitle = origTitle.Substring(origTitle.LastIndexOf(':') + 1);
 
-					// If the title is now too short, try the first colon instead:
-					if (curTitle.Split(' ').Length < 3)
-						curTitle = origTitle.Substring(origTitle.IndexOf(':') + 1);
+                    // If the title is now too short, try the first colon instead:
+                    if (wordCount(curTitle) < 3)
+                        curTitle = origTitle.Substring(origTitle.IndexOf(':') + 1);
 				}
 			}
 			else if (curTitle.Length > 150 || curTitle.Length < 15)
@@ -552,11 +573,21 @@ namespace SmartReader
 
 			curTitle = curTitle.Trim();
 
-			// My note: not sure why we should do that
-			//if (curTitle.Split(' ').Length <= 4)
-			//    curTitle = origTitle;
+            // If we now have 4 words or fewer as our title, and either no
+            // 'hierarchical' separators (\, /, > or ») were found in the original
+            // title or we decreased the number of words by more than 1 word, use
+            // the original title.
 
-			return curTitle;
+
+
+            var curTitleWordCount = wordCount(curTitle);
+            if (curTitleWordCount <= 4 && (
+                !titleHadHierarchicalSeparators ||
+                curTitleWordCount != wordCount(Regex.Replace(origTitle, @"[\|\-\\\/>» ] +", " ", RegexOptions.IgnoreCase)) - 1)) {
+                curTitle = origTitle;
+            }
+            
+            return curTitle;
 		}
 
 		/**
@@ -711,19 +742,30 @@ namespace SmartReader
 			// they are probably using it as a header and not a subheader,
 			// so remove it since we already extract the title separately.
 			var h2 = articleContent.GetElementsByTagName("h2");
-			if (h2.Length == 1)
-			{
-				var lengthSimilarRate = (h2[0].TextContent.Length - articleTitle.Length) / articleTitle.Length;
-				if (Math.Abs(lengthSimilarRate) < 0.5 &&
-				    (lengthSimilarRate > 0 ? h2[0].TextContent.Contains(articleTitle) :
-							     this.articleTitle.Contains(h2[0].TextContent)))
-				{
-					//clean(articleContent.DocumentElement, "h2");
-					clean(articleContent, "h2");
-				}
-			}
+            if (h2.Length == 1)
+            {
+                var lengthSimilarRate = (h2[0].TextContent.Length - articleTitle.Length) / articleTitle.Length;
 
-			clean(articleContent, "iframe");
+                if (Math.Abs(lengthSimilarRate) < 0.5)
+                {
+                    var titlesMatch = false;
+                    if (lengthSimilarRate > 0)
+                    {
+                        titlesMatch = h2[0].TextContent.Contains(articleTitle);
+                    }
+                    else
+                    {
+                        titlesMatch = articleTitle.Contains(h2[0].TextContent);
+                    }
+                    if (titlesMatch)
+                    {
+                        //clean(articleContent.DocumentElement, "h2");
+                        clean(articleContent, "h2");
+                    }
+                }
+            }
+
+            clean(articleContent, "iframe");
 			clean(articleContent, "input");
 			clean(articleContent, "textarea");
 			clean(articleContent, "select");
@@ -992,11 +1034,12 @@ namespace SmartReader
 						}
 					}
 
-					// Remove empty DIV, SECTION, and HEADER nodes
-					if ((node.TagName == "DIV" || node.TagName == "SECTION" || node.TagName == "HEADER" ||
+                   // Remove DIV, SECTION, and HEADER nodes without any content(e.g. text, image, video, or iframe).
+
+                    if ((node.TagName == "DIV" || node.TagName == "SECTION" || node.TagName == "HEADER" ||
 					     node.TagName == "H1" || node.TagName == "H2" || node.TagName == "H3" ||
 					     node.TagName == "H4" || node.TagName == "H5" || node.TagName == "H6") &&
-					    isEmptyElement(node))
+					    isElementWithoutContent(node))
 					{
 						node = removeAndGetNext(node) as IElement;
 						continue;
@@ -1368,7 +1411,7 @@ namespace SmartReader
 				// grabArticle with different flags set. This gives us a higher likelihood of
 				// finding the content, and the sieve approach gives us a higher likelihood of
 				// finding the -right- content.
-				if (getInnerText(articleContent, true).Length < 500)
+				if (getInnerText(articleContent, true).Length < wordThreshold)
 				{
 					page.InnerHtml = pageCacheHtml;
 
@@ -1628,11 +1671,13 @@ namespace SmartReader
 			});
 		}
 
-		private bool isEmptyElement(IElement node)
+		private bool isElementWithoutContent(IElement node)
 		{
-			return node.NodeType == NodeType.Element &&
-			  node.Children.Length == 0 &&
-			  node.TextContent.Trim().Length == 0;
+            return node.NodeType == NodeType.Element &&
+                node.TextContent.Trim().Length == 0 &&
+                (node.Children.Length == 0 ||
+                  node.Children.Length == node.GetElementsByTagName("br").Length + node.GetElementsByTagName("hr").Length);
+			  
 		}
 
 		/**
@@ -1691,42 +1736,42 @@ namespace SmartReader
 		**/
 		private void cleanStyles(IElement e = null)
 		{
-			e = e ?? doc as IElement;
-			if (e == null)
-				return;
-			var cur = e.FirstChild;
+			e = e ?? doc as IElement;			
+            if (e == null || e.TagName.ToLower() == "svg")
+                return;			
 
-			// Remove any root styles, if we're able.
-			//if (typeof e.removeAttribute === 'function' && e.className !== 'readability-styled')
-			//    e.removeAttribute('style');
+            if (e.ClassName != "readability-styled")
+            {
+                // Remove `style` and deprecated presentational attributes
+                for (var i = 0; i < PresentationalAttributes.Length; i++)
+                {
+                    e.RemoveAttribute(PresentationalAttributes[i]);
+                }
 
-			if (e.ClassName != "readability-styled")
-				e.RemoveAttribute("style");
+                if (DeprecatedSizeAttributeElems.FirstOrDefault(x => x == e.TagName) != null)
+                {
+                    e.RemoveAttribute("width");
+                    e.RemoveAttribute("height");
+                }
+            }
+			
+            var cur = e.FirstElementChild;
+            while (cur != null)
+            {
+                cleanStyles(cur as IElement);
+                cur = cur.NextElementSibling;
 
-			// Go until there are no more child nodes
-			while (cur != null)
-			{
-				if (cur.NodeType == NodeType.Element)
-				{
-					// Remove style attribute(s) :
-					if ((cur as IElement).ClassName != "readability-styled")
-						(cur as IElement).RemoveAttribute("style");
+            }
+        }
 
-					cleanStyles(cur as IElement);
-				}
-
-				cur = cur.NextSibling;
-			}
-		}
-
-		/**
-		 * Get the density of links as a percentage of the content
-		 * This is the amount of text that is inside a link divided by the total text in the node.
-		 *
-		 * @param Element
-		 * @return number (float)
-		**/
-		private float getLinkDensity(IElement element)
+        /**
+         * Get the density of links as a percentage of the content
+         * This is the amount of text that is inside a link divided by the totaltextinthenode.
+         *
+         * @param Element
+         * @return number (float)
+        **/
+        private float getLinkDensity(IElement element)
 		{
 			var textLength = getInnerText(element).Length;
 			if (textLength == 0)

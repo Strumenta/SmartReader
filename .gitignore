@@ -1,0 +1,4 @@
+# NuGet Packages
+nupkgs/
+packages/
+.vs/
