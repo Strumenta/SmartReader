@@ -99,7 +99,7 @@ namespace SmartReader
         /// The default number of words an article must have in order to return a result
         /// </summary>
         /// <value>Default: 500</value>
-        public int wordThreshold { get; set; } = 500;
+        public int WordThreshold { get; set; } = 500;
 
 
 		/// <summary>Set the Debug option and write the data on Logger</summary>
@@ -1411,7 +1411,7 @@ namespace SmartReader
 				// grabArticle with different flags set. This gives us a higher likelihood of
 				// finding the content, and the sieve approach gives us a higher likelihood of
 				// finding the -right- content.
-				if (getInnerText(articleContent, true).Length < wordThreshold)
+				if (getInnerText(articleContent, true).Length < WordThreshold)
 				{
 					page.InnerHtml = pageCacheHtml;
 

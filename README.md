@@ -68,6 +68,7 @@ if(article.IsReadable)
 - `bool` **Debug** <br>Set the Debug option. If set to true the library writes the data on Logger.<br>*Default: false*
 - `TextWriter` **Logger** <br> Where the debug data is going to be written. <br> *Default: null*
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: false*
+- `int` **WordThreshold** <br>The minimun number of words an article must have in order to return a result. <br>*Default: 500*
 
 ## Article Model
 
