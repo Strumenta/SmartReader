@@ -100,3 +100,7 @@ dotnet pack --configuration Release --output "..\nupkgs"
 ```
 
 The command must be issued inside the `src/SmartReader` folder, otherwise it will generate nuget packages for all projects.
+
+## License
+
+The project uses the **Apache License**.
