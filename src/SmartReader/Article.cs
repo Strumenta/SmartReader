@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace SmartReader
 {
@@ -35,15 +36,46 @@ namespace SmartReader
 			TextContent = article.TextContent;
 			Excerpt = metadata.Excerpt;
 			Length = article.TextContent.Length;
-			Language = !String.IsNullOrEmpty(metadata.Language) ? metadata.Language : Language;
+			Language = !String.IsNullOrEmpty(metadata.Language) ? metadata.Language : language;
 			PublicationDate = metadata.PublicationDate;
 			Author = String.IsNullOrEmpty(author) ? metadata.Author : author;
 			IsReadable = true;
-			// based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
-			// this is laughably inaccurate for every language that doesn't have an alphabet
-			// for everything else character count seems to be okay            
-			TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / 1000);
+            // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
+            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead());
 		}
+        
+        private int GetWeightTimeToRead()
+        {
+            CultureInfo culture = new CultureInfo(Language);
+
+            Dictionary<String, int> CharactersMinute = new Dictionary<string, int>()
+            {
+                { "Arabic", 612 },
+                { "Chinese", 255 },
+                { "Dutch", 978 },
+                { "English", 987 },
+                { "Finnish", 1078 },
+                { "French", 998 },
+                { "German", 920 },
+                { "Hebrew", 833 },
+                { "Italian", 950 },
+                { "Japanese", 357 },               
+                { "Polish", 916 },
+                { "Portuguese", 913 },
+                { "Swedish", 917 },
+                { "Slovenian", 885 },
+                { "Spanish", 1025 },
+                { "Russian", 986 },
+                { "Turkish", 1054 }
+            };
+            
+            var cpm = CharactersMinute.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key));
+            
+            // 960 is the average excluding the three outliers languages
+            int weight = cpm.Value > 0 ? cpm.Value : 960;
+
+            return weight;
+        }
 
 		public Article(Uri uri, string title, bool readable)
 		{
