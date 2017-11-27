@@ -64,10 +64,9 @@ if(article.IsReadable)
 
 - `int` **MaxElemsToParse**<br>Max number of nodes supported by this parser. <br> *Default: 0 (no limit)*
 - `int` **NTopCandidates** <br>The number of top candidates to consider when analysing how tight the competition is among candidates. <br>*Default: 5*
-- `int` **MaxPages** <br>The maximum number of pages to loop through before we call it quits and just show a link. <br>*Default: 5*
 - `bool` **Debug** <br>Set the Debug option. If set to true the library writes the data on Logger.<br>*Default: false*
 - `TextWriter` **Logger** <br> Where the debug data is going to be written. <br> *Default: null*
-- `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: false*
+- `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **WordThreshold** <br>The minimun number of words an article must have in order to return a result. <br>*Default: 500*
 
 ## Article Model
@@ -87,9 +86,11 @@ if(article.IsReadable)
 
 It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
 
-## Demo Project
+## Demo &Console Projects
 
 The demo project is just a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
+
+The console project is simple Console program that allows you to see the results of the library on random test page.
 
 ## Creating The Nuget Package
 

@@ -1,0 +1,2241 @@
+<!DOCTYPE HTML>
+
+
+<html xmlns:ng="http://angularjs.org" id="ng-app" lang="en" ng-app="TH">
+
+<head ng-controller="DZHeadController">
+<!--
+
+##::::: ##: ########::::::: ###:::: ########:: ########:::: ##:::: ##: ####: ########:: ####: ##::: ##:: ######::
+##: ##: ##: ##.....::::::: ## ##::: ##.... ##: ##.....::::: ##:::: ##:. ##:: ##.... ##:. ##:: ###:: ##: ##... ##:
+##: ##: ##: ##::::::::::: ##:. ##:: ##:::: ##: ##:::::::::: ##:::: ##:: ##:: ##:::: ##:: ##:: ####: ##: ##:::..::
+##: ##: ##: ######:::::: ##:::. ##: ########:: ######:::::: #########:: ##:: ########::: ##:: ## ## ##: ##:: ####
+##: ##: ##: ##...::::::: #########: ##.. ##::: ##...::::::: ##.... ##:: ##:: ##.. ##:::: ##:: ##. ####: ##::: ##:
+##: ##: ##: ##:::::::::: ##.... ##: ##::. ##:: ##:::::::::: ##:::: ##:: ##:: ##::. ##::: ##:: ##:. ###: ##::: ##:
+ ###. ###:: ########:::: ##:::: ##: ##:::. ##: ########:::: ##:::: ##: ####: ##:::. ##: ####: ##::. ##:. ######::
+
+Skills wanted: Java, AngularJS, Spring, Hibernate, UX and Responsive Design
+http://dzone.applytojob.com/apply
+
+-->
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+    <meta name="description" ng-attr-content="{{ service.description }}" content="In this post, we examine how you can know which programming language is best for you and your team, and few a use cases of big companies switching languages." />
+    <meta name="keywords" ng-attr-content="{{ service.keywords }}" content="programming, software development, devops, java, agile, web, iot, database, mobile, big data, cloudagile,programming languages,development process" />
+
+    <meta property="og:description" ng-attr-content="{{ service.description }}" content="In this post, we examine how you can know which programming language is best for you and your team, and few a use cases of big companies switching languages." />
+
+    <meta ng-attr-content="{{ service.noIndex ? 'noindex' : '' }}" ng-attr-name="{{ service.noIndex ? 'robots' : '' }}"
+          name="" content="" />
+
+    <meta property="og:site_name" ng-attr-content="{{ service.siteName }}" content="dzone.com" />
+    <meta property="og:title" ng-attr-content="{{ service.title }}" content="The Best Programming Languages for Each Situation, Part 1 - DZone Agile" />
+    <meta property="og:url" ng-attr-content="{{ service.canonical }}" content="https://dzone.com/articles/the-best-programming-languages-for-each-situation-1" />
+    <meta ng-if="service.img" ng-attr-content="{{ service.img }}" property="og:image" content="https://dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg" />
+    <meta ng-if="service.type" ng-attr-content="{{ service.type }}" property="og:type" content="opinion" />
+
+    <meta name="twitter:site" content="@dzone" />
+    <meta ng-if="service.twitterImage" ng-attr-content="{{ service.twitterImage }}" name="twitter:image" content="https://dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:description" ng-attr-content="{{ service.description }}" content="In this post, we examine how you can know which programming language is best for you and your team, and few a use cases of big companies switching languages." />
+    <meta name="twitter:title" ng-attr-content="{{ service.title }}" content="The Best Programming Languages for Each Situation, Part 1 - DZone Agile"/>
+
+    <meta ng-if="service.wordCount" property="article:wordcount" ng-attr-content="{{service.wordCount}}" content="1225" />
+    <meta name="referrer" content="origin">
+
+    <link rel="dns-prefetch" href="//www.googletagservices.com"/>
+    <link rel="dns-prefetch" href="//pixel-geo.prfct.co"/>
+    <link rel="dns-prefetch" href="//secure.adnxs.com"/>
+    <link rel="dns-prefetch" href="//hn.inspectlet.com"/>
+    <link rel="dns-prefetch" href="//inspectletws.herokuapp.com"/>
+    <link rel="dns-prefetch" href="//tag.perfectaudience.com"/>
+    <link rel="dns-prefetch" href="//www.google-analytics.com"/>
+    <link rel="image_src"   ng-href="{{ service.img }}" href="https://dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg" /><!--formatted-->
+
+
+    <link rel="canonical" ng-href="{{service.canonical}}" href="https://dzone.com/articles/the-best-programming-languages-for-each-situation-1"/>
+    <link ng-if="service.prevPage" rel="prev" ng-href="{{ service.prevPage }}" href="" />
+    <link ng-if="service.nextPage" rel="next" ng-href="{{ service.nextPage }}" href=""/>
+    <link rel="icon" type="image/x-icon" href="/themes/dz20/images/favicon.ico">
+
+    <title ng-bind="service.title">The Best Programming Languages for Each Situation, Part 1 - DZone Agile</title>
+
+    <meta name="df-verify" content="df0d76632b4543" />
+
+<link rel="stylesheet" type="text/css" href="//dz2cdn3.dzone.com/storage/pub/7281671-combined.css" charset="utf-8"/><link rel="stylesheet" type="text/css" href="//dz2cdn3.dzone.com/storage/pub/7281672-combined.css" charset="utf-8"/>
+</head>
+<body>
+
+    <div class="container-fluid header" th-element="header" th-element-groups="[]" ng-hide="$root.isHidden('header')" data-th-element-name="header"><div class="row mainHeaderRow" th-element="mainHeaderRow" th-element-groups="['header']" ng-hide="$root.isHidden('mainHeaderRow')" data-th-element-name="mainHeaderRow"><div class="col-md-12 mainHeader headerHeaderV2 oUhbWOfRPSwBoUhM" th-element="mainHeader" th-element-groups="['header','mainHeaderRow']" ng-hide="$root.isHidden('mainHeader')" data-th-element-name="mainHeader" data-th-widget="header.headerV2" data-widget-header-header-v2="" ng-controller="mainHeader">
+<script type="text/ng-template" id="like-article.html">
+        <div class="dz-like"
+             ng-class='{liked: status.liked}'
+             ng-click='like()'
+
+<a href="#">
+    <i ng-class="{'icon-thumbs-up-alt': status.liked, 'icon-thumbs-up liked': !status.liked}"></i>
+    <span>Like ({{ status.score }})</span>
+</a>
+</div>
+</script>
+
+<script type="text/ng-template" id="refcard-save.html">
+    <button type="button" ng-class="{'icon-star gold': status.saved, 'icon-star-empty': !status.saved}"
+            ng-click="save()" class="btn btn-save btn-lg"><span class="save-title">SAVE</span><span ng-if="status.saved"
+                                                                                                    class="d-letter">D</span>
+    </button>
+</script>
+
+<div class="header-top">
+    <div class="header-container">
+        <div class="pull-left">
+            <div class="logo" >
+                <a class="inner" href="/"><img src="/themes/dz20/images/logo.png" alt="DZone"></a>
+            </div>
+        <div class="active-portal"> / <a href="/agile-methodology-training-tools-news">Agile Zone</a></div>
+        </div>
+        <div class="pull-right">
+
+                <div class="welcome-back">Thanks for visiting DZone today,</div>
+
+            <div class="user-avatar" ng-click="userOpen = !userOpen" click-outside="userOpen = false">
+                <span class="mobile-invisible welcome-back-username">Gabriele</span>
+                <img src="https://dz2cdn4.dzone.com/thumbnail?fid=7280747&w=70">
+            </div>
+            <div class="browse-user">
+                <div>
+                    <div class="up-arrow-outer" ng-cloak ng-show="userOpen"></div>
+                    <div class="up-arrow" ng-cloak ng-show="userOpen"></div>
+                    <div class="browse-user-menu" ng-cloak ng-show="userOpen">
+                        <div class="user-content">
+                            <a ng-href="{{ $root.user.profile }}" class="user-description">
+                                <p>{{user.realName}}</p>
+                                <a href="/users/2910331/edit.html" class="edit-profile">Edit Profile</a>
+                            </a>
+                        </div>
+                        <ul>
+                            <li><a ng-href="/newsletters/2910331/manage.html">Manage Email Subscriptions</a></li>
+
+                        </ul>
+                        <div class="bottom">
+                            <a ng-href="/users/logout.html" class="sign-out">Sign Out</a>
+                            <a ng-href="{{$root.user.profile}}" class="view-profile">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-arrow"></div>
+
+            <div class="post-content" ng-click="postOpen = !postOpen" click-outside="postOpen = false">
+                <span><i class="icon-plus"></i></span>
+            </div>
+            <div class="posting-links">
+                <div class="up-arrow-outer" ng-cloak ng-show="postOpen"></div>
+                <div class="up-arrow" ng-cloak ng-show="postOpen"></div>
+                <div class="posting-links-menu" ng-cloak ng-show="postOpen">
+                    <ul>
+                        <li><img ng-src="/themes/dz20/images/post-article.svg"> <a ng-href="/content/article/post.html">Post an Article</a></li>
+                        <li><img ng-src="/themes/dz20/images/new-link.svg"> <a ng-href="/links">Share a Link</a></li>
+                        <li><img ng-src="/themes/dz20/images/post-job-2.png"> <a ng-href="https://jobs.dzone.com?ref=dropdown">Post a Job</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+                <div class="headerSearch">
+                    <span class="icon-search dropdown-toggle" ng-click="focusSearch()" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></span>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <li>
+                            <form class="form-wrapper">
+                                <input id="search" ng-model="searchT" type="text" placeholder="Search" required>
+                                <input type="button" value="Search" class="btn btn-action" ng-click="allResults()" ng-disabled="searchT.length < 3">
+                            </form>
+                        </li>
+                        <div class="results-area" ng-cloak>
+                            <div class="col-md-12"><th-loader flag="loading"></th-loader></div>
+                            <li ng-repeat="node in nodes">
+                                <div class="results-container">
+                                    <img dz-image-fid-width="80" dz-image-fid="{{ node.thumb }}">
+                                    <a class="title" target="{{ node.type=='link'? '_blank' : '_self'}}" ng-href="{{node.urlOrigin}}">{{node.title}}</a>
+                                    <p class="source">
+                                        <span class="type">{{node.type}}</span>
+                                        <span class="source-bullet"> &middot;</span>
+                                        <span ng-if="node.type=='link'" class="link-source">{{ node.urlSource.name }}</span>
+                                        <span ng-if="node.type=='link'" class="source-bullet"> &middot;</span>
+                                        <span class="source-date" am-time-ago="node.articleDate"></span>
+                                        <span ng-if="node.type != 'guide'">
+                                            by <a href="{{ node.authors[0].url }}" target="_blank" class="author-name" th-popup="users.profile.mini" popup-data="{user: node.authors[0].id}">{{node.authors[0].realName }}</a>
+                                        </span>
+                                    </p>
+                                    <div class="hover-buttons" ng-if="node.type=='refcard'">
+                                        <a type="button" class="btn download" href="{{node.pdf}}"><i class="icon-download"></i> DOWNLOAD</a>
+                                        <dz-save template="refcard-save.html" node="node" class="save-btn"></dz-save>
+                                        <span class="download-count"><i class="icon-download"></i> {{node.downloads}}</span>
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                            </li>
+                        </div>
+
+                        <div class="totalResults" ng-if="totalResults"><span>{{totalResults}} search results</span></div>
+                        <li class="btn-vall" ng-if="haveResults">
+                            <input type="button" value="View All Results" ng-click="allResults()" class="btn btn-action" ng-disabled="searchT.length < 3">
+                        </li>
+
+                    </ul>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="header-bottom">
+
+
+    <ul class="portals header-container">
+            <li>
+                <a href="/refcardz" 
+                   id="header-refcardz"><em>Refcardz</em></a></li>
+            <li>
+                <a href="/guides" 
+                   id="header-guides"><em>Guides</em></a></li>
+            <li>
+                <a href="/portals" 
+                   id="header-portals"><em>Zones</em></a></li>
+            <li>
+                <a href="https://jobs.dzone.com?ref=nav" 
+                   id="header-jobs"><em>Jobs</em></a></li>
+        <li>|</li>
+
+        <li>
+            <a class="active-state" ng-class="{'active-state': isActivePortal(2)}" href="/agile-methodology-training-tools-news" id="header-2">
+            Agile</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(4001)}" href="/artificial-intelligence-tutorials-tools-news" id="header-4001">
+            AI</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(3)}" href="/big-data-analytics-tutorials-tools-news" id="header-3">
+            Big Data</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(4)}" href="/cloud-computing-tutorials-tools-news" id="header-4">
+            Cloud</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(5)}" href="/database-sql-nosql-tutorials-tools-news" id="header-5">
+            Database</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(6)}" href="/devops-tutorials-tools-news" id="header-6">
+            DevOps</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(7)}" href="/enterprise-integration-training-tools-news" id="header-7">
+            Integration</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(8)}" href="/iot-developer-tutorials-tools-news-reviews" id="header-8">
+            IoT</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(1)}" href="/java-jdk-development-tutorials-tools-news" id="header-1">
+            Java</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(9)}" href="/mobile-app-developer-tutorials-tools-news" id="header-9">
+            Mobile</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(10)}" href="/apm-tools-performance-monitoring-optimization" id="header-10">
+            Performance</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(2001)}" href="/application-web-network-security" id="header-2001">
+            Security</a>
+        </li>
+        <li>
+            <a  ng-class="{'active-state': isActivePortal(11)}" href="/web-development-programming-tutorials-tools-news" id="header-11">
+            Web Dev</a>
+        </li>
+    </ul>
+</div>
+</div></div></div><div class="container-fluid body withSlider" th-element="body" th-element-groups="[]" ng-hide="$root.isHidden('body')" data-th-element-name="body"><div class="row mainContentRow" th-element="mainContentRow" th-element-groups="['body']" ng-hide="$root.isHidden('mainContentRow')" data-th-element-name="mainContentRow"><div class="col-md-12 announcementBar1 announcementBar oUhbYlrRaqMaoUhM" th-element="announcementBar1" th-element-groups="['body','mainContentRow']" ng-hide="$root.isHidden('announcementBar1')" data-th-element-name="announcementBar1" data-th-widget="announcementBar" data-widget-announcement-bar="" ng-controller="announcementBar1"><div ng-if="announcement && toShow" back-img hasImage="{{announcement.hasImage}}" img="{{announcement.img}}" imgBackup="{{announcement.img2}}" id="acontainer" class="ann-container" ng-cloak>
+    <div class="ann-body">{{announcement.body}}</div><a ng-if="announcement.link" class="ann-link" ng-click="track(announcement.id)" ng-ref="{{announcement.link}}">{{announcement.title}}<span class="icon-right-dir"></span></a>
+</div>
+</div><div class="col-md-12 articleContent5 articleContent oUhbblYOaqbcblYOaqbcC" th-element="articleContent5" th-element-groups="['body','mainContentRow']" ng-hide="$root.isHidden('articleContent5')" data-th-element-name="articleContent5" data-th-widget="article.content" data-widget-article-content="" header-change-trigger="" ng-controller="articleContent5">
+<script type="text/ng-template" id="like-article.html">
+        <div class="dz-like"
+             ng-class='{liked: status.liked}'
+             ng-click='like()'
+
+<a href="#">
+    <i ng-class="{'icon-thumbs-up-alt': status.liked, 'icon-thumbs-up liked': !status.liked}"></i>
+    <span>Like ({{ status.score }})</span>
+</a>
+</div>
+</script>
+
+<script type="text/ng-template" id="link-article-save.html">
+<div class="save "
+     ng-class="{'icon-star gold': status.saved, 'icon-star-empty': !status.saved}"
+     ng-click="save()"><span
+        class="action-label">
+    {{ status.saved ? 'Saved' : 'Save' }}</span></div>
+</script>
+
+<script type="text/ng-template" id="like-article.html">
+    <div class="dz-like" ng-class="{'icon-thumbs-up-alt liked': status.liked, 'icon-thumbs-up': !status.liked}" ng-click="like()"><span class="action-label"><span>Like</span><span ng-if="status.liked" class="d-letter">d</span></span>
+        <a href="#">
+            <span>({{ status.score }})</span>
+        </a>
+    </div>
+</script>
+
+<div class="articles-wrap" ng-if="articles[0].id == 1572311">
+
+    <div ng-if="ads.top.show() && articles[0].readyForAd"
+         class="ad-container">
+        <div dc-slot="ads.top.slot()" tags="ads.top.tags(articles[0])" size="ads.top.size()"></div>
+    </div>
+
+
+    <div>
+        <th-if-scroll relative-to="top" from="0" to="50" callback="activateT(articles[0])"></th-if-scroll>
+    </div>
+
+
+<div class="article-stream widget-top-border"
+     ng-class="{'widget-top-border': articles[0].published }"
+     itemscope
+     itemtype="https://schema.org/BlogPosting"
+     ng-if="articles[0].id == 1572311">
+    <div class="social-media-icons mobile-only" follow-dzone><div class="top-social">
+    <p>Let's be friends:</p>
+    <ul class="icons-only" ng-class="{open: isOpen}" click-outside="outside()">
+        <li class="rss-icon" id="rss-spotlight-1">
+            <a href="/pages/feeds"><i class="icon-rss-1"></i></a>
+        </li>
+        <li class="twitter-icon">
+            <a href="https://twitter.com/DZone" target="_blank"><i class="icon-twitter"></i></a>
+        </li>
+        <li class="facebook-icon">
+            <a href="https://www.facebook.com/DZone-259639764711" target="_blank"><i class="icon-facebook-1"></i></a>
+        </li>
+        <li class="google-icon">
+            <a href="https://plus.google.com/+dzone/posts" target="_blank"><i class="icon-gplus"></i></a>
+        </li>
+        <li class="linkedin-icon">
+            <a href="https://www.linkedin.com/company/dzone" target="_blank"><i class="icon-linkedin-1"></i></a>
+        </li>
+
+    </ul>
+</div>
+</div>
+    <div ng-if="!edition || (width > 1024 && edition)" class="content-right-images" header-affix-element="div.content">
+
+        <div class="article-adsponsor"
+             ng-if="(articles[0].partner && articles[0].showLogo) || articles[0].partner.isSponsoringArticle">
+                <div class="adsponsor">
+                    <a href="http://www.ca.com/us/default.aspx"
+                       >
+                        <img src="//dz2cdn3.dzone.com/storage/partner-logo/4924970-smconference-2016-sponsor-ca-technology-s.png"
+                             />
+                    </a>
+                </div>
+        </div>
+
+        <div class="sidebar-ad" ng-if="articles[0].readyForAd" dc-slot="ads.sb1.slot(articles[0], 0)"
+             tags="ads.sb1.tags(articles[0], 0)" size="ads.sb1.size(articles[0], 0)"></div>
+
+        <div ng-if="articles[0].readyForAd && 0 > 1 && !articles[0].partner.isSponsoringArticle"
+             dc-slot="ads.sb2.slot(articles[0], 0)"
+             tags="ads.sb2.tags(articles[0], 0)" size="ads.sb2.size(articles[0], 0)"></div>
+
+    </div>
+
+    <article>
+        <div itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+            <div itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                <meta itemprop="url"
+                      content="https://dzone.com/themes/dz20/images/logo.png">
+            </div>
+            <meta itemprop="name"
+                  content="DZone">
+        </div>
+        <div class="content" ng-class="{'content-full': (width <= 1024 && edition)}"
+             >
+            <meta itemprop="datePublished"
+                  content="2017-06-10T16:01:27Z"/>
+            <meta itemprop="author"
+                  content="Gabriele Tomassetti"/>
+            <meta itemprop="dateModified"
+                  content="2017-06-11T05:56:40Z"/>
+            <meta itemprop="mainEntityOfPage"
+                  content="https://dzone.com/articles/the-best-programming-languages-for-each-situation-1"/>
+                <div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                    <meta itemprop="image" 
+                          content="//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg"
+/>
+                    <meta itemprop="url" 
+                          content="//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg"
+>
+                    <meta itemprop="width" content="370">
+                    <meta itemprop="height" content="230">
+                </div>
+
+            <div class="header">
+                <div class="header-title">
+                    <div class="title" ng-if="articles[0].rawType != 'guide'">
+                        <h1 class="article-title" itemprop="headline">
+                            The Best Programming Languages for Each Situation, Part 1
+                        </h1>
+                    </div>
+
+                    <div class="guide-title" ng-if="articles[0].rawType == 'guide'" ng-cloak>
+                        <div class="guide-intro">
+                            DZone's Guide to
+                        </div>
+                        <h1 class="article-title" itemprop="headline">
+                            The Best Programming Languages for Each Situation, Part 1
+                        </h1>
+                    </div>
+
+                    <div class="subhead">
+                        <h3>We introduce the topic of picking the best programming language for you by looking at how Twitter and Facebook went about the process, and what questions to ask yourself.</h3>
+                    </div>
+
+                    <div class="publish-meta" ng-if="articles[0].rawType != 'guide' && articles[0].rawType != 'whitepaper'">
+
+
+<div class="article-author-meta" >
+    <a href="/users/2910331/gabrieletomassetti.html">
+         <img src="https://dz2cdn4.dzone.com/thumbnail?fid=7280747&w=80" 
+                                                                                               class="avatar"
+                                                                                               width="40"/>
+    </a> by
+
+    <div class="author-info">
+                        <span class="author-name">
+                            <a th-popup="users.profile.mini"
+                               popup-data="{user: 2910331}"
+                               href="/users/2910331/gabrieletomassetti.html">
+                                Gabriele Tomassetti</a>
+                        </span>
+
+    </div>
+        <div  class="mvb-award">
+            <i class="icon-mvb-1"></i>
+        </div>
+        <div  class="mvb-partner">
+
+        </div>
+        <div class="zone-leader">
+
+        </div>
+
+     &middot;
+</div>
+                        <span class="author-date">Jun. 10, 17</span>
+                        &middot;
+                            <a href="/agile-methodology-training-tools-news"
+                                id="portal-name"><span
+                                    class="portal-name">Agile
+                                Zone</span></a>
+                    </div>
+
+                    <div class="publish-meta" ng-if="articles[0].rawType == 'whitepaper'" ng-cloak>
+                        Free Resource
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="author-n-useraction">
+                <div class="like action">
+                    <dz-like template="like-article.html" node="articles[0]">        <div class="dz-like"
+             
+
+<a href="#">
+    <i ng-class="{'icon-thumbs-up-alt': status.liked, 'icon-thumbs-up liked': !status.liked}"></i>
+    <span>Like (12)</span>
+</a>
+</div>
+
+                    </dz-like>
+                </div>
+
+                <div class="comment action">
+                    <p ng-show="!articles[0].isLocked" slider-toggle="commentsSlider" slider-data="{parent: articles[0]}"
+                       activate-with-url-params="{showComments: articles[0].id}">
+                        <span><i class="icon-comment" tooltip-html-unsafe="{{ commentTooltip(articles[0]) }}"></span></i>
+                        Comment (<span class="comment-after number-of-comments"
+                                       ng-bind="articles[0].nComments">1</span>)
+                    </p>
+                    <p ng-show="articles[0].isLocked">
+                <span ng-cloak><i class="icon-icon-comment comment-disabled"
+                                  tooltip-html-unsafe="Comments have been disabled for this article"></i></span>
+                    </p>
+                </div>
+
+                <div class="save action">
+                    <dz-save template="link-article-save.html" node="articles[0]"
+                             class="save"><div class="save icon-star-empty"
+     ><span
+        class="action-label">Save</span></div>
+
+                    </dz-save>
+            </div>
+
+            <div class="tweet action"><a ng-href="#"
+                                         ng-click='shareTwitter($event, articles[0].header.title, articles[0].url)'
+                                         class="title" target="_blank"><span><i class="icon-twitter"></i></span>
+                <span class="action-label">Tweet</span></a>
+            </div>
+
+            <div class="pull-right">
+                    <div class="article-views action" ng-cloak><i class="icon-eye"></i> {{ articles[0].views | formatCount}}
+
+                        <span class="action-label">Views</span>
+                    </div>
+
+                    <div class="user-n-admin-action action" ng-if="canEdit(articles[0]) || canDelete(articles[0])">
+                        <div class="mod-tools" dropdown is-open="dropdown.open" ng-cloak>
+                            <span dropdown-toggle>
+                                <i class="icon-cog"></i>
+                            </span>
+                            <ul class="dropdown-menu">
+                                <li><a ng-if="canEdit(articles[0])"
+                                       ng-href="/content/{{ articles[0].id }}/edit.html">Edit</a>
+                                </li>
+                                <li><a href="#" ng-if="canDelete(articles[0])" ng-click="delete(articles[0])">Delete</a>
+                                </li>
+                                <li><a href="#" ng-if="perms.canPublish"
+                                       ng-click="toggleComments(articles[0])">{{ articles[0].isLocked
+                                    ? 'Enable' : 'Disable' }} comments</a></li>
+                                <li><a href="#" ng-if="perms.canPublish && !articles[0].isLocked"
+                                       ng-click="toggleLimitComments(articles[0])">
+                                    {{ articles[0].isLimited ? 'Remove comment limits' : 'Enable moderated comments' }}
+                                </a></li>
+
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+            <div class="article-bumper article-bumper-top"
+                 ng-if="articles[0].rawType == 'article' && articles[0].showLogo && articles[0].partner.top.text | partnerBumperLinks:articles[0].partner.top.id"
+                 ng-bind-html="articles[0].partner.top.text | partnerBumperLinks:articles[0].partner.top.id">
+                <p><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" rel="nofollow" target="_blank">See how three solutions work together</a> to help your teams have the tools they need to <a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150123399;dc_trk_aid=321096583;dc_trk_cid=81552442;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" rel="nofollow" target="_blank">deliver quality software quickly</a>. Brought to you in partnership with <a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" rel="nofollow" target="_blank">CA Technologies</a>.&nbsp;</p>
+            </div>
+
+            <div ng-if="!edition || (articles[0].rawType != 'refcard' && articles[0].rawType != 'guide')">
+                <div class="content-html" dz-code-container
+                    
+                    itemprop="articleBody">
+                    <p pid="2">There is a question that many people take as a sign that the questioner does not understand the subject at all. Some people even find it enraging. The question is usually in the form of, <em>What is the best X?</em> What is the best car? What is the best programming language? But at the same time, it is a question that we ask ourselves every time we start a project or we pick a car.</p> 
+<p pid="3">The difference, of course, is that we ask this question in our specific context. We want to know the best programming language for us, for the situation we are in.</p> 
+<p pid="4">We obviously cannot know your situation, but with this article, we hope to provide useful information to whoever is thinking about entering a new field or just wants to know the current state of the field.</p> 
+<h2>Changing the Programming Language Has Costs</h2> 
+<p pid="14">If you have a large codebase, you probably do not really choose a language for a new project. You just use the one you have used so far. The main factor is the cost of adding a new language. Hiring new developers, changing your infrastructure, learning the best practices, is simply too much for many companies.</p> 
+<p pid="15">Another problem is that while it is reasonably possible to learn a new language in a month or two, it takes much longer to become proficient in that language. So both developers and their employers prefer to take advantage of the knowledge they already have.</p> 
+<p pid="16">In such cases, the answer to the best programming language question usually becomes what you are already using, which is a boring answer. Although this does not necessarily mean that is the wrong answer.</p> 
+<h2>When to Change Programming Language</h2> 
+<p pid="17"><img alt="Fail Whale of Twitter" class="fr-fin fr-dib" src="https://i0.wp.com/tomassetti.me/wp-content/uploads/2017/06/fail_whale.jpg?resize=600%2C418&amp;ssl=1" srcset="https://i0.wp.com/tomassetti.me/wp-content/uploads/2017/06/fail_whale.jpg?w=600&amp;ssl=1 600w, &amp;lt;a href=" />No language is perfect, in fact, there seem to be new problems with Scala, <a href="https://en.wikipedia.org/wiki/Scala_(programming_language)#Criticism" target="_blank" rel="nofollow">such as the learning curve</a>. But it is fair to say that, in some situations, it is not true that all languages are equal. Which is a common refrain.</p> 
+<blockquote> 
+ <p>When you have significant and peculiar needs, some languages are really better than others.</p> 
+</blockquote> 
+<h2>A Huge Amount of Money Can Change the Language Itself</h2> 
+<p pid="22"><img alt="HHVM reduced the median page save time by half on Wikipedia" class="fr-fin fr-dib" src="https://i1.wp.com/tomassetti.me/wp-content/uploads/2017/06/10333100_342177062633041_810356125_n.png?resize=650%2C491&amp;ssl=1" srcset="https://i1.wp.com/tomassetti.me/wp-content/uploads/2017/06/10333100_342177062633041_810356125_n.png?w=650&amp;ssl=1 650w, &amp;lt;a href=" target="_blank" />HipHop for PHP, a PHP-to-C++ transpiler, and then the more famous <a href="https://en.wikipedia.org/wiki/HHVM" target="_blank" rel="nofollow">HHVM</a>, a virtual machine for PHP and Hack. In fact, they also invented a dialect of PHP called Hack.</p> 
+<p pid="27">They could keep PHP because its performance was not so bad, nor did they required it to be that much better. Twitter simply could not work with Ruby, while Facebook could work with PHP - it just simply cost a little more.</p> 
+<h2>A Few Criteria for Choosing a Language</h2> 
+<p pid="28">While we all agree that there is not a best programming language in absolute terms, we think that there are <em>preferable programming languages for specific tasks</em>. We think that it is possible to set some reasonable criteria to guide professional developers and businesses alike. These criteria can help you choose the best programming language for your situation.</p> 
+<h3>Good Enough Technical Qualities</h3> 
+<p pid="29">Aside from the obvious performance requirements, the language must have good technical qualities for your needs. For instance, if your software is heavily concurrent you need a language that has first-rate support for that.</p> 
+<p pid="30">Another problem that Twitter had was that the LAMP model of Ruby deployment did not support encapsulation well. So it was difficult to build a separate and independent storage or search service. This was not a case of <em>Ruby is bad</em>, but more <em>Ruby is designed for something else</em>. Remember that technical qualities do not just mean the things you can measure and see, like performance or the syntax. It also means how the language works behind the scenes.</p> 
+<p pid="31">So you do need to choose a language that fits well your use case, a language that checks all the boxes. Although you do not necessarily need to pick the one that best fits your use case. That is because it is not always possible to rank different needs or, even if it were, you might not know which one matters the most to you.</p> 
+<p pid="32">For example, imagine that you can determine that language X would be better if you have 5 million users or more, while language Y would make it easier and cheaper to reach 5 million users. How can you know if you will ever reach 5 million users? Maybe language X would be too costly to use at the start and so your company will fail before reaching that many users.</p> 
+<p pid="33">Consider technical requirements as a filter, your language must pass them, but it does not need to be the best possible language for that.</p> 
+<h3>Popularity</h3> 
+<p pid="34">The language you choose should be popular enough. This can help you save money and time, especially because of open source development. For instance, if your company uses PHP, now you can take advantage of the hard work of Facebook developers. You can use HHVM to improve the performance of your software. It can also make it more probable to find good, ready-to-use libraries to speed up your development.</p> 
+<p pid="35">There are several ways to <a href="https://en.wikipedia.org/wiki/Measuring_programming_language_popularity" target="_blank" rel="nofollow">measure the popularity of a programming language</a>:</p> 
+<ul> 
+ <li>The number of jobs available that require knowledge of that language.</li> 
+ <li>The number of search engine searches for that language.</li> 
+ <li>The number of GitHub projects that use that language.</li> 
+</ul> 
+<p pid="36">All of them are useful, none of them are perfect. For instance, there are many JavaScript projects on GitHub that are composed of one file and are currently inactive. That is simply because the language and the tools encourage you to create very small libraries. How can you understand the popularity of a language called Go (there is also another one called Go!) looking at search engine results?</p> 
+<h3>Community Fit</h3> 
+<p pid="37">The language must also be popular in the community you belong to. A good community fit has many advantages: developers think the way you want them to think and they also usually have non-programming skills or knowledge that you need. Which means that you have to spend less time in training them and you are less at risk of hiring the wrong developer.</p> 
+<p pid="38">PHP has improved a lot in the technical department, but it is still chosen by people that want programming to be easy. Which means that there are many not-that-good PHP programmers and it might be hard to find the good ones. Even worse, you may not find out if they are good until you have them work on your project and you see the results.</p> 
+<p pid="39">On the other hand, maybe not all people that work professionally with C and C++ have a computer science degree, but they all probably think like the people that do have one. I say this because if you do not think, plan, and write C/C++ code in the proper way, your code will make you suffer for your mistakes soon enough.</p> 
+<p pid="40">Also, some languages are typically embraced by certain communities, so there are more libraries to cover that area. Think about the number of libraries that are being developed to analyze data in Python. This is a consequence of the fact that many data scientists have embraced Python. You can benefit from this by adopting Python if you need to develop applications in that area.</p> 
+<p pid="41">Tune in next time for Part 2 where we discuss the best programming languages for specific contexts, such as game dev, academia, and building systems. </p>
+                </div>
+            </div>
+
+            <div ng-if="(articles[0].rawType == 'refcard' || articles[0].rawType == 'guide') && edition" ng-cloak>
+                <div class="content-html" dz-code-container
+                    itemprop="{{ article.bodyProp }}" ng-cloak>
+                    <a ng-href="{{articles[0].pdf}}">
+                        <img class="pub-image" dz-image-fid-width="740" dz-image-fid="{{ articles[0].articleImage }}" width="420">
+                    </a>
+                    <div class="pub-content content-html" ng-bind-html="article.shortDesc"></div>
+                </div>
+            </div>
+
+
+            <div class="article-bumper article-bumper-bottom"
+                 ng-if="articles[0].showLogo && articles[0].rawType == 'article' && articles[0].partner.bottom.text | partnerBumperLinks:articles[0].partner.bottom.id"
+                 ng-bind-html="articles[0].partner.bottom.text | partnerBumperLinks:articles[0].partner.bottom.id">
+                <p>Discover how TDM Is Essential To <a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" target="_blank" rel="nofollow">Achieving Quality At Speed For Agile, DevOps, And Continuous Delivery</a>. Brought to you in partnership with <a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" target="_blank" rel="nofollow">CA Technologies</a>.&nbsp;</p>
+            </div>
+
+            <div class="article-bumper article-bumper-bottom" ng-if="articles[0].rawType != 'article'" ng-cloak></div>
+
+                    <div ng-if="!edition" class="related">
+                        <h3>Like This Article? Read More From DZone</h3>
+                        <div class="row">
+                            <div class="relateddiv col-xs-6 col-md-6">
+                                <a href="/articles/4-reasons-why-you-should-not-bother-too-much-about?fromrel=true">
+                                    <img class="relatedimg col-xs-3 col-md-3" src="https://dz2cdn3.dzone.com/thumbnail?fid=6082158&w=120" width="60"></a>
+                                <a href="/articles/4-reasons-why-you-should-not-bother-too-much-about?fromrel=true" class="col-xs-9 col-md-9">4 Reasons Why You Should Not Bother Too Much About Which Programming Language to Choose</a>
+                            </div>
+
+                            <div class="relateddiv col-xs-6 col-md-6">
+                                <a href="/articles/programming-by-search-copy-and-paste-leads-to-epic?fromrel=true">
+                                    <img class="relatedimg col-xs-3 col-md-3" src="https://dz2cdn3.dzone.com/thumbnail?fid=7007070&w=120" width="60"></a>
+                                <a href="/articles/programming-by-search-copy-and-paste-leads-to-epic?fromrel=true" class="col-xs-9 col-md-9">
+                                Programming by Search, Copy, and Paste Leads to Epic Fail</a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="relateddiv col-xs-6 col-md-6">
+                                <a href="/articles/stack-overflows-annual-developer-survey?fromrel=true">
+                                    <img class="relatedimg col-xs-3 col-md-3" src="https://dz2cdn4.dzone.com/thumbnail?fid=4990823&w=120"></a>
+                                <a href="/articles/stack-overflows-annual-developer-survey?fromrel=true" class="col-xs-9 col-md-9">Stack Overflow's Annual Developer Survey</a>
+                            </div>
+
+                            <div class="relateddiv col-xs-6 col-md-6">
+                                <a href="/refcardz/binary-repository-management?fromrel=true">
+                                    <img class="relatedimg col-xs-3 col-md-3" src="https://dz2cdn2.dzone.com/thumbnail?fid=4902349&w=120" width="60"></a>
+                                <a href="/refcardz/binary-repository-management?fromrel=true" class="col-xs-9 col-md-9">
+                                    <p class="relatedres">Free DZone Refcard</p>
+                                Using Repository Managers</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+            <div class="assetdiv" ng-if="articles[0].rawType != 'article' && articles[0].pdf">
+                    <a class="btn-asset" ng-href="{{articles[0].pdf}}" target="_blank">DOWNLOAD</a>
+            </div>
+
+
+            <div class="article-topics">
+                <div class="topic-label">Topics:</div>
+                <div class="topics">
+                        <span class="topics-tag">agile
+                            ,</span><span class="topics-tag">programming languages
+                            ,</span><span class="topics-tag">development process</span>
+                </div>
+            </div>
+
+            <div class="author-n-useraction">
+                <div class="like action">
+                    <dz-like template="like-article.html" node="articles[0]">        <div class="dz-like"
+             
+
+<a href="#">
+    <i ng-class="{'icon-thumbs-up-alt': status.liked, 'icon-thumbs-up liked': !status.liked}"></i>
+    <span>Like (12)</span>
+</a>
+</div>
+
+                    </dz-like>
+                </div>
+
+                <div class="comment action">
+                    <p ng-show="!articles[0].isLocked" slider-toggle="commentsSlider" slider-data="{parent: articles[0]}"
+                       activate-with-url-params="{showComments: articles[0].id}">
+                        <span><i class="icon-comment" tooltip-html-unsafe="{{ commentTooltip(articles[0]) }}"></span></i>
+                        Comment (<span class="comment-after number-of-comments"
+                                       ng-bind="articles[0].nComments">1</span>)
+                    </p>
+                    <p ng-show="articles[0].isLocked">
+            <span ng-cloak><i class="icon-icon-comment comment-disabled"
+                              tooltip-html-unsafe="Comments have been disabled for this article"></i></span>
+                    </p>
+                </div>
+
+                <div class="save action">
+                    <dz-save template="link-article-save.html" node="articles[0]"
+                             class="save"><div class="save icon-star-empty"
+     ><span
+        class="action-label">Save</span></div>
+
+                    </dz-save>
+            </div>
+
+            <div class="tweet action"><a ng-href="#"
+                                         ng-click='shareTwitter($event, articles[0].header.title, articles[0].url)'
+                                         class="title" target="_blank"><span><i class="icon-twitter"></i></span>
+                <span class="action-label">Tweet</span></a>
+            </div>
+
+            <div class="pull-right">
+                    <div class="article-views action" ng-cloak><i class="icon-eye"></i> {{ articles[0].views | formatCount}}
+
+                        <span
+                                class="action-label">Views</span></div>
+
+                    <div class="user-n-admin-action action" ng-if="!edition && (canEdit(articles[0]) || canDelete(articles[0]))">
+                        <div class="mod-tools" dropdown is-open="dropdown.open" ng-cloak>
+                            <span dropdown-toggle>
+                                <i class="icon-cog"></i>
+                            </span>
+                            <ul class="dropdown-menu">
+                                <li><a ng-if="canEdit(articles[0])"
+                                       ng-href="/content/{{ articles[0].id }}/edit.html">Edit</a></li>
+                                <li><a href="#" ng-if="canDelete(articles[0])" ng-click="delete(articles[0])">Delete</a>
+                                </li>
+                                <li><a href="#" ng-if="perms.canPublish"
+                                       ng-click="toggleComments(articles[0])">{{ articles[0].isLocked
+                                    ? 'Enable' : 'Disable' }} comments</a></li>
+                                <li><a href="#" ng-if="perms.canPublish && !articles[0].isLocked"
+                                       ng-click="toggleLimitComments(articles[0])">
+                                    {{ articles[0].isLimited ? 'Remove comment limits' : 'Enable moderated comments'
+                                    }}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+        </div>
+                <div class="attribution">
+                    <p >Published at DZone with permission
+                        of 
+                        Gabriele Tomassetti<span
+                                ng-if="articles[0].authors[0].isMVB">, DZone MVB</span>. <span ng-if="articles[0].source"><a
+                            href="https://tomassetti.me/best-programming-languages/?1"
+                             target="_blank">See the original article here.<i
+                                class="icon-link-ext-alt"></i></a></span></p>
+                    <p>Opinions expressed by DZone contributors are their own.</p>
+                </div>
+            <email-subscriptions-subscribe-injection></email-subscriptions-subscribe-injection>
+    </article>
+
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <th-if-scroll relative-to="bottom" from="-20" to="0" callback="activateB(articles[0])"></th-if-scroll>
+    </div>
+</div>
+
+
+<div class="layout-card widget-top-border partner-resources-block">
+
+    <div class="main-container">
+        <div class="row">
+            <div class="featured-header">
+                <h2>Agile<span> Partner Resources</span></h2>
+            </div>
+        </div>
+        <div class="row column">
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="https://www.scrum.org/About/All-Articles/articleType/ArticleView/articleId/1019/An-Introduction-to-the-Nexus-Framework?utm_source=DZone&utm_medium=Article&utm_campaign=Intro2Nexus" ng-click="$root.linkGo($event, '/sponsor/go?l=1358657&i=150023')"
+                                                  target="_blank">How the Nexus Framework Helps to Overcome Agile and Scrum Scaling Challenges</a></div>
+                            <div class="sponsor-name">Scrum.org</div>
+                        </div>
+                        <div class="icon"><a href="https://www.scrum.org/About/All-Articles/articleType/ArticleView/articleId/1019/An-Introduction-to-the-Nexus-Framework?utm_source=DZone&utm_medium=Article&utm_campaign=Intro2Nexus"><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129905;dc_trk_aid=321096265;dc_trk_cid=81550759;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" ng-click="$root.linkGo($event, '/sponsor/go?l=1510872&i=204122')"
+                                                  target="_blank">7 use cases for meeting your test data needs. Get eBook &gt;</a></div>
+                            <div class="sponsor-name">CA Technologies</div>
+                        </div>
+                        <div class="icon"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129905;dc_trk_aid=321096265;dc_trk_cid=81550759;dc_lat=;dc_rdid=;tag_for_child_directed_treatment="><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="http://pages.aspeinc.com/who-is-doing-devops.html?utm_source=dzone&utm_medium=partner_resource&utm_content=who-is-doing-devops" ng-click="$root.linkGo($event, '/sponsor/go?l=1615855&i=232221')"
+                                                  target="_blank">Who Is Doing DevOps?</a></div>
+                            <div class="sponsor-name">Techtown Training</div>
+                        </div>
+                        <div class="icon"><a href="http://pages.aspeinc.com/who-is-doing-devops.html?utm_source=dzone&utm_medium=partner_resource&utm_content=who-is-doing-devops"><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150412858;dc_trk_aid=321096266;dc_trk_cid=81552441;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" ng-click="$root.linkGo($event, '/sponsor/go?l=1510871&i=204121')"
+                                                  target="_blank">Agile Test Data Management: The New Must Have. Get Report&gt;</a></div>
+                            <div class="sponsor-name">CA Technologies</div>
+                        </div>
+                        <div class="icon"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150412858;dc_trk_aid=321096266;dc_trk_cid=81552441;dc_lat=;dc_rdid=;tag_for_child_directed_treatment="><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="http://pages.aspeinc.com/SAFe-vs-DevOps/?utm_source=dzone&utm_medium=partner_resource&utm_content=safe-vs-devops&utm_campaign=free_resource_landingpages" ng-click="$root.linkGo($event, '/sponsor/go?l=1505695&i=203121')"
+                                                  target="_blank">SAFe vs DevOps eBook</a></div>
+                            <div class="sponsor-name">Techtown Training</div>
+                        </div>
+                        <div class="icon"><a href="http://pages.aspeinc.com/SAFe-vs-DevOps/?utm_source=dzone&utm_medium=partner_resource&utm_content=safe-vs-devops&utm_campaign=free_resource_landingpages"><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129908;dc_trk_aid=321097139;dc_trk_cid=81552439;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" ng-click="$root.linkGo($event, '/sponsor/go?l=1510873&i=204123')"
+                                                  target="_blank">Five keys to higher-quality application delivery. Get eBook &gt;</a></div>
+                            <div class="sponsor-name">CA Technologies</div>
+                        </div>
+                        <div class="icon"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129908;dc_trk_aid=321097139;dc_trk_cid=81552439;dc_lat=;dc_rdid=;tag_for_child_directed_treatment="><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+                <div class="s-asset asset-title">
+                    <div class="margin-rule">
+                        <div class="title-content">
+                            <div class="title"><a href="https://www.scrum.org/resources/convergence-scrum-and-devops?utm_source=dzone&utm_medium=devops" ng-click="$root.linkGo($event, '/sponsor/go?l=1845258&i=259321')"
+                                                  target="_blank">The Convergence of Scrum and DevOps</a></div>
+                            <div class="sponsor-name">Scrum.org</div>
+                        </div>
+                        <div class="icon"><a href="https://www.scrum.org/resources/convergence-scrum-and-devops?utm_source=dzone&utm_medium=devops"><i
+                                class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="layout-card widget-top-border mobile-partner-resources-block">
+
+    <div class="main-container">
+        <div class="row">
+            <div class="featured-header">
+                <h2>Agile<span> Partner Resources</span></h2>
+            </div>
+        </div>
+        <div class="row column">
+                    <div class="s-asset asset-title">
+                        <div class="margin-rule">
+                            <div class="title-content">
+                                <div class="title"><a href="https://www.scrum.org/About/All-Articles/articleType/ArticleView/articleId/1019/An-Introduction-to-the-Nexus-Framework?utm_source=DZone&utm_medium=Article&utm_campaign=Intro2Nexus" ng-click="$root.linkGo($event, '/sponsor/go?l=1358657&i=150023')"
+                                                      target="_blank">How the Nexus Framework Helps to Overcome Agile and Scrum Scaling Challenges</a></div>
+                                <div class="sponsor-name">Scrum.org</div>
+                            </div>
+                            <div class="icon"><a href="https://www.scrum.org/About/All-Articles/articleType/ArticleView/articleId/1019/An-Introduction-to-the-Nexus-Framework?utm_source=DZone&utm_medium=Article&utm_campaign=Intro2Nexus"><i
+                                    class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                        </div>
+                    </div>
+                    <div class="s-asset asset-title">
+                        <div class="margin-rule">
+                            <div class="title-content">
+                                <div class="title"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129905;dc_trk_aid=321096265;dc_trk_cid=81550759;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" ng-click="$root.linkGo($event, '/sponsor/go?l=1510872&i=204122')"
+                                                      target="_blank">7 use cases for meeting your test data needs. Get eBook &gt;</a></div>
+                                <div class="sponsor-name">CA Technologies</div>
+                            </div>
+                            <div class="icon"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150129905;dc_trk_aid=321096265;dc_trk_cid=81550759;dc_lat=;dc_rdid=;tag_for_child_directed_treatment="><i
+                                    class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                        </div>
+                    </div>
+                    <div class="s-asset asset-title">
+                        <div class="margin-rule">
+                            <div class="title-content">
+                                <div class="title"><a href="http://pages.aspeinc.com/who-is-doing-devops.html?utm_source=dzone&utm_medium=partner_resource&utm_content=who-is-doing-devops" ng-click="$root.linkGo($event, '/sponsor/go?l=1615855&i=232221')"
+                                                      target="_blank">Who Is Doing DevOps?</a></div>
+                                <div class="sponsor-name">Techtown Training</div>
+                            </div>
+                            <div class="icon"><a href="http://pages.aspeinc.com/who-is-doing-devops.html?utm_source=dzone&utm_medium=partner_resource&utm_content=who-is-doing-devops"><i
+                                    class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                        </div>
+                    </div>
+                    <div class="s-asset asset-title">
+                        <div class="margin-rule">
+                            <div class="title-content">
+                                <div class="title"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150412858;dc_trk_aid=321096266;dc_trk_cid=81552441;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=" ng-click="$root.linkGo($event, '/sponsor/go?l=1510871&i=204121')"
+                                                      target="_blank">Agile Test Data Management: The New Must Have. Get Report&gt;</a></div>
+                                <div class="sponsor-name">CA Technologies</div>
+                            </div>
+                            <div class="icon"><a href="https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150412858;dc_trk_aid=321096266;dc_trk_cid=81552441;dc_lat=;dc_rdid=;tag_for_child_directed_treatment="><i
+                                    class="icon-icon-comment ext icon-link-ext-alt"></i></a></div>
+                        </div>
+                    </div>
+        </div>
+    </div>
+
+</div>
+
+    <div class="ad-silver row" ng-if="articles[1] && !articles[1].partner.isSponsoringArticle && width >= 768">
+    </div>
+
+    <div class="ad-gold row" ng-if="articles[1] && !articles[1].partner.isSponsoringArticle && width < 768">
+        <div class="col-md-12">
+            <div ng-if="ads.gold1.show()" dc-slot="ads.gold1.slot()" tags="ads.gold1.tags(articles[0])"
+                 class="leaderboard-ad" size="ads.gold1.size()"></div>
+        </div>
+    </div>
+
+
+</div>
+<div class="articles-wrap" ng-repeat="article in articles" ng-if="$index > 0 || article.id != 1572311" ng-include="'/static/article/article.html'"></div>
+
+<div style="clear: both;"></div>
+<th-if-scroll ng-if="!isPreview" relative-to="bottom" from="-50" to="50" callback="loadMore()"></th-if-scroll>
+</div></div></div><div class="container-fluid footerOuter" th-element="footerOuter" th-element-groups="[]" ng-hide="$root.isHidden('footerOuter')" data-th-element-name="footerOuter"><div class="row row2" th-element="row2" th-element-groups="['footerOuter']" ng-hide="$root.isHidden('row2')" data-th-element-name="row2"><div class="col-md-12 container3" th-element="container3" th-element-groups="['footerOuter','row2']" ng-hide="$root.isHidden('container3')" data-th-element-name="container3"><div class="container container3" th-element="container3" th-element-groups="['footerOuter','row2','container3']" ng-hide="$root.isHidden('container3')" data-th-element-name="container3"><div class="row footer" th-element="footer" th-element-groups="['footerOuter','row2','container3','container3']" ng-hide="$root.isHidden('footer')" data-th-element-name="footer"></div></div></div></div></div><div class=" sidebar sidebarTapBar oUhbkSMadabbWQbVkcC oUhbkSMadabfWVcC" th-element="sidebar" th-element-groups="[]" ng-hide="$root.isHidden('sidebar')" data-th-element-name="sidebar" data-th-widget="sidebar.tapBar" data-widget-sidebar-tap-bar="" ng-controller="sidebar"><div class="content" ng-if="!$root.botInfo.isRenderBot" sidebar-list>
+<div class=" sidebar.content" th-element="sidebar.content" th-element-groups="['sidebar']" ng-hide="$root.isHidden('sidebar.content')" data-th-element-name="sidebar.content"><div class="col-md-12 sidebarContentList8 sidebarContentList oUhbkSMaaqbcdvVkcC" th-element="sidebarContentList8" th-element-groups="['sidebar','sidebar.content']" ng-hide="$root.isHidden('sidebarContentList8')" data-th-element-name="sidebarContentList8" data-th-widget="sidebar.content.list" data-widget-sidebar-content-list="" ng-controller="sidebarContentList8"><ul class="nodes-list" dnd-list="display">
+
+    <div class="header" ng-if="edition">
+        <h3><strong>{{ editionName }}</strong></h3>
+            </div>
+
+
+    <li ng-repeat="node in display" id="{{::node.id}}-{{edition}}-{{$index}}" class="list-entry" ng-class="{active: isActive(node)}" sidebar-item="node"
+        >
+            <div ng-if="node.type != 'article' && node.type != 'ad'" class="resource {{ node.type }}">
+                <div class="sidebar-content">{{ node.blurb }}</div>
+            </div>
+        <div class="sidebar-content ">
+            <a ng-class="{badge1: edition}" data-badge="{{$index + 1}}" ng-if="node.type != 'ad'" ng-href="{{ ::node.url }}" ng-click="tap()" sidebar-click="node">
+                <div class="sidebar-node-image" ng-if="edition"><img class="imageList" dz-image-fid-width="80" dz-image-fid="{{ ::node.imageUrl }}"></div>
+                <div ng-class="{'sidebar-node-title' : edition}">
+                    <div ng-if="node.type == 'whitepaper' || node.type == 'refcard' || node.type == 'guide'" class="sidebar-resource">Free&nbsp;{{node.type}}</div>
+                    <p>{{ ::node.title }}</p>
+                </div>
+            </a>
+        </div>
+    </li>
+    <th-if-scroll relative-to="bottom" from="-100" to="50" callback="loadMore()"></th-if-scroll>
+    <th-loader flag="loading()" />
+</ul>
+</div></div></div>
+<span class="tap" ng-class="{tapEdition: edition}" ng-click="tap()" ng-if="!$root.botInfo.isRenderBot">
+    <i class="icon-angle-double-left left"></i>
+    <i class="icon-angle-double-right right"></i>
+</span>
+</div><div class=" componentsSlider6 componentsSlider oUhballbvbdSaoUhM" th-element="componentsSlider6" th-element-groups="[]" ng-hide="$root.isHidden('componentsSlider6')" data-th-element-name="componentsSlider6" data-th-widget="components.slider" data-widget-components-slider="" ng-controller="componentsSlider6"><!--<i class="icon-cancel" ng-click="close()"></i>-->
+
+<div class="background" ng-class="{open: _sliderOpen}" ng-if="_ready" ng-click="close()">
+</div>
+
+<div class="slider-outer-wrapper" ng-class="{open: _sliderOpen}">
+    
+    <div class="row slider-inner-wrapper" ng-if="_ready">
+<div class=" componentsSlider6.widgets" th-element="componentsSlider6.widgets" th-element-groups="['componentsSlider6']" ng-hide="$root.isHidden('componentsSlider6.widgets')" data-th-element-name="componentsSlider6.widgets"><div class="col-md-12 contentCommentsSlider7 contentCommentsSlider oUhbaqbcaibvnWffWVcC" th-element="contentCommentsSlider7" th-element-groups="['componentsSlider6','componentsSlider6.widgets']" ng-hide="$root.isHidden('contentCommentsSlider7')" data-th-element-name="contentCommentsSlider7" data-th-widget="content.commentsSlider" data-widget-content-comments-slider="" ng-controller="contentCommentsSlider7"><script type="text/ng-template" id="link-article-save.html">
+    <div ng-class="{'icon-star gold': status.saved, 'icon-star-empty': !status.saved}" ng-click="save()" class="save"><span class="save-title">Save</span><span ng-if="status.saved" class="d-letter">d</span></div>
+</script>
+
+
+<div class="comment-slider-content">
+
+    <div class="node-info">
+        <div class="comment-title">
+            <h1 class="parent-title">{{ parent.title || parent.header.title}}</h1>
+            <!--<a ng-if="parent.title" ng-href="{{ parent.linkSource }}">-->
+            <!--<i class="icon-link-2" tooltip-html-unsafe="Permalink"></i>-->
+            <!--</a>  -->
+            <h3 ng-if="parent.tldr"  class="tldr">{{ parent.tldr }}</h3>
+            <h3 ng-if="parent.title" class="link-description" >{{ parent.linkDescription }}</h3>
+            <a ng-if="parent.title" ng-href="{{parent.url}}" class="link-source">{{ parent.urlSource.name }}</a>
+        </div>
+    </div>
+    <div class="author-n-article-info">
+        <div class="author-avatar">
+            <a ng-href="{{ parent.authors[0].url || parent.authorUrl }}">
+                <img dz-image-fid-width="80" dz-image-fid="{{ parent.authors[0].avatar || parent.authorAvatar }}" class="avatar" width="40" />
+            </a>
+        </div>
+        <div class="author-name">
+            by <a th-popup="users.profile.mini" popup-data="{user: parent.authors[0].id || parent.authorId }" ng-href="{{ parent.authors[0].url || parent.authorUrl }}">{{ parent.authors[0].realName || parent.author}}
+
+            <div ng-if="parent.authors[0].isMVB || parent.isMVB" class="mbv-award">
+                <i class="icon-mvb-1"></i>
+            </div></a>
+
+            <div ng-if="parent.authors[0].isMVB || parent.isMVB" class="mvb-partner">
+                <user-is-partner user="parent.authors[0].id" ng-if="canDelete(parent)"></user-is-partner>
+            </div>
+
+            <div class="zone-leader">
+                <user-is-zone-leader user="parent.authors[0].id"></user-is-zone-leader>
+            </div>
+
+        </div>
+        <div class="publish-date">
+            &middot; <span class="author-date">{{ parent.articleDate | date:'MMM. dd, yyyy' }} {{ parent.linkDate | date:'MMM. dd, yyyy' }}</span>
+        </div>
+        <div class="portal-link">
+            &middot; <a href="{{ parent.portal.url }}" id="portal-name" ng-cloak><span class="portal-name">{{ parent.portal.name }} Zone</span></a>
+        </div>
+    </div>
+    <div class="user-actions">
+        <div class="like action" ng-if="parent.title">
+            <dz-like template="like-article.html" callback="addVoter()" node="parent" ng-if="parent.articleDate"></dz-like>
+            <dz-like callback="addVoter()" callback="addVoter()" node="parent" ng-if="parent.linkDate"></dz-like>
+        </div>
+
+        <div class="like action" ng-if="!parent.title">
+            <dz-like template="like-article.html" callback="addVoter()" node="parent"></dz-like>
+        </div>
+
+
+        <div class="save-article action"><dz-save template="link-article-save.html" node="parent" class="save"></dz-save></div>
+
+        <div class="tweet action">
+            <a ng-href="#" ng-click='shareTwitter($event, parent.title || parent.header.title,parent.linkSource || parent.url)' class="title" target="_blank"><i class="icon-twitter"></i>Tweet</a>
+        </div>
+
+        <div class="pull-right">
+            <div class="view-count action">
+                <i class="icon-eye"></i> {{ parent.views }} <span ng-if="!parent.title">Views</span><span ng-if="parent.title" class="action-label">Clicks</span>
+            </div>
+
+            <div class="user-n-admin-action action" ng-if="canEdit(parent) || canDelete(parent)">
+                <div class="mod-tools" dropdown is-open="dropdown.open">
+                    <span dropdown-toggle><i class="icon-cog"></i></span>
+                    <ul class="dropdown-menu">
+                        <li><a ng-href="/content/{{ parent.id }}/edit.html">Edit</a></li>
+                        <li><a href="#" ng-if="canDelete(parent)" ng-click="deleteLink(parent)">Delete</a></li>
+                        <li><a href="#" ng-if="canPublish && !parent.title" ng-click="toggleComments(parent)">{{ parent.isLocked ? 'Enable' : 'Disable' }} comments</a></li>
+                        <li><a href="#" ng-if="canPublish && !parent.isLocked && !parent.title" ng-click="toggleLimitComments(parent)">
+                            {{ parent.isLimited ? 'Remove comment limits' : 'Enable moderated comments' }}
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th-defer-until="_sliderOpen">
+        <!--<div content-comment-box parent="parent.id" count="parent.nComments" limited="parent.isLimited" class="comment-box"></div>-->
+    </div>
+</div>
+
+</div></div>    </div>
+</div>
+
+</div>
+
+    <div class="row">
+        <a href="#" class="back-to-top"><i class="icon-up-big"></i></a>
+    </div>
+
+
+        <!-- /2916070/dz2_interstitial -->
+        <div id='div-gpt-ad-1437082590322-0'></div>
+
+    <script type="text/ng-template" id="/themes/dz20/widgets/header/sections/widget.html">
+<span dropdown is-open="dropdown.open" ng-class="{small: width < 768}">
+    <span dropdown-toggle class="sections"><i class="icon-menu"></i>
+        <span class="menuLabel" ng-if="width < 768"></span></span>
+    <ul class="dropdown-menu ul-first" ng-style="width < 768 ? {'top': headerSize + 0 + 'px', 'padding-top': '15px'} : {}">
+        <li><a href="/links">Links</a></li>
+        <li><a href="/refcardz">Refcardz</a></li>
+        <li><a href="/guides">Guides</a></li>
+        <li><a href="/about">About Us</a></li>
+        <li class="divider"></li>
+
+        <li class="post-title"><span>Zones</span></li>
+        <li ng-repeat="topic in portals" class="dropdown">
+            <a ng-href="{{ topic.url }}">{{ topic.name }}</a>
+        </li>
+        <li class="divider"></li>
+        <li class="post-title"><span>Post</span></li>
+        <li><a href="/links">Link</a></li>
+        <li><a href="/article/post.html">Article</a></li>
+    </ul>
+</span>
+
+
+    </script>
+
+<script type="text/ng-template" id="dzfollow.html"><button class="btn btn-follow" ng-class="{'btn-success': !status.followed, 'btn-warning': status.followed, 'hidden': followed.id == $root.user.id}" ng-click="follow()"><span ng-if="!status.followed"><i class="icon-plus"></i> Follow</span><span ng-if="status.followed" class="following">Following</span><span ng-if="status.followed" class="hover">Unfollow</span></button></script><script type="text/ng-template" id="dztopicselect.html"><ui-select  ng-if="canAddTopics" ng-model="editing.topics" theme="bootstrap" multiple tagging tagging-label="(add topic)"
+           tagging-tokens=",">
+    <ui-select-match class="input-tags"><div class="topics-tag">{{ $item }}</div></ui-select-match>
+    <ui-select-choices
+            refresh="topicsRefresh($select.search)"
+            refresh-delay="250"
+            repeat="topic in foundTopics | filter: $select.search">
+        <div ng-bind-html="topic | highlight: $select.search"></div>
+    </ui-select-choices>
+</ui-select>
+<ui-select ng-if="!canAddTopics" ng-model="editing.topics" theme="bootstrap" multiple>
+    <ui-select-match><div class="topics-tag">{{ $item }}</div></ui-select-match>
+    <ui-select-choices
+            refresh="topicsRefresh($select.search)"
+            refresh-delay="250"
+            repeat="topic in foundTopics | filter: $select.search">
+        <div ng-bind-html="topic | highlight: $select.search"></div>
+    </ui-select-choices>
+</ui-select></script><script type="text/ng-template" id="dzsave.html"><i class="icon-star-empty" ng-class="{'icon-star gold': status.saved, 'icon-star-empty': !status.saved}" tooltip-html-unsafe="{{status.saved ? 'Saved' : 'Save'}}" ng-click="save()"></i>
+<!--<span ng-class="{'gold count': status.saved}">{{ status.count }}</span>--></script><script type="text/ng-template" id="dzupload.html"><span class="btn btn-upload" >
+    <div ng-bind-html="label"></div>
+    <div class="progress-container" ng-style="{visibility: uploading ? 'visible' : 'hidden'}">
+        <progressbar max="100" value="progress"><span>{{ progress }}</span></progressbar>
+    </div>
+    <input type="file" ng-file-drop ng-file-select ng-file-change="upload($files)" />
+</span></script><script type="text/ng-template" id="inline-editable.html"><div class="inline-editable" ng-if="!status.editing" ng-click="edit()" ng-transclude></div>
+<div class="inline-editor-wrapper" ng-if="status.editing">
+    <textarea class="inline-editor" ng-model="status.editValue" ng-if="type == 'textarea'"></textarea>
+    <input class="inline-editor" ng-model="status.editValue" ng-if="type == 'input'"></textarea>
+    <div class="inline-editor-tools">
+        <button class="btn select-ok" ng-disabled="!status.editValue" ng-click="save()"><i class="icon-check-1"></i></button>
+        <button class="btn select-cancel" ng-disabled="!editable" ng-click="cancel()"><i class="icon-cancel-1"></i></button>
+    </div>
+</div></script><script type="text/ng-template" id="dzlike.html">
+<div class="dz-like " ng-class="{liked: status.liked}" ng-click="like()">
+    <a href="#">
+        <i class="icon-up-dir"></i>
+        <span>{{ status.score }}</span>
+    </a>
+</div>
+</script><script type="text/ng-template" id="dzphoto.html"><i class="icon-camera-alt photo" type="file" ng-file-drop ng-file-select ng-file-change="upload($files)"></i></script><script type="text/ng-template" id="followus.html">
+<div class="top-social">
+    <p>Let's be friends:</p>
+    <ul class="icons-only" ng-class="{open: isOpen}" click-outside="outside()">
+        <li class="rss-icon" id="rss-spotlight-1">
+            <a href="/pages/feeds"><i class="icon-rss-1"></i></a>
+        </li>
+        <li class="twitter-icon">
+            <a href="https://twitter.com/DZone" target="_blank"><i class="icon-twitter"></i></a>
+        </li>
+        <li class="facebook-icon">
+            <a href="https://www.facebook.com/DZone-259639764711" target="_blank"><i class="icon-facebook-1"></i></a>
+        </li>
+        <li class="google-icon">
+            <a href="https://plus.google.com/+dzone/posts" target="_blank"><i class="icon-gplus"></i></a>
+        </li>
+        <li class="linkedin-icon">
+            <a href="https://www.linkedin.com/company/dzone" target="_blank"><i class="icon-linkedin-1"></i></a>
+        </li>
+
+            <ul class="social-dropdown dropdown-menu">
+                <li class="rss" id="rss-spotlight"><a href="/pages/feeds"><i class="icon-rss-squared"></i> <span>RSS Feed</span></a></li>
+                <li class="twitter" id="twitter-spotlight">
+                    <a href="https://twitter.com/DZone" class="twitter-follow-button" data-show-count="true"
+                       data-show-screen-name="false">Follow @DZone</a>
+                </li>
+                <li class="fb-like" id="fb-spotlight" data-href="https://www.facebook.com/DZone-259639764711/timeline/"
+                    data-layout="button_count" data-action="like" data-show-faces="true" data-share="false"></li>
+                <li class="google-plus" id="gplus-spotlight">
+                    <div class="g-follow" data-annotation="bubble" data-height="20"
+                         data-href="https://plus.google.com/108688665090780146602" data-rel="publisher"></div>
+                </li>
+                <li class="linkedin" id="linkedin-spotlight">
+                    <script type="IN/FollowCompany" data-id="114427" data-counter="right"></script>
+                </li>
+            </ul>
+    </ul>
+</div>
+</script><script type="text/ng-template" id="overlay.html"><div class="ngdialog th-overlay">
+    <div class="ngdialog-overlay">
+        <div class="overlay-box">
+            <i class="icon-spin5 animate-spin"></i>
+
+            <p>{{ message }}</p>
+        </div>
+    </div>
+</div></script><script type="text/ng-template" id="dialog.confirm.html"><p>{{ message }}</p></script><script type="text/ng-template" id="dialog.skeleton.html"><div class="dialog-title">
+    <h1 ng-if="$dialog.title">{{ $dialog.title }}</h1>
+</div>
+<div class="dialog-body {{ $dialog.extraClass }}" ng-include="$dialog.template"></div>
+<div class="dialog-footer">
+    <div class="dialog-buttons" ng-if="$dialog.buttons">
+        <button ng-repeat="button in $dialog.buttons" ng-hide="button.hidden" ng-disabled="button.disabled || $dialog.executing"
+                class="btn btn-{{ button.type || 'info' }}" ng-click="$dialog.runAction(button)">
+            <span class="icon-spin6 animate-spin" ng-if="button.executing"></span>{{ button.label || button.name }}</button>
+    </div>
+</div></script><script type="text/ng-template" id="dialog.message.html"><div class="message-icon">
+    <i class="icon-{{ icon }}"></i>
+</div>
+<div class="message-text">
+    <p class="message-title" ng-bind-html="trustAsHtml(title)"></p>
+    <p ng-bind-html="trustAsHtml(message)"></p>
+</div>
+</script>
+<script type="text/javascript">
+
+    var TH_CORE_VARS = {};
+
+    try {
+        TH_CORE_VARS.additional = {};
+
+        TH_CORE_VARS.additional.model = [{"content":{"id":"1572311","type":"article","plug":"the-best-programming-languages-for-each-situation-1","creationDate":"2017-06-10 16:01:27.0"},"lastAuthor":{"lastSeen":null,"location":null,"followCount":0,"type":"user","userFollowCount":0,"username":"gabrieletomassetti","emailHash":"51ffa42f1bd5ad3b8167a4af281c6372bc4105c917e972b43817265687cdc330","description":"I started developing software to make a football management simulation and never stopped. I like C#. Twitter: @AnimusTechnica","reputation":582,"realReputation":582,"avatar":"https://secure.gravatar.com/avatar/aa9487f4d89cb8f0467d7cb2428b570d?d=identicon&r=PG","currentStatus":null,"system":false,"statusAsHTML":"","plug":"gabrieletomassetti","moderator":false,"systemOrInactive":false,"company":null,"active":true,"followerCount":0,"tagline":null,"birthday":null,"locale":null,"about":"I started developing software to make a football management simulation and never stopped. I like C#. Twitter: @AnimusTechnica","yearsOld":"","notificationsDisabled":false,"superUser":false,"acceptRate":"0","id":2910331,"name":"gabrieletomassetti","deactivated":false,"gold":0,"unreadMessages":0,"notificationsChanged":false,"website":"https://tomassetti.me","silver":0,"avatarEmailHash":"aa9487f4d89cb8f0467d7cb2428b570d","suspended":false,"bronze":0,"creationDate":1478709738000,"creationDateFormatted":"11/09/2016 04:42 PM","new":false,"securityPrint":":2500003:2500010:3046040","currentStatusTimestamp":null,"realname":"Gabriele Tomassetti","postCount":7,"modificationDate":1511796355000,"modificationDateFormatted":"11/27/2017 03:25 PM","photoUrl":"https://dzone.com/users/2910331/photo/view.html","username":"gabrieletomassetti","realname":"Gabriele Tomassetti","type":"user","plug":"gabrieletomassetti","gold":0,"silver":0,"bronze":0,"reputation":582,"moderator":false,"superuser":false,"emailHash":"51ffa42f1bd5ad3b8167a4af281c6372bc4105c917e972b43817265687cdc330","avatar":"https://dzone.com/users/2910331/photo/view.html","website":"https://tomassetti.me"},"enableThreadedComments":true,"portal":{"id":2,"code":"agile","title":"Agile","shortTitle":"agile-methodology-training-tools-news","blurb":"Agile methodology news and training resources from DZone, the trusted source for learning advanced software design, web development and devops best practices."},"contentType":"article","metaData":{"title":"The Best Programming Languages for Each Situation, Part 1 - DZone Agile","description":"In this post, we examine how you can know which programming language is best for you and your team, and few a use cases of big companies switching languages.","keywords":"programming, software development, devops, java, agile, web, iot, database, mobile, big data, cloudagile,programming languages,development process","siteName":"dzone.com","url":"https://dzone.com","img":"https://dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","imgprop":"og:image","twitterImage":"https://dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","type":"opinion","wordCount":1225,"canonical":"https://dzone.com/articles/the-best-programming-languages-for-each-situation-1","noIndex":false,"noFollow":false,"prevPage":null,"nextPage":null,"useEscapedFragment":false,"robots":false,"robotsTag":""},"articleType":"article/opinion","zonetop":"dzone-jordan","publisher":"dzone-jordan"}];
+        TH_CORE_VARS.additional.loadedStyles = [["/lib/bootstrap/bootstrap.less","/lib/fontello/css/fontello.css","/lib/fontello/css/animation.css","/lib/angular-ui/select.css","/lib/ngDialog/css/ngDialog.css","/less/ngDialog-theme.less","/less/container.less","/lib/bootstrap-switch/bootstrap-switch.css","/less/dzone20.less","/less/fonts.less","/less/directives.less","/lib/sb/sb.css","/lib/bootstrap-slider/bootstrap-slider.css","/less/layout.less","/widgets/announcementBar/widget.less","/widgets/article/content/article-content.less","/widgets/components/slider/widget.less","/widgets/content/commentsSlider/widget.less","/widgets/header/headerV2/widget.less","/widgets/sidebar/content/list/list.less","/widgets/sidebar/tapBar/sidebar-list.less","/widgets/sidebar/tapBar/widget.less"]];
+        TH_CORE_VARS.additional.loadedScripts = [["/lib/jquery/jquery.js","/lib/lodash/lodash.js","/lib/moment/moment.js","/scripts/utils.js","/lib/angular/angular.js","/lib/angular/angular-sanitize.js","/lib/local-storage/angular-local-storage.js","/lib/bootstrap/dropdown.js","/lib/angular-ui/bootstrap.js","/lib/angular-ui/select.js","/lib/bootstrap-switch/bootstrap-switch.js","/lib/ngDialog/js/ngDialog.js","/lib/angular-moment/angular-moment.js","/scripts/app.js","/scripts/socket.js","/scripts/services.js","/scripts/ui-services.js","/scripts/directives.js","/scripts/filters.js","/lib/angular/angular-cookies.js","/lib/angulartics/angulartics.js","/lib/angulartics/angulartics-ga.js","/lib/angular-touch/angular-touch.min.js","/lib/elastic/elastic.js","/lib/ng-file-upload/angular-file-upload-all.js","/scripts/dzone.js","/scripts/ads.js","/scripts/social-media.js","/scripts/head.js","/scripts/links.js","/scripts/utilities/directives.js","/scripts/utilities/services.js","/scripts/utilities/editor.js","/lib/bootstrap-slider/bootstrap-slider.js","/lib/bootstrap-slider/directive.js","/lib/sb/sb.js","/lib/angular-draganddrop/draganddrop.js","/lib/flexmenu/flexmenu.min.js","/widgets/article/content/utils.js","/widgets/components/slider/service.js","/widgets/header/headerV2/resize.js","/widgets/sidebar/content/list/service.js","/widgets/sidebar/tapBar/directive.js","/widgets/sidebar/tapBar/service.js"]];
+        TH_CORE_VARS.additional.botInfo = [{"isRenderBot":false}];
+        TH_CORE_VARS.additional.TH_CSRF = "-7364202980248491678";
+        TH_CORE_VARS.additional.request = [{"site":{"id":7,"title":"DZone: Programming & DevOps news, tutorials & tools","keywords":"programming, software development, devops, java, agile, web, iot, database, mobile, big data, cloud","description":"Programming, Web Development, and DevOps news, tutorials and tools for beginners to experts. Hundreds of free publications, over 1M members, totally free.","name":"DZone.com"},"dev":false,"cdn":["dz2cdn1.dzone.com","dz2cdn2.dzone.com","dz2cdn3.dzone.com","dz2cdn4.dzone.com"],"theme":"dz20","context":"","user":{"id":2910331,"authenticated":true,"name":"gabrieletomassetti","realName":"Gabriele Tomassetti","avatar":"//dz2cdn4.dzone.com/storage/user-avatar/7280747-thumb.jpg","profile":"/users/2910331/gabrieletomassetti.html"}}];
+        TH_CORE_VARS.additional.portals = [[{"hideFromNav":false,"topic":8,"id":2,"shortTitle":"agile-methodology-training-tools-news","color":"red","name":"Agile","hideFromHomepageWidgets":false,"code":"agile","url":"/agile-methodology-training-tools-news"},{"hideFromNav":false,"topic":2551,"id":4001,"shortTitle":"artificial-intelligence-tutorials-tools-news","color":"purple","name":"AI","hideFromHomepageWidgets":false,"code":"ai","url":"/artificial-intelligence-tutorials-tools-news"},{"hideFromNav":false,"topic":6129,"id":3,"shortTitle":"big-data-analytics-tutorials-tools-news","color":"green","name":"Big Data","hideFromHomepageWidgets":false,"code":"big-data","url":"/big-data-analytics-tutorials-tools-news"},{"hideFromNav":false,"topic":30,"id":4,"shortTitle":"cloud-computing-tutorials-tools-news","color":"orange","name":"Cloud","hideFromHomepageWidgets":false,"code":"cloud","url":"/cloud-computing-tutorials-tools-news"},{"hideFromNav":false,"topic":59,"id":5,"shortTitle":"database-sql-nosql-tutorials-tools-news","color":"purple","name":"Database","hideFromHomepageWidgets":false,"code":"database","url":"/database-sql-nosql-tutorials-tools-news"},{"hideFromNav":false,"topic":31,"id":6,"shortTitle":"devops-tutorials-tools-news","color":"yellow","name":"DevOps","hideFromHomepageWidgets":false,"code":"devops","url":"/devops-tutorials-tools-news"},{"hideFromNav":false,"topic":1138,"id":7,"shortTitle":"enterprise-integration-training-tools-news","color":"green","name":"Integration","hideFromHomepageWidgets":false,"code":"integration","url":"/enterprise-integration-training-tools-news"},{"hideFromNav":false,"topic":48,"id":8,"shortTitle":"iot-developer-tutorials-tools-news-reviews","color":"orange","name":"IoT","hideFromHomepageWidgets":false,"code":"iot","url":"/iot-developer-tutorials-tools-news-reviews"},{"hideFromNav":false,"topic":1,"id":1,"shortTitle":"java-jdk-development-tutorials-tools-news","color":"purple","name":"Java","hideFromHomepageWidgets":false,"code":"java","url":"/java-jdk-development-tutorials-tools-news"},{"hideFromNav":false,"topic":29,"id":9,"shortTitle":"mobile-app-developer-tutorials-tools-news","color":"yellow","name":"Mobile","hideFromHomepageWidgets":false,"code":"mobile","url":"/mobile-app-developer-tutorials-tools-news"},{"hideFromNav":false,"topic":653,"id":10,"shortTitle":"apm-tools-performance-monitoring-optimization","color":"red","name":"Performance","hideFromHomepageWidgets":false,"code":"performance","url":"/apm-tools-performance-monitoring-optimization"},{"hideFromNav":false,"topic":85,"id":2001,"shortTitle":"application-web-network-security","color":"green","name":"Security","hideFromHomepageWidgets":false,"code":"security","url":"/application-web-network-security"},{"hideFromNav":false,"topic":35,"id":11,"shortTitle":"web-development-programming-tutorials-tools-news","color":"orange","name":"Web Dev","hideFromHomepageWidgets":false,"code":"webdev","url":"/web-development-programming-tutorials-tools-news"},{"hideFromNav":true,"topic":1382104,"id":1001,"shortTitle":"developer-marketing","color":"green","name":"Developer Marketing","hideFromHomepageWidgets":true,"code":"developer-marketing","url":"/developer-marketing"},{"hideFromNav":true,"topic":16873,"id":3001,"shortTitle":"writers-zone","color":"purple","name":"Writers'","hideFromHomepageWidgets":true,"code":"inspiration-station ","url":"/writers-zone"},{"hideFromNav":true,"topic":1382104,"id":5001,"shortTitle":"dev-career","color":"green","name":"Developer Career","hideFromHomepageWidgets":true,"code":"dev-career","url":"/dev-career"}]];
+        TH_CORE_VARS.additional.matchedUrl = {"name":"dzone:articles:view","mapping":"/articles/**","mappingPatterns":{}};
+        TH_CORE_VARS.additional.requiresModule = ["dndLists","generalDirectives","monospaced.elastic","angularFileUpload","ui.bootstrap-slider","angulartics","angulartics.google.analytics","ngCookies","ngSanitize","ui.select","ui.bootstrap","angularMoment","ngTouch","ngDialog","LocalStorageModule"];
+            } catch (e) {
+        console.error(e);
+    }
+</script>
+
+<script type='text/javascript'>
+    var googletag = googletag || {};
+    googletag.cmd = googletag.cmd || [];
+    (function () {
+        var gads = document.createElement('script');
+        gads.async = true;
+        gads.type = 'text/javascript';
+        var useSSL = 'https:' == document.location.protocol;
+        gads.src = (useSSL ? 'https:' : 'http:') +
+                '//www.googletagservices.com/tag/js/gpt.js';
+        var node = document.getElementsByTagName('script')[0];
+        node.parentNode.insertBefore(gads, node);
+    })();
+</script>
+<script type="text/javascript" src="//dz2cdn2.dzone.com/storage/pub/7281673-combined.js" charset="utf-8"></script><script type="text/javascript" src="//dz2cdn2.dzone.com/storage/pub/7281678-combined.js" charset="utf-8"></script><script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-410289-1', 'auto');
+    ga('require', 'linkid', 'linkid.js');
+    ga('require', 'GTM-TSD9TZP');
+    ga('set', 'siteSpeedSampleRate', 25);
+    //ga('send', 'pageview');
+</script>
+
+<!-- Begin Inspectlet Embed Code -->
+<script type="text/javascript" id="inspectletjs">
+    window.__insp = window.__insp || [];
+    __insp.push(['wid', 1999343779]);
+    (function () {
+        function __ldinsp() {
+            var insp = document.createElement('script');
+            insp.type = 'text/javascript';
+            insp.async = true;
+            insp.id = "inspsync";
+            insp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://cdn.inspectlet.com/inspectlet.js';
+            var x = document.getElementsByTagName('script')[0];
+            x.parentNode.insertBefore(insp, x);
+        }
+
+        if (window.attachEvent) window.attachEvent('onload', __ldinsp);
+        else window.addEventListener('load', __ldinsp, false);
+    })();
+</script>
+<!-- End Inspectlet Embed Code -->
+
+
+
+<script src="https://cdn.optimizely.com/js/664902255.js"></script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K25QL22');</script>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K25QL22"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager -->
+
+<script type="text/javascript">
+    (function() {
+            function controller($scope, TH$Dialog, $location, $rootScope, $timeout, TH$SharedVars, $service, TH$LocalStorage) {
+    {
+        $scope.location = $location.path();
+    }
+
+    $scope.searchT ='';
+
+    TH$SharedVars.bind($scope, 'searchT', 'searchTerm', true)
+
+    $scope.loginForm = function (where) {
+        switch (where) {
+            case 0:
+                login()
+                break;
+            case 1:
+                signIn()
+                break;
+            default:
+                login()
+        }
+    };
+
+    var login = function(){
+        TH$Dialog.open({
+            loadWidget: 'users.loginForm',
+            size: 'membershipForm'
+        });
+    };
+    var signIn = function(){
+        TH$Dialog.open({
+            loadWidget: 'users.signInForm',
+            size: 'membershipForm'
+        });
+    };
+
+
+    $timeout(function() {
+        $(".portals").flexMenu();
+    }, 0);
+
+
+    $scope.isActivePortal = function (portalId) {
+        return $rootScope.model.portal && $rootScope.model.portal.id == portalId;
+    };
+
+    $scope.allResults = function() {
+        window.location='/search';
+    }
+
+    $("#search").keyup(function (e) {
+        var length = ($scope.searchT) ? $scope.searchT.length : 0;
+        $scope.searchT = ($scope.searchT) ? $scope.searchT : '';
+
+        if(e.keyCode == 13 && length > 2) {
+            $scope.allResults();
+        }else {
+            $scope.search();
+        }
+    });
+
+    $scope.focusSearch = function(){
+        $timeout(function(){$("#search").focus();},100)
+    }
+
+    $scope.search = function(){
+        var length = ($scope.searchT) ? $scope.searchT.length : 0;
+        $scope.loading = (length > 2);
+        if(length < 3){
+            if($scope.nodes || $scope.nodes == [] ){
+                $timeout(function(){
+                    $scope.nodes = [];
+                    $scope.cType = [];
+                    $scope.related = [];
+                    $scope.pager = [];
+                    $scope.searchParam = [];
+                    $scope.totalResults = null;
+
+                },100)
+            }
+            return false;
+        }
+
+        var term = $scope.searchT;
+        if ($scope.prevTerm == term) {return;}
+        $scope.prevTerm = term;
+
+
+        TH$LocalStorage.value('searchValue', term);
+        term = (term) ? term : '';
+        $service.nextPage({term: term, pageSize: 7}, null, true).then(function (data) {
+            $scope.loading = false;
+            var curPage = 1;
+            $scope.nodes = data.pages.newest[curPage];
+            $scope.haveResults = ($scope.nodes) ? true : false;
+            $scope.totalResults = data.totalItems;
+        })
+    }
+}
+            var WMODEL_DATA = {};
+            WMODEL_DATA.applyFades = true;
+        WMODEL_DATA.isAdmin = false;
+        WMODEL_DATA.slot = null;
+        WMODEL_DATA.user = {"jobRole":"Programmer, Developer","website":"https://tomassetti.me","about":"I started developing software to make a football management simulation and never stopped. I like C#. Twitter: @AnimusTechnica","job":"Software Engineer","avatar":7280747,"country":"IT","city":"Torino","id":2910331,"karma":582,"company":"Independent","realName":"Gabriele Tomassetti","websiteUrl":"https://tomassetti.me","tagline":"Software Engineer"};
+        WMODEL_DATA.OPTIONS = {};
+        WMODEL_DATA.getPortals = null;
+        TH.installWidgetController('header.headerV2', 'mainHeader', WMODEL_DATA, typeof controller == 'function' ? controller : null, [{name: 'nextPage', data: true}], ' oUhbWOfRPSwBoUhM', null);
+        })();
+        (function() {
+            function controller($scope, TH$Service, $window, $rootScope) {
+    var body = $(".body"),
+        announcement = $(".announcementBar"),
+        marginRight = body.css("marginRight"),
+        marginLeft  = body.css("marginLeft");
+    $scope.track = function(id){
+        var data = {
+            siteNotification : id
+        };
+        TH$Service.exec('dzoneUsers.trackAnnouncementBar', data).then(function(){
+        });
+        $window.location.href = $scope.announcement.link;
+    };
+
+    $(window).resize(function() {
+        marginRight = body.css("marginRight")
+        marginLeft  = body.css("marginLeft")
+        $scope.setBarWidth()
+    });
+
+    if(!(announcement.next().is( ".layout-card"))) {
+
+        announcement.css("margin-bottom", "10px");
+    }
+
+    $scope.toShow = ($scope.announcement && $scope.announcement.anononly) ?  !($rootScope.user.authenticated) : true;
+    
+    $scope.setBarWidth = function(){
+        var container = $("#acontainer");
+        container.css("margin-right", "-"+marginRight)
+        container.css("margin-left", "-"+marginLeft)
+    }
+}
+
+TH.directive('backImg', function(){
+    return function(scope, element, attrs){
+        if(attrs.hasimage == "true"){
+            var img = new Image();
+            img.onload = a(attrs.img, element, scope);
+            img.onerror = a(attrs.imgbackup, element, scope);
+            img.src = attrs.img;
+        }
+        scope.setBarWidth();
+    };
+});
+
+var a = function(url, element){
+    element.css({
+        'background-image': 'url(' + url +')',
+        'background-size' : 'cover'
+    });
+};
+            var WMODEL_DATA = {};
+            WMODEL_DATA.announcement = {"id":2606905,"body":"[New Guide] Download the 2017 Guide to Web Development: Frameworks and Responsive Design","link":"https://dzone.com/asset/download/197231","title":"Download Guide","img2":"/notificationImage.html?id=2606905","img":"https://dz2cdn1.dzone.com/notificationImage.html?id=2606905","hasImage":true,"anononly":false};
+        WMODEL_DATA.OPTIONS = {};
+        TH.installWidgetController('announcementBar', 'announcementBar1', WMODEL_DATA, typeof controller == 'function' ? controller : null, null, ' oUhbYlrRaqMaoUhM', null);
+        })();
+        (function() {
+            function controller($scope, $sce, $analytics, $service, SideBarService, TH$Dialog,$rootScope, TH$Location, $q, $window,
+                    /**infoBarService,*/ DZtopicsString, shareThis, $location, TH$Service, DZHeadService, $timeout, ArticleAdsService) {
+
+    var current = ($scope.articles && $scope.articles.length) ? $scope.articles[0] : null;
+    var loading = null;
+    var lastLoaded = current;
+    var cache = {};
+
+
+    $scope.width = $(window).width();
+
+    $scope.voted = null;
+
+    $scope.canDelete = function(article) {
+        return article.canDelete;
+    };
+
+    $scope.canEdit = function(article) {
+        return article.canEdit;
+    };
+
+    $scope.canPublish = function (article) {
+        return article.canPublish;
+    };
+
+    $scope.loginForm = function () {
+
+        TH$Dialog.open({
+            loadWidget: 'users.loginForm',
+            size      : 'membershipForm'
+        });
+    };
+
+    $scope.delete= function(article) {
+        TH$Dialog.confirm("Are you sure you want to permanently delete this article?").then(function() {
+            TH$Service.action('delete', {type: 'node', id: article.id}).then(function() {
+                TH$Dialog.success('Article deleted');
+                newArticle(article.type);
+            });
+        });
+    };
+
+    $scope.publish = function(article) {
+        TH$Dialog.confirm("Are you sure you want to publish this article?").then(function () {
+            TH$Service.action('nodes.publish', {type: 'node', id: article.id}, {}, true)
+                .then(function () {
+                    TH$Dialog.success('Article Published', 'Your article was successfully published');
+                    article.published = true;
+                }, function () {
+                    TH$Dialog.error('Article not Published', 'There was an error publishing teh article');
+                });
+        });
+    };
+
+    $scope.shareTwitter = function($event, title, url){
+        $event.preventDefault();
+        $event.stopPropagation();
+        var twitter = 'https://twitter.com/intent/tweet';
+        var link = $location.protocol() + '://' + location.host + url;
+        var ref = location.host;
+        var params = '?text='+title+'&url='+link+'&ref=dzone.com&via=DZone';
+        var win = window.open(twitter+params, '_blank');
+        win.focus();
+    };
+
+    function newArticle(type) {
+        current.article = {
+            body: '',
+            title: '',
+            image: null,
+            topics: [],
+            sources: [],
+            notes: '',
+            published: false,
+            canDelete: false
+        };
+
+        current.bodyImages = [];
+        setEditUrl(null, type);
+    };
+
+    function setEditUrl(id, type) {
+        TH$Location.apply(function ($location) {
+
+            var url;
+
+            if (id) {
+                if (type == 'article') {
+                    url = '/content/' + id + '/edit.html';
+                } else {
+                    url = '/dzone/staff/' + type + (type == 'refcard' ? 'z' : 's') + '/' + id + '/edit.html';
+                }
+            } else {
+                if (type == 'article') {
+                    url = '/content/article/post.html';
+                } else if (type == 'refcard'){
+                    url = '/dzone/staff/' + type + 'z' + '/add.html';
+                }else{
+                    url = '/content/article/post.html'
+                }
+            }
+            $timeout(function(){
+                $location.path(url);
+            },1000);
+        });
+    };
+
+    function setCurrentInSidebar(article) {
+        var title = (article.header) ? article.header.title : article.title;
+        var titleEll = (article.header) ? article.header.titleEll : article.title;
+        SideBarService.active = article.title ? article : {
+            id: article.id,
+            type: 'article',
+            title:  $scope.edition ? titleEll : title,
+            url: article.url,
+            imageUrl: article.articleImage
+        }
+    }
+
+    if (current) {
+        loadPartner(current);
+        loadRichSnippetData(current);
+
+        setCurrentInSidebar(current);
+        //infoBarService.setTitle(current.header.title);
+        //infoBarService.setArticle(current);
+
+//        cache[current.id] = current;
+        setMeta(current);
+        current.fullHtml = $sce.trustAsHtml(current.articleContent);
+    }
+
+    function setMeta(current){
+        var portal = (current.portal) ? current.portal.name : '';
+        var keywords = (current.articleTags) ? current.articleTags.toString() : portal;
+        var title = current.header ? current.header.title : current.title;
+
+        if(!title){
+            return;
+        }
+        DZHeadService.title = title+' - DZone '+portal;
+        DZHeadService.description = current.metaDescription;
+        DZHeadService.keywords = keywords;
+        DZHeadService.url = $location.absUrl();
+        DZHeadService.canonical = $location.protocol() + '://' + $location.host() + current.url;
+        var imageLink = current.header ? current.header.imageLink : current.imageLink;
+        //var imgUrl = $location.host() + imageLink;
+        DZHeadService.img = imageLink;
+        DZHeadService.type = current.articleType;
+        DZHeadService.wordCount = (current.articleContent) ? current.articleContent.split(/\s+/).length : 0;
+    }
+
+    function getArticle(id) {
+
+        if (cache[id]) {
+            return $q.when(cache[id]);
+        } else {
+            var promise =  $service({article: id});
+
+            promise.then(function(article) {
+                article.fullHtml = $sce.trustAsHtml(article.articleContent);
+            });
+
+            return promise;
+        }
+    }
+
+    function loadArticleInList(id) {
+        loading = id;
+
+        if (cache[id]) {
+            $scope.articles.push(cache[id]);
+            lastLoaded = cache[id];
+            loading = null;
+        } else {
+            $scope.articles.push({type: 'loader'});
+
+            getArticle(id)
+                .then(function(article) {
+                    $scope.articles.pop();
+                    $scope.articles.push(article);
+                    lastLoaded = article;
+                    loading = null;
+                    cache[article.id] = article;
+
+                    loadPartner(article);
+                    loadRichSnippetData(current);
+                });
+        }
+    }
+
+    //$scope.imageUrlBase = $location.protocol() + "://" + $location.host();
+
+    function loadRichSnippetData(article) {
+
+        var rs = {
+            bodyProp: 'articleBody',
+            date: moment(article.articleDate).format()
+        };
+
+        switch (article.articleType) {
+
+            case 'news':
+                rs.type = 'https://schema.org/NewsArticle';
+                break;
+            case 'snippet':
+                rs.type = 'https://schema.org/Code';
+                rs.bodyProp = '';
+                break;
+            case 'review':
+                rs.type = 'https://schema.org/Review';
+                rs.bodyProp = 'reviewBody';
+                break;
+            case 'tutorial':
+            case 'analysis':
+                rs.type = 'https://schema.org/TechArticle';
+                break;
+            case 'opinion':
+                rs.type = 'https://schema.org/BlogPosting';
+                break;
+            default:
+                rs.type = 'https://schema.org/Article';
+                break;
+        }
+
+        article.rs = rs;
+    }
+
+    var articleNumber = 1;
+
+    function attachPartner(article, partners) {
+
+        article.showLogo = true;
+
+        if (!_.isNumber(partners.lastUsed)) {
+            //partners.lastUsed = 0;
+            toUse = partners.lastUsed
+        }else{
+            toUse = partners.lastUsed + 1;
+        }
+
+        if (toUse >= partners.length || !toUse) {
+            toUse = 0;
+        }
+
+        if(partners){
+            article.showLogo = (partners.length < 2 && articleNumber % 2) ? false : article.showLogo;
+        }else{
+            article.showLogo = false;
+        }
+
+        if(!articleNumber || article.partner){
+            return;
+        }
+
+        article.readyForAd = true;
+        article.partner = partners[toUse];
+        $scope.partners.lastUsed = toUse;
+        articleNumber++;
+    }
+
+
+    function loadPartner(article) {
+
+        var partners = $scope.partners;
+
+        if (!article.portalId) {
+            if ($scope.portal) {
+                article.portal = _.findWhere($scope.portals, {id: $scope.portal.id});
+            } else {
+                //_.each(article.articleTagIds, function (id) {
+                //    var portal = _.findWhere($scope.portals, {topic: id});
+                //
+                //    if (portal) {
+                //        article.portal = portal;
+                //    }
+                //});
+            }
+        } else {
+            article.portal = _.findWhere($scope.portals, {id: article.portalId});
+        }
+        if (article.portal) {
+            if (partners[article.portal.id]) {
+                var _partners = partners[article.portal.id];
+                _partners.lastUsed = $scope.partners.lastUsed;
+                attachPartner(article, _partners);
+            } else {
+                $service.partners({portal: article.portal.id}).then(function(_partners) {
+                    partners[article.portal.id] = _partners;
+                    attachPartner(article, _partners);
+                });
+            }
+        }
+
+        if (article.readyForAd || article.partner) {
+            article.readyForAd = true;
+            return;
+        }
+
+    }
+
+    $scope.loadMore = function() {
+
+        if (loading) {
+            return;
+        }
+
+        var next = SideBarService.findNext(lastLoaded ? lastLoaded.id : null);
+
+        if (next) {
+            loadArticleInList(next);
+        }
+
+
+    };
+
+    $scope.activate = function(article) {
+
+        if(article.type == 'loader'){
+            return;
+        }
+
+        $rootScope.model.portal = article.portal
+        $scope.addShareCount(article);
+
+        //infoBarService.setnComments(article.nComments);
+        //infoBarService.setArticle(article);
+
+        if (current && article.id == current.id) {
+            return;
+        }
+
+        current = article;
+        setCurrentInSidebar(article);
+
+        TH$Location.apply(function($location) {
+            $location.path(article.url);
+        });
+
+        var title = article.header ? article.header.title : article.title;
+
+        //infoBarService.setTitle(title);
+        //infoBarService.setArticle(article);
+        setMeta(article);
+        $timeout(function(){
+            if (!article.viewTracked) {
+                TH$Service.action('nodes.trackView', {type: 'node', id: article.id}, {}, true);
+                article.views++;
+                article.viewTracked = true;
+                if (window.ga) {
+                    window.ga('set', 'dimension2', article.articleType ? ('article/' + article.articleType) : 'article');
+                    window.ga('set', 'dimension3', moment(article.articleDate).format('YYYY-MM-DD'));
+                    window.ga('set', 'dimension4', _.indexOf($scope.articles, article));
+                    window.ga('set', 'dimension5', article.zonetop || 'undefined');
+                    window.ga('set', 'dimension6', article.pubPlug || 'undefined');
+                    var lastAuthor = article.authors[article.authors.length - 1].name;
+                    var lastAuthorCompany = article.authors[article.authors.length - 1].company;
+                    window.ga('set', 'dimension8', lastAuthor || 'undefined');
+                    window.ga('set', 'dimension9', article.partner ? article.partner.details.name : 'undefined');
+                    window.ga('set', 'dimension10', lastAuthorCompany || 'undefined');
+                    window.ga('set', 'dimension11', article.authors[0].claimed || 'undefined');
+                }
+                $analytics.pageTrack(article.url);
+            }
+        },0);
+    };
+
+    $scope.toggleComments = function(article) {
+        if(!article.isLocked) {
+            TH$Service.action('articles.lockNode', {type: 'node', id: article.id}).then(function(result) {
+                if(result){
+                    article.isLocked = true;
+                    TH$Dialog.success('You have disabled all comments for this Article');
+                }else{
+                    TH$Dialog.error('error','Your requested was denied')
+                }
+            });
+        }else {
+            TH$Service.action('articles.unlockNode', {type: 'node', id: article.id}).then(function(result) {
+                if(result){
+                    article.isLocked = false;
+                    TH$Dialog.success('You have enabled all comments for this Article');
+                }else{
+                    TH$Dialog.error('error','Your requested was denied')
+                }
+            });
+        }
+    };
+
+    $scope.toggleLimitComments = function (article) {
+        if (!article.isLimited) {
+            TH$Service.action('articles.limitNode', {type: 'node', id: article.id}).then(function (result) {
+                if (result) {
+                    article.isLimited = true;
+                    TH$Dialog.success('You have limited comments for this Article. Now all comments will go through moderation.');
+                } else {
+                    TH$Dialog.error('error', 'Your requested was denied')
+                }
+            });
+        } else {
+            TH$Service.action('articles.unlimitNode', {type: 'node', id: article.id}).then(function (result) {
+                if (result) {
+                    article.isLimited = false;
+                    TH$Dialog.success('You removed the limits for comments on this Article');
+                } else {
+                    TH$Dialog.error('error', 'Your requested was denied')
+                }
+            });
+        }
+    };
+
+    $scope.activateT = function(article) {
+        $scope.activate(article);
+    };
+
+    $scope.activateB = function(article) {
+        $scope.activate(article);
+    };
+
+    SideBarService.fn.onSelected = function(node) {
+        $scope.articles = [];
+
+        loadArticleInList(node.id);
+
+        $scope.activate(node);
+        $($window).scrollTop(0);
+    };
+
+    $scope.upvoteArticle = function () {
+
+// disabled till we decide how the vote system will work
+
+//        if (!$scope.voted) {
+//            $scope.articles[0].upvote_count += 1;
+//            $scope.voted = 1;
+//        }else {
+//            $scope.articles[0].upvote_count -= 1;
+//            $scope.voted = null;
+//        }
+    };
+
+    $scope.addShareCount = function(article){
+//        var socials = ['linkedin', 'reddit', 'twitter'];
+//        var url = $location.protocol()+'://'+$location.host()+':'+$location.port()+article.url;
+//
+//        socials.map( function(item) {
+//
+//            if(article[item] == undefined){
+//
+//                article[item] = shareThis.countThis(item,url, 'content').then(function(result){
+//                    article[item] = result;
+//                })
+//            }
+//        })
+
+
+    };
+
+    $scope.share = function(socialNet, url, title){
+        shareThis.shareThis(socialNet, $location.protocol()+'://'+$location.host()+':'+$location.port()+url, title);
+    };
+
+    Object.size = function(obj) {
+        var size = 0, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size;
+    };
+
+
+    $scope.share = function(socialNet, url, title){
+        shareThis.shareThis(socialNet, $location.protocol()+'://'+$location.host()+':'+$location.port()+url, title);
+    };
+
+    $scope.mailShareLink = function(article) {
+        var title = article.header ? article.header.title : article.title;
+        var link = article.header ? article.header.link : article.link;
+        return 'mailto:?subject=' + encodeURIComponent(title) +  '&body=Article: ' + encodeURIComponent('https://dzone.com/' + link);
+    };
+
+    $scope.ads = ArticleAdsService($scope.edition, $scope.width);
+
+};
+
+
+            var WMODEL_DATA = {};
+            WMODEL_DATA.edition = null;
+        WMODEL_DATA.articles = [{"articleImage":"//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","saveStatus":{"canSave":true,"count":17,"saved":false},"portalId":2,"viewTracked":true,"pdf":null,"canDelete":false,"bodyProp":"articleBody","pubPlug":"dzone-jordan","canEdit":true,"publisher":{"logo":"https://dzone.com/themes/dz20/images/logo.png","name":"DZone"},"id":1572311,"authors":[{"id":2910331,"isClaimed":false,"company":"Independent","name":"gabrieletomassetti","claimed":null,"realName":"Gabriele Tomassetti","avatar":7280747,"isMVB":true,"url":"/users/2910331/gabrieletomassetti.html","tagline":"Software Engineer","aboutAuthor":"I started developing software to make a football management simulation and never stopped. I like C#. Twitter: @AnimusTechnica"}],"articleDate":1497110487000,"relatedArticles":[{"id":1619256,"title":"4 Reasons Why You Should Not Bother Too Much About Which Programming Language to Choose","img":6082158,"url":"/articles/4-reasons-why-you-should-not-bother-too-much-about"},{"id":1784054,"title":"Programming by Search, Copy, and Paste Leads to Epic Fail","img":7007070,"url":"/articles/programming-by-search-copy-and-paste-leads-to-epic"},{"id":1513113,"title":"Stack Overflow's Annual Developer Survey","img":4990823,"url":"/articles/stack-overflows-annual-developer-survey"},{"id":1536282,"title":"What Is the Programming Language of the Future?","img":5222690,"url":"/articles/what-is-the-programming-language-of-the-future"}],"partner":{"details":{"logo":"//dz2cdn3.dzone.com/storage/partner-logo/4924970-smconference-2016-sponsor-ca-technology-s.png","level":2,"name":"CA Technologies","partnerUrl":"http://www.ca.com/us/default.aspx","leveldesc":"Platinum","code":"ca-technologies"},"bottom":{"id":204125,"text":"<p>Discover how TDM Is Essential To <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" target=\"_blank\" rel=\"nofollow\">Achieving Quality At Speed For Agile, DevOps, And Continuous Delivery</a>. Brought to you in partnership with <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" target=\"_blank\" rel=\"nofollow\">CA Technologies</a>.&nbsp;</p>"},"campaign":59512,"top":{"id":204124,"text":"<p><a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">See how three solutions work together</a> to help your teams have the tools they need to <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150123399;dc_trk_aid=321096583;dc_trk_cid=81552442;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">deliver quality software quickly</a>. Brought to you in partnership with <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">CA Technologies</a>.&nbsp;</p>"}},"nComments":1,"published":true,"canonical":"https://dzone.com/articles/the-best-programming-languages-for-each-situation-1","articleTypePre":"https://schema.org/BlogPosting","readyForAd":true,"metaDescription":"In this post, we examine how you can know which programming language is best for you and your team, and few a use cases of big companies switching languages.","image":"//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","relatedRefcard":[{"id":520295,"title":"Using Repository Managers","img":4902349,"url":"/refcardz/binary-repository-management"}],"canPublish":false,"rawType":"article","shortDesc":"<p pid=\"2\">There is a question that many people take as a sign that the questioner does not understand the subject at all. Some people even find it enraging. The question is usually in the form of, <em>What is the best X?</em> What is the best car? What is the best programming language? But at the same time, it is a question that we ask ourselves every time we start a project or we pick a car.</p>\n<p pid=\"3\">The difference, of course, is that we ask this question in our specific context. We want to know the best programming language for us, for the situation we are in.</p>\n<p pid=\"4\">We obviously cannot know your situation, but with this article, we hope to provide useful information to whoever is thinking about entering a new field or just wants to know the current state of the field.</p>\n<h2>Changing the Programming Language Has Costs</h2>\n<p pid=\"14\">If you have a large codebase, you probably do not really choose a language for a new project. You just use the one you have used so far. The main factor is the cost of adding a new language. Hiring new developers, changing your infrastructure, learning the best practices, is simply too much for many companies.</p>\n<p...","deleted":false,"likeStatus":{"liked":true,"score":12,"canLike":false},"zonetop":"dzone-jordan","articleTags":["agile","programming languages","development process"],"header":{"id":1572311,"title":"The Best Programming Languages for Each Situation, Part 1","imageUrl":"//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","link":"/articles/the-best-programming-languages-for-each-situation-1","imageLink":"//dz2cdn2.dzone.com/storage/article-thumb/5547249-thumb.jpg","titleEll":"The Best Programming Languages for Each Situation,...","type":"article"},"url":"/articles/the-best-programming-languages-for-each-situation-1","isLocked":false,"draft":false,"articleContent":"","source":"https://tomassetti.me/best-programming-languages/?1","modDate":1497160600000,"views":11949,"isLimited":false,"tldr":"We introduce the topic of picking the best programming language for you by looking at how Twitter and Facebook went about the process, and what questions to ask yourself.","originalSource":"https://tomassetti.me/best-programming-languages/?1","articleType":"opinion"}];
+        WMODEL_DATA.perms = {"canDecidePick":false,"canPublish":false};
+        WMODEL_DATA.partners = {"2":[{"details":{"logo":"//dz2cdn3.dzone.com/storage/partner-logo/4924970-smconference-2016-sponsor-ca-technology-s.png","level":2,"name":"CA Technologies","partnerUrl":"http://www.ca.com/us/default.aspx","leveldesc":"Platinum","code":"ca-technologies"},"bottom":{"id":204125,"text":"<p>Discover how TDM Is Essential To <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" target=\"_blank\" rel=\"nofollow\">Achieving Quality At Speed For Agile, DevOps, And Continuous Delivery</a>. Brought to you in partnership with <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413345;dc_trk_aid=321095198;dc_trk_cid=81552443;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" target=\"_blank\" rel=\"nofollow\">CA Technologies</a>.&nbsp;</p>"},"campaign":59512,"top":{"id":204124,"text":"<p><a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">See how three solutions work together</a> to help your teams have the tools they need to <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150123399;dc_trk_aid=321096583;dc_trk_cid=81552442;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">deliver quality software quickly</a>. Brought to you in partnership with <a href=\"https://ad.doubleclick.net/ddm/trackclk/N6040.130331DZONE/B11226848.150413346;dc_trk_aid=321098505;dc_trk_cid=81553809;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=\" rel=\"nofollow\" target=\"_blank\">CA Technologies</a>.&nbsp;</p>"}}],"lastUsed":0};
+        WMODEL_DATA.authenticated = true;
+        WMODEL_DATA.firstArticleContent = null;
+        WMODEL_DATA.isPreview = false;
+        WMODEL_DATA.isSubscribed = false;
+        WMODEL_DATA.OPTIONS = {};
+        TH.installWidgetController('article.content', 'articleContent5', WMODEL_DATA, typeof controller == 'function' ? controller : null, [{name: 'partners', data: true},{name: 'DEFAULT', data: true}], ' oUhbblYOaqbcblYOaqbcC', null);
+        })();
+        (function() {
+            function controller($scope, $service, $location, SideBarService, $timeout) {
+
+    if ($scope.edition) {
+        $scope.date = moment($scope.editionDate).utc().format('MMM DD, YYYY');
+    }
+
+    SideBarService.ctx.pageSize = $scope.pageSize;
+    SideBarService.ctx.isPreview = $scope.isPreview;
+    SideBarService.ctx.mode = $scope.mode;
+
+    SideBarService.fn.loader = $service;
+
+    var $window = $(window);
+
+    function checkWidth() {
+        var windowsize = $window.width();
+        $scope.width = windowsize;
+    }
+    // Execute on load
+    checkWidth()
+    // Bind event listener
+    $(window).resize(checkWidth);
+
+
+    if ($scope.edition) {
+        SideBarService.ctx.edition = $scope.edition;
+    }
+
+    SideBarService.fn.scrollCheck = function() {
+        $scope.$emit('thIfScrollCheck');
+    };
+
+    var currentFilter;
+
+    $scope.$on('$locationChangeSuccess', function() {
+
+        if (!$location.search().filter) {
+            $scope.filter = 'latest';
+        } else {
+            $scope.filter = $location.search().filter;
+
+            if ($scope.filter == 'latest') {
+                $location.search('filter', null);
+            }
+        }
+
+        if (currentFilter == $scope.filter) {
+            return;
+        }
+
+        currentFilter = $scope.filter;
+
+        SideBarService.ctx.filter = $scope.filter;
+    });
+
+    $scope.display = SideBarService.getList();
+
+    $scope.$watchCollection(function() {
+        return SideBarService.getList();
+    }, function (n) {
+        $scope.display = n;
+    });
+
+    $scope.isActive = SideBarService.isActive;
+
+    $scope.isExcluded = SideBarService.isExcluded;
+
+    $scope.loadMore = SideBarService.load;
+
+    $scope.loading = function() {
+        return SideBarService.ctx.loading;
+    };
+
+    TH.on('TapBarStatusChange', function(expanded) {
+        if (expanded) {
+            SideBarService.unblock();
+        }
+    })
+
+}
+            var WMODEL_DATA = {};
+            WMODEL_DATA.edition = null;
+        WMODEL_DATA.editionName = "";
+        WMODEL_DATA.pageSize = 20;
+        WMODEL_DATA.isPreview = false;
+        WMODEL_DATA.editionDate = null;
+        WMODEL_DATA.OPTIONS = {};
+        WMODEL_DATA.mode = null;
+        TH.installWidgetController('sidebar.content.list', 'sidebarContentList8', WMODEL_DATA, typeof controller == 'function' ? controller : null, [{name: 'DEFAULT', data: true}], ' oUhbkSMaaqbcdvVkcC', null);
+        })();
+        (function() {
+            function controller($scope) {
+    var $window = $(window);
+
+    function checkWidth() {
+        var windowsize = $window.width();
+        var $element = $('div.sidebar.sidebarTapBar');
+        $scope.width = windowsize;
+        if(windowsize <= 1024 && $scope.edition){
+            $('.fixContentRight').removeClass('fixContentRight');
+            // $element.removeClass('expanded');
+            // $element.addClass('tapNotExpanded');
+            $('.tap').show();
+        }else if($scope.edition){
+            $('.tap').hide();
+            $('.mainContentRow').addClass('fixContentRight');
+            $element.removeClass('tapNotExpanded');
+            $element.addClass('expanded');
+        }
+    }
+    // Execute on load
+    checkWidth();
+    // Bind event listener
+    $(window).resize(checkWidth);
+}
+            var WMODEL_DATA = {};
+            WMODEL_DATA.edition = null;
+        WMODEL_DATA.slot = null;
+        WMODEL_DATA.OPTIONS = {};
+        TH.installWidgetController('sidebar.tapBar', 'sidebar', WMODEL_DATA, typeof controller == 'function' ? controller : null, null, ' oUhbkSMadabfWVcC oUhbkSMadabbWQbVkcC', null);
+        })();
+        (function() {
+            function controller($scope,  shareThis, TH$Dialog, TH$Service, $location) {
+    $scope.getEditUrl = function(id, type) {
+        if (!type || type == 'article') {
+            return '/content/' + id + '/edit.html';
+        } else {
+            return '/dzone/staff/' + type + (type == 'refcard' ? 'z' : 's') + '/' + id + '/edit.html';
+        }
+    };
+
+    $scope.share = function(socialNet, url, title){
+        shareThis.shareThis(socialNet, url, title);
+    };
+
+//    $scope.mailShareLink = function(article) {
+//        return 'mailto:?subject=' + encodeURIComponent(article.header.title) +  '&body=Article: ' + encodeURIComponent('https://dzone.com/' + article.header.link);
+//    };
+
+    $scope.canDelete = function(article) {
+        return article.canDelete;
+    };
+
+    $scope.canPublish = function(article) {
+        return article.canPublish;
+    };
+
+    $scope.canEdit = function(article) {
+        return article.canEdit;
+    };
+
+    $scope.toggleComments = function(article) {
+        if(!article.isLocked) {
+            TH$Service.action('articles.lockNode', {type: 'node', id: article.id}).then(function(result) {
+                if(result){
+                    article.isLocked = true;
+                    TH$Dialog.success('You have disabled all comments for this Article');
+                }else{
+                    TH$Dialog.error('error','Your requested was denied')
+                }
+            });
+        }else {
+            TH$Service.action('articles.unlockNode', {type: 'node', id: article.id}).then(function(result) {
+                if(result){
+                    article.isLocked = false;
+                    TH$Dialog.success('You have enabled all comments for this Article');
+                }else{
+                    TH$Dialog.error('error','Your requested was denied')
+                }
+            });
+        }
+    };
+
+    $scope.toggleLimitComments = function (article) {
+        if (!article.isLimited) {
+            TH$Service.action('articles.limitNode', {type: 'node', id: article.id}).then(function (result) {
+                if (result) {
+                    article.isLimited = true;
+                    TH$Dialog.success('You have limited comments for this Article. Now all comments will go through moderation.');
+                } else {
+                    TH$Dialog.error('error', 'Your requested was denied')
+                }
+            });
+        } else {
+            TH$Service.action('articles.unlimitNode', {type: 'node', id: article.id}).then(function (result) {
+                if (result) {
+                    article.isLimited = false;
+                    TH$Dialog.success('You removed the limits for comments on this Article');
+                } else {
+                    TH$Dialog.error('error', 'Your requested was denied')
+                }
+            });
+        }
+    };
+
+    $scope.shareTwitter = function($event, title, url){
+
+        $event.preventDefault();
+        $event.stopPropagation();
+        var twitter = 'https://twitter.com/intent/tweet';
+        var link = $location.protocol() + '://' + location.host + url;
+        var ref = location.host;
+        var params = '?text='+title+'&url='+link+'&ref=dzone.com&via=DZone';
+        var win = window.open(twitter+params, '_blank');
+        win.focus();
+    };
+
+    $scope.edit = function(link) {
+        TH$Dialog.open({
+            loadWidget: 'links.postPreview',
+            widgetArgs: {
+                edit: link.id
+            },
+            size: 'xbig'
+        }).then(function (result) {
+            $scope.link.title = result.title;
+            $scope.link.linkDescription = result.content;
+            $scope.link.thumb = result.thumb;
+            $scope.link.tags = result.topics;
+        });
+    };
+
+    $scope.deleteLink = function(article) {
+        var title = article.title;
+        var type = 'link';
+        if(article.header){
+            title = (article.header.type == 'article') ? article.header.title : article.title;
+            type = (article.header.type == 'article') ? 'article' : 'link';
+        }
+        TH$Dialog.confirm('Do you want to delete "' + title + '"?').then(function() {
+            return TH$Service.action('delete', {type: type, id: article.id});
+        }).then(function() {
+            article.deleted = true;
+        });
+    };
+}
+
+
+            var WMODEL_DATA = {};
+            WMODEL_DATA.OPTIONS = {};
+        TH.installWidgetController('content.commentsSlider', 'contentCommentsSlider7', WMODEL_DATA, typeof controller == 'function' ? controller : null, null, ' oUhbaqbcaibvnWffWVcC', null);
+        })();
+        (function() {
+            
+            var WMODEL_DATA = {};
+            WMODEL_DATA.name = "commentsSlider";
+        WMODEL_DATA.slot = null;
+        WMODEL_DATA.OPTIONS = {"name":"commentsSlider"};
+        TH.installWidgetController('components.slider', 'componentsSlider6', WMODEL_DATA, typeof controller == 'function' ? controller : null, null, ' oUhballbvbdSaoUhM', null);
+        })();
+        </script>
+    <script type="text/javascript">
+
+        TH.installWidgetDirective('leads.addCRM', 'leadsAddCRM', {"service":null,"extra":null}, 'widget.html', '/widgets/leads/addCRM/widget.js', [{name: 'DEFAULT', data: true}], ' oUhb_ObOQnKRMnM oUhbcgvKRcgcONfPC', ['/scripts/utilities/tools.js'], ['add-crm.less','add-ref.less']);
+        
+        TH.installWidgetDirective('manage.revisions', 'manageRevisions', {"service":{"node":"=","body":"=","masterTemplate":"=","format":"=","mode":"="},"extra":null}, 'widget.html', '/widgets/manage/revisions/widget.js', [{name: 'revision', data: true},{name: 'DEFAULT', data: true}], ' oUhbXYVajkgpfWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('manage.customNotifications.preview', 'manageCustomNotificationsPreview', {"service":null,"extra":null}, 'widget.html', '/widgets/manage/customNotifications/preview/widget.js', null, ' oUhbXYVMwrjrYVdgpZfnkZfnkM dLgZWBLPpWkKeXB', null, ['preview.less','/lib/froala-2/css/froala_style.min.css']);
+        
+        TH.installWidgetDirective('users.signInForm', 'usersSignInForm', {"service":null,"extra":null}, 'widget.html', '/widgets/users/signInForm/widget.js', null, ' oUhbwfbkdfdnbZfcpWC', null, ['signInForm.less']);
+        
+        TH.installWidgetDirective('users.profile.mini', 'usersProfileMini', {"service":{"user":"="},"extra":null}, 'widget.html', '/widgets/users/profile/mini/widget.js', [{name: 'DEFAULT', data: true}], ' oUhbwfbqddOeffWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('links.postV2', 'linksPostV2', {"service":null,"extra":null}, 'widget.html', '/widgets/links/postV2/widget.js', null, ' oUhbdhbnvXZqyBC', null, ['postV2.less']);
+        
+        TH.installWidgetDirective('links.listV2', 'linksListV2', {"service":null,"extra":null}, 'widget.ftl', '/widgets/links/listV2/widget.js', [{name: 'linkData', data: true},{name: 'list', data: true},{name: 'parseLink', data: true}], ' oUhbdhbdvXVkyBC', ['filters.js','directives.js'], ['listV2.less']);
+        
+        TH.installWidgetDirective('users.uiPrefs', 'usersUiPrefs', {"service":null,"extra":null}, 'widget.html', '/widgets/users/uiPrefs/widget.js', null, '', null, null);
+        
+        TH.installWidgetDirective('links.postPreview', 'linksPostPreview', {"service":{"url":"=","edit":"="},"extra":null}, 'widget.html', '/widgets/links/postPreview/widget.js', [{name: 'topics', data: true},{name: 'DEFAULT', data: true}], ' oUhbdhbnvqjXfoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('manage.customNotifications.test', 'manageCustomNotificationsTest', {"service":{"customNotification":"="},"extra":null}, 'widget.html', '/widgets/manage/customNotifications/test/widget.js', [{name: 'searchGroups', data: true},{name: 'searchUsers', data: true},{name: 'DEFAULT', data: true}], ' oUhbXYVMwrjrYVdgpcgcoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('header.sections', 'headerSections', {"service":null,"extra":null}, 'widget.html', '/widgets/header/sections/widget.js', null, ' oUhbWOfbRllbgfgpM', null, ['sections.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.subscribeInjection', 'emailSubscriptionsSubscribeInjection', {"service":null,"extra":null}, 'widget.html', '/widgets/emailSubscriptions/subscribeInjection/widget.js', null, ' oUhbaTnfejsgpbfejQfYfgXoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('users.loginFormV2', 'usersLoginFormV2', {"service":null,"extra":null}, 'widget.html', '/widgets/users/loginFormV2/widget.js', null, ' oUhbwfbjZcprBjZcprBC', null, ['loginFormV2.less']);
+        
+        TH.installWidgetDirective('refcardz.mini', 'refcardzMini', {"service":{"asset":"="},"extra":null}, 'widget.html', '', [{name: 'DEFAULT', data: true}], ' oUhbfSbmWfSoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('links.sources.mini', 'linksSourcesMini', {"service":{"link":"="},"extra":null}, 'widget.html', '', [{name: 'DEFAULT', data: true}], ' oUhbdhbqvRbefWfSC', null, ['mini.less']);
+        
+        TH.installWidgetDirective('header.zonesDropdown', 'headerZonesDropdown', {"service":{"portal":"="},"extra":{"hover":"="}}, 'widget.html', '/widgets/header/zonesDropdown/widget.js', [{name: 'DEFAULT', data: true}], '', null, null);
+        
+        TH.installWidgetDirective('users.noMembership', 'usersNoMembership', {"service":null,"extra":null}, 'widget.html', '/widgets/users/noMembership/widget.js', null, ' oUhbwfblaYfjhfWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('assets.mini', 'assetsMini', {"service":{"asset":"="},"extra":null}, 'widget.html', '', [{name: 'DEFAULT', data: true}], ' oUhbcgvWfSoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.subscriptions.unsubscribeHeader', 'emailSubscriptionsSubscriptionsUnsubscribeHeader', {"service":null,"extra":null}, 'widget.html', '', null, ' oUhbaTnfejsgpbfejsgpdpfejQWOffWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.subscriptions.nonMemberJoin', 'emailSubscriptionsSubscriptionsNonMemberJoin', {"service":null,"extra":null}, 'widget.html', '', null, ' oUhbaTnfejsgpbfejsgpXlaYfhffWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('article.listV2', 'articleListV2', {"service":null,"extra":null}, 'widget.html', '/widgets/article/listV2/widget.js', [{name: 'list', data: true},{name: 'sortCount', data: true}], ' oUhbblYOdvXKuV_VkcC', ['directives.js'], ['article-list.less']);
+        
+        TH.installWidgetDirective('content.commentBox', 'contentCommentBox', {"service":{"parent":"="},"extra":{"count":"=","limited":"="}}, 'widget.html', '/widgets/content/commentBox/widget.js', [{name: 'post', data: false},{name: 'edit', data: false},{name: 'DEFAULT', data: true}], ' oUhbaqbcaibevMkaqbC', null, ['comments.less']);
+        
+        TH.installWidgetDirective('users.loginForm', 'usersLoginForm', {"service":null,"extra":null}, 'widget.html', '/widgets/users/loginForm/widget.js', null, ' oUhbwfbjZcpWjZcpWC', null, ['loginForm.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.subscriptions.memberManageHeader', 'emailSubscriptionsSubscriptionsMemberManageHeader', {"service":null,"extra":null}, 'widget.html', '', null, ' oUhbaTnfejsgpbfejsgpWaQnYRWPSaoUhM', null, ['widget.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.subscriptions.nonMemberManageHeader', 'emailSubscriptionsSubscriptionsNonMemberManageHeader', {"service":null,"extra":null}, 'widget.html', '', null, ' oUhbaTnfejsgpbfejsgpXlaYfXYVWOffWVcC', null, ['widget.less']);
+        
+        TH.installWidgetDirective('emailSubscriptions.footerWidget', 'emailSubscriptionsFooterWidget', {"service":null,"extra":null}, 'widget.html', '/widgets/emailSubscriptions/footerWidget/widget.js', null, ' oUhbaTnfejsgpPmhxWVcoUhM', null, ['widget.less']);
+            </script>
+
+</body>
+
+

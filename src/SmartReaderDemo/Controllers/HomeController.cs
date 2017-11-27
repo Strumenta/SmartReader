@@ -23,7 +23,7 @@ namespace SmartReaderDemo.Controllers
 			sr.Debug = true;
 			sr.Logger = new StringWriter();
 
-			Article article = sr.Parse();		
+            Article article = sr.Parse();           
 
 			return Json(new
 			{

@@ -3,6 +3,11 @@ using Xunit;
 using SmartReader;
 using System.IO;
 using Moq;
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using System.Linq;
 
 namespace SmartReaderTests
 {
@@ -25,57 +30,53 @@ namespace SmartReaderTests
 
 	public class BasicTests
 	{
-		public IArticleTest GetTestArticle(string file)
+		public IArticleTest GetTestArticle(JObject metadata)
 		{
-			using (StreamReader sr = new StreamReader(new FileStream(file, FileMode.Open)))
-			{
-				//Article expected = new Article(new Uri(uri), title, readable);
-				var mockArticle = new Mock<IArticleTest>();
-				mockArticle.Setup(x => x.Uri).Returns(new Uri(sr.ReadLine()));
-				mockArticle.Setup(x => x.IsReadable).Returns(bool.Parse(sr.ReadLine()));
-				mockArticle.Setup(x => x.Title).Returns(sr.ReadLine());
-				mockArticle.Setup(x => x.Dir).Returns(sr.ReadLine());
-				mockArticle.Setup(x => x.Byline).Returns(sr.ReadLine());
-				mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
-				mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Parse(sr.ReadLine()));
-				mockArticle.Setup(x => x.Language).Returns(sr.ReadLine());				
-				mockArticle.Setup(x => x.Excerpt).Returns(sr.ReadLine());
-				mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(sr.ReadLine()));
+						
+		    var mockArticle = new Mock<IArticleTest>();
+		    mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
+            //mockArticle.Setup(x => x.IsReadable).Returns(Boolean.Parse(metadata["readerable"].ToString()));
+		    mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
+            mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
+		    mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
+		    //mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
+		    //mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Par(sr.ReadLine  ()));
+		    //mockArticle.Setup(x => x.Language).Returns(sr.ReadLine());			
+		    //mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
+		    //mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Pars(sr.ReadLin()));
 
-				return mockArticle.Object;
-			}
+		    return mockArticle.Object;
 		}
 
 		private void AssertProperties(IArticleTest expected, Article found)
 		{			
-			Assert.Equal(expected.IsReadable, found.IsReadable);
+			//Assert.Equal(expected.IsReadable, found.IsReadable);
 			Assert.Equal(expected.Title, found.Title);
 			Assert.Equal(expected.Dir, found.Dir);
-			//Assert.Equal(expected.Byline, found.Byline);
-			Assert.Equal(expected.Author, found.Author);
-			Assert.Equal(expected.PublicationDate, found.PublicationDate);
-			Assert.Equal(expected.Language, found.Language);			
-			Assert.Equal(expected.Excerpt, found.Excerpt);
-			Assert.Equal(expected.TimeToRead, found.TimeToRead);
+			Assert.Equal(expected.Byline, found.Byline);
+			//Assert.Equal(expected.Author, found.Author);
+			//Assert.Equal(expected.PublicationDate, found.PublicationDate);
+			//Assert.Equal(expected.Language, found.Language);			
+			//Assert.Equal(expected.Excerpt, found.Excerpt);
+			//Assert.Equal(expected.TimeToRead, found.TimeToRead);
 		}
 
-		[Fact]
-		public void TestPages()
-		{
-			string[] expectedList = Directory.GetFiles(@"..\..\..\test-pages", "*.txt");
-			string[] articleList = Directory.GetFiles(@"..\..\..\test-pages", "*.html");
-			Array.Sort(expectedList);
-			Array.Sort(articleList);
+        [Fact]
+        public void TestPages()
+        {            
+             foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages"))
+             {
+                
+                 var sourceContent = File.ReadAllText(Path.Combine(d, @"source.html"));
+                 var expectedContent = File.ReadAllText(Path.Combine(d, @"expected.html"));
+                 var expectedMetadataString = File.ReadAllText(Path.Combine(d, @"expected-metadata.json"));
+                 var expectedMetadata = JObject.Parse(expectedMetadataString);
+               
+                 Article found = Reader.ParseArticle("https://localhost/", sourceContent);
 
-			for (int a = 0; a < expectedList.Length; a++)
-			{
-				IArticleTest expected = GetTestArticle(expectedList[a]);				
-				String text = new StreamReader(new FileStream(articleList[a], FileMode.Open)).ReadToEnd();				
-				Article found = Reader.ParseArticle(expected.Uri.ToString(), text);
-				Console.WriteLine(found.Byline);
-
-				AssertProperties(expected, found);				
-			}
-		}
-	}
+                 IArticleTest expected = GetTestArticle(expectedMetadata);
+                 AssertProperties(expected, found);
+            }            
+        }
+    }
 }

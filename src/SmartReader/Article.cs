@@ -26,27 +26,30 @@ namespace SmartReader
 		public DateTime? PublicationDate { get; private set; }
 		public bool IsReadable { get; private set; }
 
-		public Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata)
+		public Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable)
 		{
 			Uri = uri;
 			Title = title;
-			Byline = String.IsNullOrEmpty(byline) ? metadata.Byline : byline;
+			Byline = String.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
 			Dir = dir;
 			Content = article.InnerHtml;
 			TextContent = article.TextContent;
 			Excerpt = metadata.Excerpt;
 			Length = article.TextContent.Length;
-			Language = !String.IsNullOrEmpty(metadata.Language) ? metadata.Language : language;
+			Language = String.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
 			PublicationDate = metadata.PublicationDate;
-			Author = String.IsNullOrEmpty(author) ? metadata.Author : author;
-			IsReadable = true;
+			Author = String.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;
+            IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
             TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead());
 		}
         
         private int GetWeightTimeToRead()
         {
-            CultureInfo culture = new CultureInfo(Language);
+            CultureInfo culture = CultureInfo.InvariantCulture;
+           
+            if (!String.IsNullOrWhiteSpace(Language))
+                culture = new CultureInfo(Language);            
 
             Dictionary<String, int> CharactersMinute = new Dictionary<string, int>()
             {

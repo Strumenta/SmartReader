@@ -38,12 +38,12 @@ namespace SmartReader
 		public String Author { get; set; } = "";
 	}
 
-	/// <summary>
-	/// SmartReader
-	/// </summary>
-	public class Reader
-	{
-		/*
+    /// <summary>
+    /// SmartReader
+    /// </summary>
+    public class Reader
+    {
+        /*
 		* This code is, for the most part, a port of the readibility library of Firefox Reader View
 		* available at: https://github.com/mozilla/readability
 		* which is in turn heavily based on Arc90's readability.js (1.7f.1) script
@@ -51,49 +51,45 @@ namespace SmartReader
 		*         
 		*/
 
-		private Uri uri;
-		private IHtmlDocument doc;
-		private string articleTitle;
-		private string articleByline;
-		private string articleDir;
-		private string language;
-		private string author;
-		private string charset;
+        private Uri uri;
+        private IHtmlDocument doc;
+        private string articleTitle;
+        private string articleByline;
+        private string articleDir;
+        private string language;
+        private string author;
+        private string charset;
 
-		// A list of scores
-		private Dictionary<IElement, double> readabilityScores = new Dictionary<IElement, double>();
+        // A list of scores
+        private Dictionary<IElement, double> readabilityScores = new Dictionary<IElement, double>();
 
-		// A list of datatables
-		private List<IElement> readabilityDataTable = new List<IElement>();
+        // A list of datatables
+        private List<IElement> readabilityDataTable = new List<IElement>();
 
-		// Start with all flags set        
-		Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
+        // Start with all flags set        
+        Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
 
-		// The list of pages we've parsed in this call of readability,
-		// for autopaging. As a key store for easier searching.
-		List<String> parsedPages = new List<String>();
+        // The list of pages we've parsed in this call of readability,
+        // for autopaging. As a key store for easier searching.
+        //List<String> parsedPages = new List<String>();
 
-		// A list of the ETag headers of pages we've parsed, in case they happen to match,
-		// we'll know it's a duplicate.
-		List<string> pageETags = new List<string>();
+        // A list of the ETag headers of pages we've parsed, in case they happen to match,
+        // we'll know it's a duplicate.
+        //List<string> pageETags = new List<string>();
 
-		// Make an AJAX request for each page and append it to the document.
-		int curPageNum = 1;
+        // Make an AJAX request for each page and append it to the document.
+        //int curPageNum = 1;
 
-		//var logEl;
+        //var logEl;
 
-		/// <summary>Max number of nodes supported by this parser</summary>
-		/// <value>Default: 0 (no limit)</value>        
-		public int MaxElemsToParse { get; set; } = 0;
+        /// <summary>Max number of nodes supported by this parser</summary>
+        /// <value>Default: 0 (no limit)</value>        
+        public int MaxElemsToParse { get; set; } = 0;
 
 
-		/// <summary>The number of top candidates to consider when analysing how tight the competition is among candidates</summary>
-		/// <value>Default: 5</value>
-		public int NTopCandidates { get; set; } = 5;
-
-		/// <summary>The maximum number of pages to loop through before we call it quits and just show a link</summary>
-		/// <value>Default: 5</value>
-		public int MaxPages { get; set; } = 5;
+        /// <summary>The number of top candidates to consider when analysing how tight the competition is among candidates</summary>
+        /// <value>Default: 5</value>
+        public int NTopCandidates { get; set; } = 5;
 
         /// <summary>
         /// The default number of words an article must have in order to return a result
@@ -101,10 +97,28 @@ namespace SmartReader
         /// <value>Default: 500</value>
         public int WordThreshold { get; set; } = 500;
 
+        // These are the IDs and classes that readability sets itself.
+        private String[] idsToPreserve = { "readability-content", "readability-page-1" };
 
-		/// <summary>Set the Debug option and write the data on Logger</summary>
-		/// <value>Default: false</value>
-		public bool Debug { get; set; } = false;
+        private String[] classesToPreserve = { "readability-styled", "page" };
+        public String[] ClassesToPreserve {
+            get
+            {
+                return classesToPreserve;
+            }
+            set
+            {                
+                classesToPreserve = value;
+
+                classesToPreserve = classesToPreserve.Union(new string[] { "readability-styled", "page" }).ToArray();
+            }
+        }
+
+
+
+        /// <summary>Set the Debug option and write the data on Logger</summary>
+        /// <value>Default: false</value>
+        public bool Debug { get; set; } = false;
 
 		/// <summary>Where the debug data is going to be written</summary>
 		/// <value>Default: null</value>
@@ -112,7 +126,7 @@ namespace SmartReader
 
 		/// <summary>The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true</summary>
 		/// <value>Default: false</value>
-		public bool ContinueIfNotReadable { get; set; } = false;
+		public bool ContinueIfNotReadable { get; set; } = true;
 
 		// Element tags to score by default.
 		public String[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');
@@ -165,8 +179,7 @@ namespace SmartReader
 			HtmlParser parser = new HtmlParser();
 
 			doc = parser.Parse(stream);
-
-			//var biggestFrame = false;
+			
 			articleTitle = "";
 			articleByline = "";
 			articleDir = "";
@@ -286,9 +299,12 @@ namespace SmartReader
 		{
 			// Readability cannot open relative uris so we convert them to absolute uris.
 			fixRelativeUris(articleContent);
-		}
 
-		/**
+            // Remove IDs and classes.
+            cleanIDsAndClasses(articleContent);
+        }
+
+        /**
 		 * Iterates over a NodeList, calls `filterFn` for each node and removes node
 		 * if function returned `true`.
 		 *
@@ -298,7 +314,7 @@ namespace SmartReader
 		 * @param Function filterFn the function to use as a filter
 		 * @return void
 		 */
-		private void removeNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
+        private void removeNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
 		{
 			for (var i = nodeList.Count() - 1; i >= 0; i--)
 			{
@@ -390,13 +406,13 @@ namespace SmartReader
 		 * @return ...NodeList
 		 * @return Array
 		 */
-		private IHtmlCollection<IElement> concatNodeLists(params IHtmlCollection<IElement>[] arguments)
+		private IEnumerable<IElement> concatNodeLists(params IEnumerable<IElement>[] arguments)
 		{
-			IHtmlCollection<IElement> result = new List<IElement>() as IHtmlCollection<IElement>;
+            List<IElement> result = new List<IElement>();
 
 			foreach (var arg in arguments)
 			{
-				result = result.Concat(arg) as IHtmlCollection<IElement>;
+				result = result.Concat(arg).ToList();
 			}
 
 			return result;
@@ -410,6 +426,43 @@ namespace SmartReader
 			//    return Array.isArray(collection) ? collection : Array.from(collection);
 			//}));
 		}
+
+        /**
+        * Removes the id="" and class="" attribute from every element in the given
+        * subtree, except those that match IDS_TO_PRESERVE, CLASSES_TO_PRESERVE and
+        * the classesToPreserve array from the options object.
+        *
+        * @param Element
+        * @return void
+        */
+        private void cleanIDsAndClasses(IElement node)
+        {
+            if (!this.idsToPreserve.Contains(node.Id))
+            {
+                node.RemoveAttribute("id");
+            }
+
+            var classesToPreserve = this.classesToPreserve;
+            var className = "";
+
+            if(!String.IsNullOrEmpty(node.ClassName))
+                className = String.Join(" ", node.ClassName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => classesToPreserve.Contains(x)));
+
+            if (!String.IsNullOrEmpty(className))
+            {
+                node.ClassName = className;
+            }
+            else
+            {
+                node.RemoveAttribute("class");
+            }
+
+            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
+            {
+                cleanIDsAndClasses(node);
+            }
+        }
 
 		/**
 		 * Converts each <a> and <img> uri in the given element to an absolute URI,
@@ -548,7 +601,7 @@ namespace SmartReader
 				  doc.GetElementsByTagName("h1"),
 				  doc.GetElementsByTagName("h2")
 				);
-				var match = someNode(headings, (heading) =>
+                var match = someNode(headings, (heading) =>
 				{
 					return heading.TextContent == curTitle;
 				});
@@ -577,8 +630,6 @@ namespace SmartReader
             // 'hierarchical' separators (\, /, > or ») were found in the original
             // title or we decreased the number of words by more than 1 word, use
             // the original title.
-
-
 
             var curTitleWordCount = wordCount(curTitle);
             if (curTitleWordCount <= 4 && (
@@ -703,7 +754,9 @@ namespace SmartReader
 
 			for (var i = 0; i < node.Attributes.Length; i++)
 			{
-				replacement.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
+                // the possible result of malformed HTML
+                if (!node.Attributes[i].Name.Contains("<") && !node.Attributes[i].Name.Contains(">"))
+                    replacement.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
 			}
 			return replacement;
 		}
@@ -961,7 +1014,21 @@ namespace SmartReader
 			return false;
 		}
 
-		private IEnumerable<INode> getNodeAncestors(INode node, int maxDepth = 0)
+        private IEnumerable<IElement> getElementAncestors(IElement node, int maxDepth = 0)
+        {
+            var i = 0;
+            List<IElement> ancestors = new List<IElement>();
+            while (node.ParentElement != null)
+            {
+                ancestors.Add(node.ParentElement);
+                if (maxDepth != 0 && ++i == maxDepth)
+                    break;
+                node = node.ParentElement;
+            }
+            return ancestors;
+        }
+
+        private IEnumerable<INode> getNodeAncestors(INode node, int maxDepth = 0)
 		{
 			var i = 0;
 			List<INode> ancestors = new List<INode>();
@@ -1062,8 +1129,9 @@ namespace SmartReader
 							var newNode = node.Children[0];
 							node.Parent.ReplaceChild(newNode, node);
 							node = newNode;
-						}
-						else if (!hasChildBlockElement(node))
+                            elementsToScore.Add(node);
+                        }
+                        else if (!hasChildBlockElement(node))
 						{
 							node = setNodeTag(node, "P");
 							elementsToScore.Add(node);
@@ -1378,8 +1446,9 @@ namespace SmartReader
 				if (Debug)
 					Logger.WriteLine("<h2>Article content post-prep:</h2>" + articleContent.InnerHtml);
 
-				if (curPageNum == 1)
-				{
+
+                //if (curPageNum == 1)
+				//{
 					if (neededToCreateTopCandidate)
 					{
 						// We already created a fake div thing, and there wouldn't have been any siblings left
@@ -1401,7 +1470,7 @@ namespace SmartReader
 						}
 						articleContent.AppendChild(div);
 					}
-				}
+				//}
 
 				if (Debug)
 					Logger.WriteLine("<h2>Article content after paging:</h2>" + articleContent.InnerHtml);
@@ -1432,19 +1501,19 @@ namespace SmartReader
 						return null;
 					}
 				}
-				else if (!String.IsNullOrEmpty(doc.Direction))
-				{
-					articleDir = doc.Direction;
-
-					return articleContent;
-				}
+				//else if (!String.IsNullOrEmpty(doc.Direction))
+				//{
+				//	articleDir = doc.Direction;
+                //
+				//	return articleContent;
+				//}
 				else
 				{
 					// Find out text direction from ancestors of final top candidate.
-					IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(getNodeAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;
+					IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(getElementAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;                    
 					someNode(ancestors, (ancestor) =>
 					{
-						if (!String.IsNullOrEmpty(ancestor.TagName))
+						if (String.IsNullOrEmpty(ancestor.TagName))
 							return false;
 						var articleDir = ancestor.GetAttribute("dir");
 						if (!String.IsNullOrEmpty(articleDir))
@@ -1497,20 +1566,23 @@ namespace SmartReader
 			// Match Facebook's Open Graph title & description properties.
 			var propertyPattern = @"^\s*(og|article)\s*:\s*(description|title|published_time)\s*$";
 
-			// Find description tags.
-			forEachNode(metaElements, (element) =>
+            var itemPropPattern = @"\s*datePublished\s*";
+
+            // Find description tags.
+            forEachNode(metaElements, (element) =>
 			{
 				var elementName = (element as IElement).GetAttribute("name") ?? "";
 				var elementProperty = (element as IElement).GetAttribute("property") ?? "";
+                var itemProp = (element as IElement).GetAttribute("itemprop") ?? "";
 
-				if (new string[] { elementName, elementProperty }.ToList().IndexOf("author") != -1)
+                if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
 				{
 					metadata.Byline = (element as IElement).GetAttribute("content");
 					metadata.Author = (element as IElement).GetAttribute("content");
 					return;
 				}
-
-				String name = "";
+                
+                String name = "";
 				if (Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
 				{
 					name = elementName;
@@ -1519,8 +1591,12 @@ namespace SmartReader
 				{
 					name = elementProperty;
 				}
+                else if (Regex.IsMatch(itemProp, itemPropPattern, RegexOptions.IgnoreCase))
+                {
+                    name = itemProp;
+                }
 
-				if (!String.IsNullOrEmpty(name))
+                if (!String.IsNullOrEmpty(name))
 				{
 					var content = (element as IElement).GetAttribute("content");
 					if (!String.IsNullOrEmpty(content))
@@ -1534,13 +1610,13 @@ namespace SmartReader
 				}
 			});
 
-			//Logger.WriteLine("Meta Values");
-			//foreach (var value in values)
-			//{
-			//	Logger.WriteLine($"Key: {value.Key} Value: {value.Value}");
-			//}
+            //Logger.WriteLine("Meta Values");
+            //foreach (var value in values)
+            //{
+            //	Logger.WriteLine($"Key: {value.Key} Value: {value.Value}");
+            //}
 
-			if (values.ContainsKey("description"))
+            if (values.ContainsKey("description"))
 			{
 				metadata.Excerpt = values["description"];
 			}
@@ -1602,7 +1678,12 @@ namespace SmartReader
 			{
 				metadata.PublicationDate = date;
 			}
-			else
+            else if (values.ContainsKey("datepublished")
+                && DateTime.TryParse(values["datepublished"], out date))
+            {
+                metadata.PublicationDate = date;
+            }
+            else
 			{
 				var times = doc.GetElementsByTagName("time");
 
@@ -1688,11 +1769,14 @@ namespace SmartReader
 		private bool hasChildBlockElement(IElement element)
 		{
 			//return someNode(element.ChildNodes, (node) => {                
-			return someNode(element.Children, (node) =>
+			var b = someNode(element?.ChildNodes, (node) =>
 			{
-				return DivToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1 ||
-				       hasChildBlockElement(node as IElement);
+				return DivToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1
+                || hasChildBlockElement(node as IElement);
 			});
+            var d = element?.TextContent;
+
+            return b;
 		}
 
 		/**
@@ -1786,412 +1870,7 @@ namespace SmartReader
 			});
 
 			return linkLength / textLength;
-		}
-
-		/**
-		 * Find a cleaned up version of the current URL, to use for comparing links for possible next-pageyness.
-		 *
-		 * @author Dan Lacy
-		 * @return string the base url
-		**/
-		private string findBaseUrl()
-		{
-			var uri = this.uri;
-			var noUrlParams = uri.PathAndQuery.Split('?')[0];
-			var urlSlashes = noUrlParams.Split('/').Reverse().ToList();
-			List<string> cleanedSegments = new List<string>();
-			var possibleType = "";
-
-			for (int i = 0, slashLen = urlSlashes.Count(); i < slashLen; i += 1)
-			{
-				var segment = urlSlashes[i];
-
-				// Split off and save anything that looks like a file type.
-				if (segment.IndexOf(".") != -1)
-				{
-					possibleType = segment.Split('.')[1];
-
-					// If the type isn't alpha-only, it's probably not actually a file extension.
-					if (!Regex.IsMatch(possibleType, @"[^a-zA-Z]", RegexOptions.IgnoreCase))
-						segment = segment.Split('.')[0];
-				}
-
-				// If our first or second segment has anything looking like a page number, remove it.
-				if (Regex.IsMatch(segment, @"((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$", RegexOptions.IgnoreCase) && ((i == 1) || (i == 0)))
-					segment = Regex.Replace(segment, @"((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$", "", RegexOptions.IgnoreCase);
-
-				var del = false;
-
-				// If this is purely a number, and it's the first or second segment,
-				// it's probably a page number. Remove it.
-				if (i < 2 && Regex.IsMatch(segment, @"^\d{1,2}$", RegexOptions.IgnoreCase))
-					del = true;
-
-				// If this is the first segment and it's just "index", remove it.
-				if (i == 0 && segment.ToLower() == "index")
-					del = true;
-
-				// If our first or second segment is smaller than 3 characters,
-				// and the first segment was purely alphas, remove it.
-				if (i < 2 && segment.Length < 3 && !Regex.IsMatch(urlSlashes[0], @"[a-z]", RegexOptions.IgnoreCase))
-					del = true;
-
-				// If it's not marked for deletion, push it to cleanedSegments.
-				if (!del)
-					cleanedSegments.Add(segment);
-			}
-
-			// This is our final, cleaned, base article URL.
-			return uri.Scheme + "://" + uri.Host + String.Join("/", cleanedSegments.AsEnumerable().Reverse());
-		}
-
-		/**
-		 * Look for any paging links that may occur within the document.
-		 *
-		 * @param body
-		 * @return object (array)
-		**/
-		private string findNextPageLink(IElement elem)
-		{
-			var uri = this.uri;
-			Dictionary<string, Page> possiblePages = new Dictionary<string, Page>();
-			var allLinks = elem.GetElementsByTagName("a");
-			var articleBaseUrl = findBaseUrl();
-
-			// Loop through all links, looking for hints that they may be next-page links.
-			// Things like having "page" in their textContent, className or id, or being a child
-			// of a node with a page-y className or id.
-			//
-			// Also possible: levenshtein distance? longest common subsequence?
-			//
-			// After we do that, assign each page a score, and
-			for (int i = 0, il = allLinks.Length; i < il; i += 1)
-			{
-				var link = allLinks[i];
-				//var linkHref = allLinks[i].href.replace(/#.*$/, '').replace(/\/$/, '');
-				var linkHref = Regex.Replace(allLinks[i].Attributes["href"].Value, @"#.*$", "", RegexOptions.IgnoreCase);
-				linkHref = Regex.Replace(linkHref, @"\/$", "", RegexOptions.IgnoreCase);
-
-				// If we've already seen this page, ignore it.
-				if (linkHref == "" ||
-				    linkHref == articleBaseUrl ||
-				    linkHref == uri.AbsoluteUri ||
-				    parsedPages.IndexOf(linkHref) != -1)
-				{
-					continue;
-				}
-
-				// If it's on a different domain, skip it.
-				if (uri.Host != Regex.Split(linkHref, @"\/+", RegexOptions.IgnoreCase)[1])
-					continue;
-
-				var linkText = getInnerText(link);
-
-				// If the linkText looks like it's not the next page, skip it.
-				if (regExps["extraneous"].IsMatch(linkText) || linkText.Length > 25)
-					continue;
-
-				// If the leftovers of the URL after removing the base URL don't contain
-				// any digits, it's certainly not a next page link.
-				var linkHrefLeftover = linkHref.Replace(articleBaseUrl, "");
-				if (!Regex.IsMatch(linkHrefLeftover, @"\d", RegexOptions.IgnoreCase))
-					continue;
-
-				if (!(possiblePages.ContainsKey(linkHref)))
-				{
-					possiblePages.Add(linkHref, new Page() { Score = 0, LinkText = linkText, Href = linkHref });
-				}
-				else
-				{
-					possiblePages[linkHref].LinkText += " | " + linkText;
-				}
-
-				var linkObj = possiblePages[linkHref];
-
-				// If the articleBaseUrl isn't part of this URL, penalize this link. It could
-				// still be the link, but the odds are lower.
-				// Example: http://www.actionscript.org/resources/articles/745/1/JavaScript-and-VBScript-Injection- in-      ActionScript-3/Page1.html
-				if (linkHref.IndexOf(articleBaseUrl) != 0)
-					linkObj.Score -= 25;
-
-				var linkData = linkText + ' ' + link.ClassName + ' ' + link.Id;
-				if (regExps["nextLink"].IsMatch(linkData))
-					linkObj.Score += 50;
-
-				if (Regex.IsMatch(linkData, @"pag(e|ing|inat)", RegexOptions.IgnoreCase))
-					linkObj.Score += 25;
-
-				if (Regex.IsMatch(linkData, @"(first|last)", RegexOptions.IgnoreCase))
-				{
-					// -65 is enough to negate any bonuses gotten from a > or » in the text,
-					// If we already matched on "next", last is probably fine.
-					// If we didn't, then it's bad. Penalize.
-					if (!regExps["nextLink"].IsMatch(linkObj.LinkText))
-						linkObj.Score -= 65;
-				}
-
-				if (regExps["negative"].IsMatch(linkData) || regExps["extraneous"].IsMatch(linkData))
-					linkObj.Score -= 50;
-
-				if (regExps["prevLink"].IsMatch(linkData))
-					linkObj.Score -= 200;
-
-				// If a parentNode contains page or paging or paginat
-				var parentNode = link.Parent as IElement;
-				var positiveNodeMatch = false;
-				var negativeNodeMatch = false;
-
-				while (parentNode != null)
-				{
-					var parentNodeClassAndId = parentNode.ClassName + ' ' + parentNode.Id;
-
-					if (!positiveNodeMatch && !String.IsNullOrEmpty(parentNodeClassAndId) && Regex.IsMatch(parentNodeClassAndId, @"pag(e|ing|inat)", RegexOptions.IgnoreCase))
-					{
-						positiveNodeMatch = true;
-						linkObj.Score += 25;
-					}
-
-					if (!negativeNodeMatch && !String.IsNullOrEmpty(parentNodeClassAndId) && regExps["negative"].IsMatch(parentNodeClassAndId))
-					{
-						// If this is just something like "footer", give it a negative.
-						// If it's something like "body-and-footer", leave it be.
-						if (!regExps["positive"].IsMatch(parentNodeClassAndId))
-						{
-							linkObj.Score -= 25;
-							negativeNodeMatch = true;
-						}
-					}
-
-					parentNode = parentNode.Parent as IElement;
-				}
-
-				// If the URL looks like it has paging in it, add to the score.
-				// Things like /page/2/, /pagenum/2, ?p=3, ?page=11, ?pagination=34
-				if (Regex.IsMatch(linkHref, @"p(a|g|ag)?(e|ing|ination)?(=|\/)[0-9]{1,2}", RegexOptions.IgnoreCase) || Regex.IsMatch(linkHref, @"(page|paging)", RegexOptions.IgnoreCase))
-					linkObj.Score += 25;
-
-				// If the URL contains negative values, give a slight decrease.
-				if (regExps["extraneous"].IsMatch(linkHref))
-					linkObj.Score -= 15;
-
-				/**
-				 * Minor punishment to anything that doesn't match our current URL.
-				 * NOTE: I'm finding this to cause more harm than good where something is exactly 50 points.
-				 *     Dan, can you show me a counterexample where this is necessary?
-				 * if (linkHref.indexOf(window.location.href) !== 0) {
-				 *  linkObj.score -= 1;
-				 * }
-				**/
-
-				// If the link text can be parsed as a number, give it a minor bonus, with a slight
-				// bias towards lower numbered pages. This is so that pages that might not have 'next'
-				// in their text can still get scored, and sorted properly by score.
-
-				int linkTextAsNumber;
-				bool isNumber = int.TryParse(linkText, out linkTextAsNumber);
-				if (isNumber)
-				{
-					// Punish 1 since we're either already there, or it's probably
-					// before what we want anyways.
-					if (linkTextAsNumber == 1)
-					{
-						linkObj.Score -= 10;
-					}
-					else
-					{
-						linkObj.Score += Math.Max(0, 10 - linkTextAsNumber);
-					}
-				}
-			}
-
-			// Loop thrugh all of our possible pages from above and find our top
-			// candidate for the next page URL. Require at least a score of 50, which
-			// is a relatively high confidence that this page is the next link.
-			Page topPage = null;
-
-			foreach (var page in possiblePages)
-			{
-				if (possiblePages.Contains(page))
-				{
-					if (page.Value.Score >= 50 &&
-					   (topPage != null || topPage.Score < page.Value.Score))
-						topPage = page.Value;
-				}
-			}
-
-			string nextHref = "";
-
-			if (topPage != null)
-			{
-				nextHref = Regex.Replace(topPage.Href, @"\/$", "", RegexOptions.IgnoreCase);
-
-				//this.log('NEXT PAGE IS ' + nextHref);
-				parsedPages.Add(nextHref);
-			}
-
-			return nextHref;
-		}
-
-		//private bool successfulRequest(request)
-		//{            
-		//    
-		//    return (request.status >= 200 && request.status < 300) ||
-		//        request.status === 304 ||
-		//         (request.status === 0 && request.responseText);
-		//}
-
-		//_ajax: function(url, options)
-		//{
-		//    var request = new XMLHttpRequest();
-		//
-		//    function respondToReadyState(readyState) {
-		//        if (request.readyState === 4)
-		//        {
-		//            if (this._successfulRequest(request))
-		//            {
-		//                if (options.success)
-		//                    options.success(request);
-		//            }
-		//            else if (options.error)
-		//            {
-		//                options.error(request);
-		//            }
-		//        }
-		//    }
-		//
-		//    if (typeof options === 'undefined')
-		//        options = { };
-		//
-		//    request.onreadystatechange = respondToReadyState;
-		//
-		//    request.open('get', url, true);
-		//    request.setRequestHeader('Accept', 'text/html');
-		//
-		//    try
-		//    {
-		//        request.send(options.postBody);
-		//    }
-		//    catch (e)
-		//    {
-		//        if (options.error)
-		//            options.error();
-		//    }
-		//
-		//    return request;
-		//}
-
-		private void appendNextPage(String nextPageLink)
-		{
-			var doc = this.doc;
-			curPageNum += 1;
-
-			var articlePage = doc.CreateElement("DIV");
-			articlePage.Id = "readability-page-" + curPageNum;
-			articlePage.ClassName = "page";
-			articlePage.InnerHtml = "<p class=\"page-separator\" title=\"Page " + curPageNum + "\">&sect;</p>";
-
-			doc.GetElementById("readability-content").AppendChild(articlePage);
-
-			if (curPageNum > MaxPages)
-			{
-				var nextPageMarkup = "<div style='text-align: center'><a href='" + nextPageLink + "'>View Next Page</a></div>";
-				articlePage.InnerHtml = articlePage.InnerHtml + nextPageMarkup;
-				return;
-			}
-
-			// Now that we've built the article page DOM element, get the page content
-			// asynchronously and load the cleaned content into the div we created for it.
-			loadContent(nextPageLink, articlePage, articlePage).Wait();
-		}
-
-		private async Task loadContent(String pageUrl, IElement thisPage, IElement articlePage)
-		{
-			// First, check to see if we have a matching ETag in headers - if we do, this is a duplicate page.
-			HttpResponseMessage response = await Reader.RequestPageAsync(new Uri(pageUrl));
-			var eTag = response.Headers.ETag.Tag;
-			if (!String.IsNullOrEmpty(eTag))
-			{
-				if (pageETags.IndexOf(eTag) != -1)
-				{
-					//this.log("Exact duplicate page found via ETag. Aborting.");
-					articlePage.Style.Display = "none";
-					return;
-				}
-				pageETags.Add(eTag);
-			}
-
-			// TODO: this ends up doubling up page numbers on NYTimes articles. Need to generically parse those away.
-			var page = doc.CreateElement("DIV");
-
-			// Do some preprocessing to our HTML to make it ready for appending.
-			// - Remove any script tags. Swap and reswap newlines with a unicode
-			//   character because multiline regex doesn't work in javascript.
-			// - Turn any noscript tags into divs so that we can parse them. This
-			//   allows us to find any next page links hidden via javascript.
-			// - Turn all double br's into p's - was handled by prepDocument in the original view.
-			//   Maybe in the future abstract out prepDocument to work for both the original document
-			//   and AJAX-added pages.
-			var responseHtml = Regex.Replace(Regex.Replace(await response.Content.ReadAsStringAsync(), @"\n", "\uffff", RegexOptions.IgnoreCase), @"<script.*?>.*?<\/script>", "", RegexOptions.IgnoreCase);
-
-			responseHtml = Regex.Replace(Regex.Replace(responseHtml, @"\n", "\uffff", RegexOptions.IgnoreCase), @"<script.*?>.*?<\/script>", "", RegexOptions.IgnoreCase);
-			responseHtml = Regex.Replace(Regex.Replace(responseHtml, @"\uffff", "\n", RegexOptions.IgnoreCase), @"<(\/?)noscript", "<$1div", RegexOptions.IgnoreCase);
-			responseHtml = regExps["replaceFonts"].Replace(responseHtml, "<$1span>");
-
-			page.InnerHtml = responseHtml;
-			replaceBrs(page);
-
-			// Reset all flags for the next page, as they will search through it and
-			// disable as necessary at the end of grabArticle.
-			flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
-
-			var secondNextPageLink = findNextPageLink(page);
-
-			// NOTE: if we end up supporting _appendNextPage(), we'll need to
-			// change this call to be async
-			var content = grabArticle(page);
-
-			if (content != null)
-			{
-				//this.log("No content found in page to append. Aborting.");
-				return;
-			}
-
-			// Anti-duplicate mechanism. Essentially, get the first paragraph of our new page.
-			// Compare it against all of the the previous document's we've gotten. If the previous
-			// document contains exactly the innerHTML of this first paragraph, it's probably a duplicate.
-			var firstP = content.GetElementsByTagName("P").Length > 0 ? content.GetElementsByTagName("P")[0] : null;
-			if (firstP != null && firstP.InnerHtml.Length > 100)
-			{
-				for (var i = 1; i <= curPageNum; i += 1)
-				{
-					var rPage = doc.GetElementById("readability-page-" + i);
-					if (rPage != null && rPage.InnerHtml.IndexOf(firstP.InnerHtml) != -1)
-					{
-						//this.log('Duplicate of page ' + i + ' - skipping.');
-						articlePage.Style.Display = "none";
-						parsedPages.Add(pageUrl);
-						return;
-					}
-				}
-			}
-
-			removeScripts(content);
-
-			thisPage.InnerHtml = thisPage.InnerHtml + content.InnerHtml;
-
-			// After the page has rendered, post process the content. This delay is necessary because,
-			// in webkit at least, offsetWidth is not set in time to determine image width. We have to
-			// wait a little bit for reflow to finish before we can fix floating images.
-			//setTimeout((function() {
-			//    this._postProcessContent(thisPage);
-			//}).bind(this), 500);
-
-			postProcessContent(thisPage);
-
-			if (!String.IsNullOrEmpty(secondNextPageLink))
-				appendNextPage(secondNextPageLink);
-		}
-
+		}				
 
 		/**
 		 * Get an elements class/id weight. Uses regular expressions to tell if this
@@ -2411,7 +2090,10 @@ namespace SmartReader
 		 **/
 		private void cleanConditionally(IElement e, string tag)
 		{
-			if (!flagIsActive(Flags.CleanConditionally))
+            if(tag == "div")
+                { }
+
+            if (!flagIsActive(Flags.CleanConditionally))
 				return;
 
 			var isList = tag == "ul" || tag == "ol";
@@ -2438,7 +2120,7 @@ namespace SmartReader
 				{
 					return true;
 				}
-
+                
 				if (getCharCount(node, ",") < 10)
 				{
 					// If there are not very many commas, and the number of
@@ -2518,11 +2200,6 @@ namespace SmartReader
 		private bool flagIsActive(Flags flag)
 		{
 			return (flags & flag) > 0;
-		}
-
-		private void addFlag(Flags flag)
-		{
-			flags = flags | flag;
 		}
 
 		private void removeFlag(Flags flag)
@@ -2650,20 +2327,12 @@ namespace SmartReader
 			//removeScripts(doc as IElement);
 			removeScripts(doc.DocumentElement);
 
-			// FIXME: Disabled multi-page article support for now as it
-			// needs more work on infrastructure.
+			prepDocument();
 
-			// Make sure this document is added to the list of parsed pages first,
-			// so we don't double up on the first page.
-			// this._parsedPages[uri.spec.replace(/\/$/, '')] = true;
+            var isReadable = isProbablyReaderable(isVisible);
 
-			// Pull out any possible next page link first.
-			// var nextPageLink = this._findNextPageLink(doc.body);
-
-			prepDocument();			
-
-			// we stop only if it's not readable and we are not debugging
-			if (isProbablyReaderable(isVisible) == false)
+            // we stop only if it's not readable and we are not debugging
+            if (isReadable == false)
 			{
 				if (Debug == true)
 				{
@@ -2688,14 +2357,6 @@ namespace SmartReader
 			if (Debug)
 				Logger.WriteLine("<h2>Post Process result:</h2>" + articleContent.InnerHtml);
 
-			// if (nextPageLink) {
-			//   // Append any additional pages after a small timeout so that people
-			//   // can start reading without having to wait for this to finish processing.
-			//   setTimeout((function() {
-			//     this._appendNextPage(nextPageLink);
-			//   }).bind(this), 500);
-			// }
-
 			// If we haven't found an excerpt in the article's metadata, use the article's
 			// first paragraph as the excerpt. This is used for displaying a preview of
 			// the article's content.
@@ -2703,8 +2364,8 @@ namespace SmartReader
 			{
 				var paragraphs = articleContent.GetElementsByTagName("p");
 				if (paragraphs.Length > 0)
-				{
-					metadata.Excerpt = paragraphs[0].TextContent.Trim();
+				{                    
+                    metadata.Excerpt = paragraphs[0].TextContent.Trim();
 				}
 			}
 
@@ -2712,7 +2373,7 @@ namespace SmartReader
 
 			Article article;
 
-			article = new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata);
+			article = new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata, isReadable);
 
 			return article;
 		}
@@ -2805,8 +2466,8 @@ namespace SmartReader
 
 				if (response.IsSuccessStatusCode)
 				{
-					if (response.Headers?.ETag != null)
-						pageETags.Add(response.Headers.ETag.Tag);
+					//if (response.Headers?.ETag != null)
+					//	pageETags.Add(response.Headers.ETag.Tag);
 
 					var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
 					if (headLan.Value != null && headLan.Value.Count() > 0)
