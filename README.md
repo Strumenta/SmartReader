@@ -86,7 +86,7 @@ if(article.IsReadable)
 
 It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
 
-## Demo &Console Projects
+## Demo & Console Projects
 
 The demo project is just a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
 
