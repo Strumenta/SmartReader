@@ -51,6 +51,8 @@ namespace SmartReader
 		*         
 		*/
 
+        private static readonly HttpClient httpClient = new HttpClient();
+
         private Uri uri;
         private IHtmlDocument doc;
         private string articleTitle;
@@ -2416,84 +2418,75 @@ namespace SmartReader
 		//
 		//private async Task<string> DownloadPageAsync(Uri resource)
 		//{
-		//    using (HttpClient hc = new HttpClient())
+		//    var response = await httpClient.GetAsync(resource);
+		//    string dati = "";
+		//
+		//    if (response.IsSuccessStatusCode)
 		//    {
-		//        var response = await hc.GetAsync(resource);
-		//        string dati = "";
+		//        if(response.Headers?.ETag != null)
+		//            pageETags.Add(response.Headers.ETag.Tag);
 		//
-		//        if (response.IsSuccessStatusCode)
+		//        var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
+		//        if(headLan.Value!= null && headLan.Value.Count() > 0)
+		//            language = headLan.Value.ElementAt(0);
+		//
+		//        var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
+		//        if (headCont.Value != null && headCont.Value.Count() > 0)
 		//        {
-		//            if(response.Headers?.ETag != null)
-		//                pageETags.Add(response.Headers.ETag.Tag);
+		//            int index = headCont.Value.ElementAt(0).IndexOf("charset=");
+		//            if (index != -1)
+		//                charset = headCont.Value.ElementAt(0).Substring(index+8);
+		//        }                   
 		//
-		//            var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
-		//            if(headLan.Value!= null && headLan.Value.Count() > 0)
-		//                language = headLan.Value.ElementAt(0);
+		//        //dati = await response.Content.ReadAsStringAsync();
 		//
-		//            var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
-		//            if (headCont.Value != null && headCont.Value.Count() > 0)
-		//            {
-		//                int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-		//                if (index != -1)
-		//                    charset = headCont.Value.ElementAt(0).Substring(index+8);
-		//            }                   
-		//
-		//            //dati = await response.Content.ReadAsStringAsync();
-		//
-		//            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-		//            
-		//            // default encoding
-		//            dati = Encoding.UTF8.GetString(bytes);
-		//            // check only <head>
-		//            charset = DetectEncoding(new HtmlParser().Parse(dati.Substring(0, dati.IndexOf("</head>") /+/ 7)));
-		//            
-		//            if (!String.IsNullOrEmpty(charset) && charset != "utf-8")
-		//            {
-		//                dati = ConvertEncoding(charset, bytes);
-		//            }
+		//        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+		//        
+		//        // default encoding
+		//        dati = Encoding.UTF8.GetString(bytes);
+		//        // check only <head>
+		//        charset = DetectEncoding(new HtmlParser().Parse(dati.Substring(0, dati.IndexOf("</head>") /+/ 7)));
+		//        
+		//        if (!String.IsNullOrEmpty(charset) && charset != "utf-8")
+		//        {
+		//            dati = ConvertEncoding(charset, bytes);
 		//        }
-		//
-		//        return dati;
 		//    }
+		//
+		//    return dati;
 		//}
 
 		private async Task<Stream> GetStreamAsync(Uri resource)
 		{
-			using (HttpClient hc = new HttpClient())
+			var response = await httpClient.GetAsync(resource);
+			Stream dati = null;
+
+			if (response.IsSuccessStatusCode)
 			{
-				var response = await hc.GetAsync(resource);
-				Stream dati = null;
+				//if (response.Headers?.ETag != null)
+				//	pageETags.Add(response.Headers.ETag.Tag);
 
-				if (response.IsSuccessStatusCode)
+				var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
+				if (headLan.Value != null && headLan.Value.Count() > 0)
+					language = headLan.Value.ElementAt(0);
+
+				var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
+				if (headCont.Value != null && headCont.Value.Count() > 0)
 				{
-					//if (response.Headers?.ETag != null)
-					//	pageETags.Add(response.Headers.ETag.Tag);
-
-					var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
-					if (headLan.Value != null && headLan.Value.Count() > 0)
-						language = headLan.Value.ElementAt(0);
-
-					var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
-					if (headCont.Value != null && headCont.Value.Count() > 0)
-					{
-						int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-						if (index != -1)
-							charset = headCont.Value.ElementAt(0).Substring(index + 8);
-					}
-
-					dati = await response.Content.ReadAsStreamAsync();
+					int index = headCont.Value.ElementAt(0).IndexOf("charset=");
+					if (index != -1)
+						charset = headCont.Value.ElementAt(0).Substring(index + 8);
 				}
 
-				return dati;
+				dati = await response.Content.ReadAsStreamAsync();
 			}
+
+			return dati;
 		}
 
 		private static async Task<HttpResponseMessage> RequestPageAsync(Uri resource)
 		{
-			using (HttpClient hc = new HttpClient())
-			{
-				return await hc.GetAsync(resource);
-			}
+			return await httpClient.GetAsync(resource);
 		}
 	}
 }
