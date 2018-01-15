@@ -737,14 +737,6 @@ namespace SmartReader
 
 		private IElement setNodeTag(IElement node, string tag)
 		{
-			//this.log("_setNodeTag", node, tag);
-			//if (node.__JSDOMParser__)
-			//{
-			//    node.localName = tag.toLowerCase();
-			//    node.tagName = tag.toUpperCase();
-			//    return node;
-			//}
-
 			var replacement = node.Owner.CreateElement(tag);
 			while (node.FirstChild != null)
 			{
@@ -947,42 +939,6 @@ namespace SmartReader
 			//return node.NextSibling as IElement;
 			return node?.NextElementSibling;
 		}
-
-		/**
-		 * Like _getNextNode, but for DOM implementations with no
-		 * firstElementChild/nextElementSibling functionality...
-		 */
-		//_getNextNodeNoElementProperties: function(node, ignoreSelfAndKids)
-		//{
-		//    function nextSiblingEl(n) {
-		//        do
-		//        {
-		//            n = n.nextSibling;
-		//        } while (n && n.nodeType !== n.ELEMENT_NODE);
-		//        return n;
-		//    }
-		//    // First check for kids if those aren't being ignored
-		//    if (!ignoreSelfAndKids && node.children[0])
-		//    {
-		//        return node.children[0];
-		//    }
-		//    // Then for siblings...
-		//    var next = nextSiblingEl(node);
-		//    if (next)
-		//    {
-		//        return next;
-		//    }
-		//    // And finally, move up the parent chain *and* find a sibling
-		//    // (because this is depth-first traversal, we will have already
-		//    // seen the parent nodes themselves).
-		//    do
-		//    {
-		//        node = node.parentNode;
-		//        if (node)
-		//            next = nextSiblingEl(node);
-		//    } while (node && !next);
-		//    return node && next;
-		//},
 
 		private bool checkByline(IElement node, string matchString)
 		{
@@ -2379,82 +2335,6 @@ namespace SmartReader
 
 			return article;
 		}
-
-		//private string DetectEncoding(IHtmlDocument doc)
-		//{
-		//    var content = doc.GetElementsByTagName("meta").FirstOrDefault(x => !String.IsNullOrEmpty//(x.GetAttribute("charset")))?.GetAttribute("charset");
-		//
-		//    if (String.IsNullOrEmpty(content))
-		//    {
-		//        content = doc.QuerySelector("meta[http-equiv=\"Content-Type\"]")?.GetAttribute("content");
-		//
-		//        if (!String.IsNullOrEmpty(content))
-		//        {
-		//            int index = content.IndexOf("charset=");
-		//            if (index != -1)
-		//                charset = content.Substring(index + 8).ToLower();
-		//        }
-		//    }
-		//    else
-		//    {
-		//        charset = content.ToLower();
-		//    }
-		//
-		//    return charset;
-		//}
-		//
-		//private string ConvertEncoding(string charset, byte[] originalBytes)        
-		//{            
-		//
-		//    Encoding utf8 = Encoding.GetEncoding("utf-8");
-		//    System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-		//    Encoding start = AngleSharp.TextEncoding.Resolve(charset);                
-		//    byte[] utf8Bytes = Encoding.Convert(start, utf8, originalBytes);
-		//
-		//    string text = utf8.GetString(utf8Bytes);
-		//
-		//    return text;
-		//}
-		//
-		//private async Task<string> DownloadPageAsync(Uri resource)
-		//{
-		//    var response = await httpClient.GetAsync(resource);
-		//    string dati = "";
-		//
-		//    if (response.IsSuccessStatusCode)
-		//    {
-		//        if(response.Headers?.ETag != null)
-		//            pageETags.Add(response.Headers.ETag.Tag);
-		//
-		//        var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
-		//        if(headLan.Value!= null && headLan.Value.Count() > 0)
-		//            language = headLan.Value.ElementAt(0);
-		//
-		//        var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
-		//        if (headCont.Value != null && headCont.Value.Count() > 0)
-		//        {
-		//            int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-		//            if (index != -1)
-		//                charset = headCont.Value.ElementAt(0).Substring(index+8);
-		//        }                   
-		//
-		//        //dati = await response.Content.ReadAsStringAsync();
-		//
-		//        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-		//        
-		//        // default encoding
-		//        dati = Encoding.UTF8.GetString(bytes);
-		//        // check only <head>
-		//        charset = DetectEncoding(new HtmlParser().Parse(dati.Substring(0, dati.IndexOf("</head>") /+/ 7)));
-		//        
-		//        if (!String.IsNullOrEmpty(charset) && charset != "utf-8")
-		//        {
-		//            dati = ConvertEncoding(charset, bytes);
-		//        }
-		//    }
-		//
-		//    return dati;
-		//}
 
 		private async Task<Stream> GetStreamAsync(Uri resource)
 		{
