@@ -12,7 +12,7 @@
     <iconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>For all changes see: https://github.com/strumenta/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
-    <copyright>Strumenta 2017</copyright>
+    <copyright>Strumenta 2017-2018</copyright>
     <tags>Readability SmartReader reader article scraping reading web</tags>
     <dependencies>
       <group targetFramework="netstandard1.3">

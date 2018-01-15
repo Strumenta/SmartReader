@@ -16,13 +16,14 @@ Install-Package SmartReader
 
  There are also some minor improvements: it returns an author and publication date, together with the default byline, the language of the article and an indication of the time needed to read it. The time is considered accurate for all languages that use an alphabet, so, for instance, it isn't valid for Chinese.
 
- I plan to add some features, like returning a list of the images in the article or, optionally, trasforming them in data uri. But at the moment the *Smart* in **SmartReader** is more of an aspiration than a statement. Feel free to suggest new features. **Also, since it's an alpha release expect bugs**.
+ I plan to add some features, like returning a list of the images in the article or, optionally, transforming them in data uri. But at the moment the *Smart* in **SmartReader** is more of an aspiration than a statement. Feel free to suggest new features. 
 
 ## Usage
 
-There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `Parse` method to obtain the extracted `Article`. The second one is by using the static method `ParseArticle` of `Reader` directly, to return an `Article`. The advantage of using an object is that it gives you the chance to set some options.
+There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using the static method `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
+The advantage of using an object is that it gives you the chance to set some options.
 
-You can also give to the library the text, or stream, directly, but you also need to give the original URI. It will not redownload the text, but it need the URI to make some checks and modifications on the links present on the page.
+You can also give to the library the text, or stream, directly, but you also need to give the original URI. It will not re-download the text, but it need the URI to make some checks and modifications on the links present on the page.
 
 If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
 
@@ -32,7 +33,7 @@ The library tries to detect the correct encoding of the text, if the correct tag
 
 ## Examples
 
-Using the `Parse` method.
+Using the `GetArticle` method.
 
 ```csharp
 SmartReader.Reader sr = new SmartReader.Reader("https://arstechnica.co.uk/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
@@ -40,7 +41,7 @@ SmartReader.Reader sr = new SmartReader.Reader("https://arstechnica.co.uk/inform
 sr.Debug = true;
 sr.Logger = new StringWriter();
 
-SmartReader.Article article = sr.Parse();
+SmartReader.Article article = sr.GetArticle();
 
 if(article.IsReadable)
 {
@@ -48,7 +49,7 @@ if(article.IsReadable)
 }
 ```
 
-Using the `ParseArticle` method.
+Using the `ParseArticle` static method.
 
 ```csharp
 
@@ -88,9 +89,9 @@ It's important to be aware that the fields **Byline**, **Author** and **Publicat
 
 ## Demo & Console Projects
 
-The demo project is just a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
+The demo project is a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
 
-The console project is simple Console program that allows you to see the results of the library on random test page.
+The console project is a Console program that allows you to see the results of the library on a random test page.
 
 ## Creating The Nuget Package
 
