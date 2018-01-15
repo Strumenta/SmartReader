@@ -20,10 +20,10 @@ Install-Package SmartReader
 
 ## Usage
 
-There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using the static method `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
-The advantage of using an object is that it gives you the chance to set some options.
+There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
+The advantage of using an object, instead of the static method, is that it gives you the chance to set some options.
 
-You can also give to the library the text, or stream, directly, but you also need to give the original URI. It will not re-download the text, but it need the URI to make some checks and modifications on the links present on the page.
+There is also the option to parse directly a String or Stream that you have obtained by some other way. This is available either with `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it need the URI to make some checks and modifications on the links present on the page. If you cannot provide the original uri, you can use a fake one, like `http:\\localhost`.
 
 If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
 
@@ -60,7 +60,7 @@ if(article.IsReadable)
 	// do something with it
 }
 ```
-
+- 
 ## Options
 
 - `int` **MaxElemsToParse**<br>Max number of nodes supported by this parser. <br> *Default: 0 (no limit)*
@@ -69,6 +69,7 @@ if(article.IsReadable)
 - `TextWriter` **Logger** <br> Where the debug data is going to be written. <br> *Default: null*
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **WordThreshold** <br>The minimun number of words an article must have in order to return a result. <br>*Default: 500*
+
 
 ## Article Model
 
