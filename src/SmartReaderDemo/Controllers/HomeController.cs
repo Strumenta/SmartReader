@@ -23,9 +23,9 @@ namespace SmartReaderDemo.Controllers
 			sr.Debug = true;
 			sr.Logger = new StringWriter();
 
-            Article article = sr.Parse();           
+            Article article = sr.GetArticle();
 
-			return Json(new
+            return Json(new
 			{
 				article = article,
 				log = sr.Logger.ToString()

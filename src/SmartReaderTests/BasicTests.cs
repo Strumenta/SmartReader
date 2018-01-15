@@ -11,72 +11,70 @@ using System.Linq;
 
 namespace SmartReaderTests
 {
-	public interface IArticleTest
-	{
-		Uri Uri { get; set; }
-		String Title { get; set; }
-		String Byline { get; set; }
-		String Dir { get; set; }
-		String Content { get; set; }
-		String TextContent { get; set; }
-		String Excerpt { get; set; }
-		String Language { get; set; }
-		String Author { get; set; }
-		int Length { get; set; }
-		TimeSpan TimeToRead { get; set; }
-		DateTime? PublicationDate { get; set; }
-		bool IsReadable { get; set; }
-	}
+    public interface IArticleTest
+    {
+        Uri Uri { get; set; }
+        String Title { get; set; }
+        String Byline { get; set; }
+        String Dir { get; set; }
+        String Content { get; set; }
+        String TextContent { get; set; }
+        String Excerpt { get; set; }
+        String Language { get; set; }
+        String Author { get; set; }
+        int Length { get; set; }
+        TimeSpan TimeToRead { get; set; }
+        DateTime? PublicationDate { get; set; }
+        bool IsReadable { get; set; }
+    }
 
-	public class BasicTests
-	{
-		public IArticleTest GetTestArticle(JObject metadata)
-		{
-						
-		    var mockArticle = new Mock<IArticleTest>();
-		    mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
+    public class BasicTests
+    {
+        public IArticleTest GetTestArticle(JObject metadata)
+        {
+            var mockArticle = new Mock<IArticleTest>();
+            mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
             //mockArticle.Setup(x => x.IsReadable).Returns(Boolean.Parse(metadata["readerable"].ToString()));
-		    mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
+            mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
             mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
-		    mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
-		    //mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
-		    //mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Par(sr.ReadLine  ()));
-		    //mockArticle.Setup(x => x.Language).Returns(sr.ReadLine());			
-		    //mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
-		    //mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Pars(sr.ReadLin()));
+            mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
+            //mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
+            //mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Par(sr.ReadLine  ()));
+            //mockArticle.Setup(x => x.Language).Returns(sr.ReadLine());			
+            //mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
+            //mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Pars(sr.ReadLin()));
 
-		    return mockArticle.Object;
-		}
+            return mockArticle.Object;
+        }
 
-		private void AssertProperties(IArticleTest expected, Article found)
-		{			
-			//Assert.Equal(expected.IsReadable, found.IsReadable);
-			Assert.Equal(expected.Title, found.Title);
-			Assert.Equal(expected.Dir, found.Dir);
-			Assert.Equal(expected.Byline, found.Byline);
-			//Assert.Equal(expected.Author, found.Author);
-			//Assert.Equal(expected.PublicationDate, found.PublicationDate);
-			//Assert.Equal(expected.Language, found.Language);			
-			//Assert.Equal(expected.Excerpt, found.Excerpt);
-			//Assert.Equal(expected.TimeToRead, found.TimeToRead);
-		}
+        private void AssertProperties(IArticleTest expected, Article found)
+        {
+            //Assert.Equal(expected.IsReadable, found.IsReadable);
+            Assert.Equal(expected.Title, found.Title);
+            Assert.Equal(expected.Dir, found.Dir);
+            Assert.Equal(expected.Byline, found.Byline);
+            //Assert.Equal(expected.Author, found.Author);
+            //Assert.Equal(expected.PublicationDate, found.PublicationDate);
+            //Assert.Equal(expected.Language, found.Language);			
+            //Assert.Equal(expected.Excerpt, found.Excerpt);
+            //Assert.Equal(expected.TimeToRead, found.TimeToRead);
+        }
 
         [Fact]
         public void TestPages()
-        {            
-             foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages"))
-             {
-                
-                 var sourceContent = File.ReadAllText(Path.Combine(d, @"source.html"));
-                 var expectedContent = File.ReadAllText(Path.Combine(d, @"expected.html"));
-                 var expectedMetadataString = File.ReadAllText(Path.Combine(d, @"expected-metadata.json"));
-                 var expectedMetadata = JObject.Parse(expectedMetadataString);
-               
-                 Article found = Reader.ParseArticle("https://localhost/", sourceContent);
+        {
+            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages"))
+            {
+                var sourceContent = File.ReadAllText(Path.Combine(d, @"source.html"));
+                var expectedContent = File.ReadAllText(Path.Combine(d, @"expected.html"));
+                var expectedMetadataString = File.ReadAllText(Path.Combine(d, @"expected-metadata.json"));
+                var expectedMetadata = JObject.Parse(expectedMetadataString);
 
-                 IArticleTest expected = GetTestArticle(expectedMetadata);
-                 AssertProperties(expected, found);
-            }            
+                Article found = Reader.ParseArticle("https://localhost/", sourceContent);
+
+                IArticleTest expected = GetTestArticle(expectedMetadata);
+                AssertProperties(expected, found);
+            }
         }
     }
 }

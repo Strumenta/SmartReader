@@ -174,117 +174,155 @@ namespace SmartReader
 			// solves encoding problems
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			Task<Stream> result = GetStreamAsync(new Uri(uri));
-			result.Wait();
-			Stream stream = result.Result;
-
-			HtmlParser parser = new HtmlParser();
-
-			doc = parser.Parse(stream);
-			
 			articleTitle = "";
 			articleByline = "";
 			articleDir = "";
 		}
 
-		/// <summary>
-		/// Reads content from the given text. It needs the uri to make some checks.
-		/// </summary>
-		/// <param name="uri">A string representing the original URI of the article.</param>
-		/// <param name="text">A string from which to extract the article.</param>
-		/// <returns>
-		/// An initialized SmartReader object
-		/// </returns>        
-		public Reader(string uri, string text)
-		{
-			this.uri = new Uri(uri);
+        /// <summary>
+        /// Reads content from the given text. It needs the uri to make some checks.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI of the article.</param>
+        /// <param name="text">A string from which to extract the article.</param>
+        /// <returns>
+        /// An initialized SmartReader object
+        /// </returns>        
+        public Reader(string uri, string text)
+        {
+            this.uri = new Uri(uri);
 
-			// solves encoding problems
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            // solves encoding problems
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			// we convert the text to a stream to trigger the detection of the encoding by AngleSharp
-			//MemoryStream stream = new MemoryStream();
-			//StreamWriter writer = new StreamWriter(stream);
-			//writer.Write(text);
-			//writer.Flush();
-			//stream.Seek(0, SeekOrigin.Begin);
-			//
-			//HtmlParser parser = new HtmlParser();
-			//doc = parser.Parse(stream);
-			//
-			//stream.Dispose();
-			
-			HtmlParser parser = new HtmlParser();
-			doc = parser.Parse(text);
+            HtmlParser parser = new HtmlParser();
+            doc = parser.Parse(text);
 
-			//var biggestFrame = false;
-			articleTitle = "";
-			articleByline = "";
-			articleDir = "";
-		}
+            //var biggestFrame = false;
+            articleTitle = "";
+            articleByline = "";
+            articleDir = "";
+        }
 
-		/// <summary>
-		/// Reads content from the given stream. It needs the uri to make some checks.
-		/// </summary>
-		/// <param name="uri">A string representing the original URI of the article.</param>
-		/// <param name="source">A stream from which to extract the article.</param>
-		/// <returns>
-		/// An initialized SmartReader object
-		/// </returns>        
-		public Reader(string uri, Stream source)
-		{
-			this.uri = new Uri(uri);
+        /// <summary>
+        /// Reads content from the given stream. It needs the uri to make some checks.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI of the article.</param>
+        /// <param name="source">A stream from which to extract the article.</param>
+        /// <returns>
+        /// An initialized SmartReader object
+        /// </returns>        
+        public Reader(string uri, Stream source)
+        {
+            this.uri = new Uri(uri);
 
-			// solves encoding problems
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            // solves encoding problems
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-			HtmlParser parser = new HtmlParser();
-			doc = parser.Parse(source);
+            HtmlParser parser = new HtmlParser();
+            doc = parser.Parse(source);
 
-			//var biggestFrame = false;
-			articleTitle = "";
-			articleByline = "";
-			articleDir = "";
-		}
+            //var biggestFrame = false;
+            articleTitle = "";
+            articleByline = "";
+            articleDir = "";
+        }
 
-		/// <summary>
-		/// Read and parse the article from the given URI.
-		/// </summary>
-		/// <param name="uri">A string representing the original URI to extract the content from.</param>
-		/// <returns>
-		/// An article object with all the data extracted
-		/// </returns>    
-		public static Article ParseArticle(string uri)
-		{
-			Reader smartReader = new Reader(uri);
+        /// <summary>
+        /// Read and parse the article asynchronously from the given URI.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public async Task<Article> GetArticleAsync()
+        {
+            HtmlParser parser = new HtmlParser();
 
-			return smartReader.Parse();
-		}
+            doc = parser.Parse(await GetStreamAsync(uri));
 
-		/// <summary>
-		/// Read and parse the article from the given text. It needs the uri to make some checks.
-		/// </summary>
-		/// <param name="uri">A string representing the original URI of the article.</param>
-		/// <param name="text">A string from which to extract the article.</param>
-		/// <returns>
-		/// An article object with all the data extracted
-		/// </returns>    
-		public static Article ParseArticle(string uri, string text)
-		{
-			Reader smartReader = new Reader(uri, text);
+            return Parse();
+        }
 
-			return smartReader.Parse();
-		}
+        /// <summary>
+        /// Read and parse the article from the given URI.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public Article GetArticle()
+        {
+            HtmlParser parser = new HtmlParser();
 
-		/// <summary>
-		/// Read and parse the article from the given stream. It needs the uri to make some checks.
-		/// </summary>
-		/// <param name="uri">A string representing the original URI of the article.</param>
-		/// <param name="source">A stream from which to extract the article.</param>
-		/// <returns>
-		/// An article object with all the data extracted
-		/// </returns>    
-		public static Article ParseArticle(string uri, Stream source)
+            Task<Stream> result = GetStreamAsync(uri);
+            result.Wait();
+            Stream stream = result.Result;
+
+            doc = parser.Parse(stream);
+
+            return Parse();
+        }
+
+        /// <summary>
+        /// Read and parse asynchronously the article from the given URI.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public static async Task<Article> ParseArticleAsync(string uri)
+        {
+            Reader smartReader = new Reader(uri);
+
+            return await smartReader.GetArticleAsync();
+        }
+
+        /// <summary>
+        /// Read and parse the article from the given URI.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public static Article ParseArticle(string uri)
+        {
+            Reader smartReader = new Reader(uri);
+
+            Task<Stream> result = smartReader.GetStreamAsync(new Uri(uri));
+            result.Wait();
+            Stream stream = result.Result;
+
+            HtmlParser parser = new HtmlParser();
+
+            smartReader.doc = parser.Parse(stream);
+
+            return smartReader.Parse();
+        }
+
+        /// <summary>
+        /// Read and parse the article from the given text. It needs the uri to make some checks.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI of the article.</param>
+        /// <param name="text">A string from which to extract the article.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public static Article ParseArticle(string uri, string text)
+        {
+            Reader smartReader = new Reader(uri, text);
+
+            return smartReader.Parse();
+        }
+
+        /// <summary>
+        /// Read and parse the article from the given stream. It needs the uri to make some checks.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI of the article.</param>
+        /// <param name="source">A stream from which to extract the article.</param>
+        /// <returns>
+        /// An article object with all the data extracted
+        /// </returns>    
+        public static Article ParseArticle(string uri, Stream source)
 		{
 			Reader smartReader = new Reader(uri, source);
 
@@ -447,8 +485,8 @@ namespace SmartReader
             var classesToPreserve = this.classesToPreserve;
             var className = "";
 
-            if(!String.IsNullOrEmpty(node.ClassName))
-                className = String.Join(" ", node.ClassName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+            if (!String.IsNullOrEmpty(node.GetAttribute("class")))
+                className = String.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(x => classesToPreserve.Contains(x)));
 
             if (!String.IsNullOrEmpty(className))
@@ -2266,7 +2304,7 @@ namespace SmartReader
 		/// <returns>
 		/// An article object with all the data extracted
 		/// </returns> 
-		public Article Parse()
+		private Article Parse()
 		{
 			// Avoid parsing too large documents, as per configuration option
 			if (MaxElemsToParse > 0)
@@ -2338,7 +2376,7 @@ namespace SmartReader
 
 		private async Task<Stream> GetStreamAsync(Uri resource)
 		{
-			var response = await httpClient.GetAsync(resource);
+			var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
 			Stream dati = null;
 
 			if (response.IsSuccessStatusCode)
@@ -2358,7 +2396,7 @@ namespace SmartReader
 						charset = headCont.Value.ElementAt(0).Substring(index + 8);
 				}
 
-				dati = await response.Content.ReadAsStreamAsync();
+				dati = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 			}
 
 			return dati;
@@ -2366,7 +2404,7 @@ namespace SmartReader
 
 		private static async Task<HttpResponseMessage> RequestPageAsync(Uri resource)
 		{
-			return await httpClient.GetAsync(resource);
+			return await httpClient.GetAsync(resource).ConfigureAwait(false);
 		}
 	}
 }
