@@ -107,3 +107,9 @@ The command must be issued inside the `src/SmartReader` folder, otherwise it wil
 ## License
 
 The project uses the **Apache License**.
+
+## Contributors
+
+- [Unosviluppatore](https://github.com/unosviluppatore)
+- [DanRigby](https://github.com/DanRigby)
+- [Yasindn](https://github.com/yasindn)
