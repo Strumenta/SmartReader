@@ -102,7 +102,7 @@ namespace SmartReader
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
-        Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
+        private Dictionary<string, Regex> _regExps = new Dictionary<string, Regex>() {
         { "unlikelyCandidates", new Regex(@"banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
         { "okMaybeItsACandidate", new Regex(@"and|article|body|column|main|shadow", RegexOptions.IgnoreCase) },
         { "positive", new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase) },
@@ -677,7 +677,7 @@ namespace SmartReader
             var next = node;
             while (next != null
                 && (next.NodeType != NodeType.Element)
-                && regExps["whitespace"].IsMatch(next.TextContent))
+                && _regExps["whitespace"].IsMatch(next.TextContent))
             {
                 next = next.NextSibling;
             }
@@ -959,7 +959,7 @@ namespace SmartReader
                 rel = node.GetAttribute("rel");
             }
 
-            if ((rel == "author" || regExps["byline"].IsMatch(matchString)) && IsValidByline(node.TextContent))
+            if ((rel == "author" || _regExps["byline"].IsMatch(matchString)) && IsValidByline(node.TextContent))
             {
                 if (rel == "author")
                     _author = node.TextContent.Trim();
@@ -1053,8 +1053,8 @@ namespace SmartReader
                     // Remove unlikely candidates
                     if (stripUnlikelyCandidates)
                     {
-                        if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
-                            !regExps["okMaybeItsACandidate"].IsMatch(matchString) &&
+                        if (_regExps["unlikelyCandidates"].IsMatch(matchString) &&
+                            !_regExps["okMaybeItsACandidate"].IsMatch(matchString) &&
                             node.TagName != "BODY" &&
                             node.TagName != "A")
                         {
@@ -1711,7 +1711,7 @@ namespace SmartReader
             return !SomeNode(element.ChildNodes, (node) =>
             {
                 return node.NodeType == NodeType.Text &&
-                       regExps["hasContent"].IsMatch(node.TextContent);
+                       _regExps["hasContent"].IsMatch(node.TextContent);
             });
         }
 
@@ -1756,7 +1756,7 @@ namespace SmartReader
 
             if (normalizeSpaces)
             {
-                return regExps["normalize"].Replace(textContent, " ");
+                return _regExps["normalize"].Replace(textContent, " ");
             }
             return textContent;
         }
@@ -1851,20 +1851,20 @@ namespace SmartReader
             // Look for a special classname
             if (e.ClassName != null && e.ClassName != "")
             {
-                if (regExps["negative"].IsMatch(e.ClassName))
+                if (_regExps["negative"].IsMatch(e.ClassName))
                     weight -= 25;
 
-                if (regExps["positive"].IsMatch(e.ClassName))
+                if (_regExps["positive"].IsMatch(e.ClassName))
                     weight += 25;
             }
 
             // Look for a special ID
             if (e.Id != null && e.Id != "")
             {
-                if (regExps["negative"].IsMatch(e.Id))
+                if (_regExps["negative"].IsMatch(e.Id))
                     weight -= 25;
 
-                if (regExps["positive"].IsMatch(e.Id))
+                if (_regExps["positive"].IsMatch(e.Id))
                     weight += 25;
             }
 
@@ -1893,11 +1893,11 @@ namespace SmartReader
                         attributeValues.Append(attr.Value + "|");
 
                     // First, check the elements attributes to see if any of them contain youtube or vimeo
-                    if (regExps["videos"].IsMatch(attributeValues.ToString()))
+                    if (_regExps["videos"].IsMatch(attributeValues.ToString()))
                         return false;
 
                     // Then check the elements inside this element for the same.
-                    if (regExps["videos"].IsMatch(element.InnerHtml))
+                    if (_regExps["videos"].IsMatch(element.InnerHtml))
                         return false;
                 }
 
@@ -1931,7 +1931,7 @@ namespace SmartReader
             return false;
         }
 
-        private bool isDataTable(IElement node)
+        private bool IsDataTable(IElement node)
         {
             return _readabilityDataTable.Contains(node);
         }
@@ -2067,7 +2067,7 @@ namespace SmartReader
             RemoveNodes(e.GetElementsByTagName(tag), (node) =>
             {
                 // First check if we're in a data table, in which case don't remove us.                
-                if (HasAncestorTag(node, "table", -1, isDataTable))
+                if (HasAncestorTag(node, "table", -1, IsDataTable))
                 {
                     return false;
                 }
@@ -2096,7 +2096,7 @@ namespace SmartReader
                     var embeds = node.GetElementsByTagName("embed");
                     for (int ei = 0, il = embeds.Length; ei < il; ei += 1)
                     {
-                        if (!regExps["videos"].IsMatch(embeds[ei].Attributes["Src"].Value))
+                        if (!_regExps["videos"].IsMatch(embeds[ei].Attributes["Src"].Value))
                             embedCount += 1;
                     }
 
@@ -2182,8 +2182,8 @@ namespace SmartReader
                 return 0;
             var matchString = node.ClassName + " " + node.Id;
 
-            if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
-                !regExps["okMaybeItsACandidate"].IsMatch(matchString))
+            if (_regExps["unlikelyCandidates"].IsMatch(matchString) &&
+                !_regExps["okMaybeItsACandidate"].IsMatch(matchString))
             {
                 return 0;
             }
