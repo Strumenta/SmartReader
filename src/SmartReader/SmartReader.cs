@@ -21,23 +21,6 @@ namespace SmartReader
         CleanConditionally = 4
     }
 
-    public class Page
-    {
-        public double Score { get; set; }
-        public String LinkText { get; set; }
-        public String Href { get; set; }
-    }
-
-    public class Metadata
-    {
-        public String Byline { get; set; } = "";
-        public String Title { get; set; } = "";
-        public String Excerpt { get; set; } = "";
-        public String Language { get; set; } = "";
-        public DateTime? PublicationDate { get; set; } = null;
-        public String Author { get; set; } = "";
-    }
-
     /// <summary>
     /// SmartReader
     /// </summary>
@@ -52,7 +35,6 @@ namespace SmartReader
 		*/
 
         private static readonly HttpClient httpClient = new HttpClient();
-
         private Uri uri;
         private IHtmlDocument doc;
         private string articleTitle;
@@ -71,23 +53,9 @@ namespace SmartReader
         // Start with all flags set        
         Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
 
-        // The list of pages we've parsed in this call of readability,
-        // for autopaging. As a key store for easier searching.
-        //List<String> parsedPages = new List<String>();
-
-        // A list of the ETag headers of pages we've parsed, in case they happen to match,
-        // we'll know it's a duplicate.
-        //List<string> pageETags = new List<string>();
-
-        // Make an AJAX request for each page and append it to the document.
-        //int curPageNum = 1;
-
-        //var logEl;
-
         /// <summary>Max number of nodes supported by this parser</summary>
         /// <value>Default: 0 (no limit)</value>        
         public int MaxElemsToParse { get; set; } = 0;
-
 
         /// <summary>The number of top candidates to consider when analysing how tight the competition is among candidates</summary>
         /// <value>Default: 5</value>
@@ -116,8 +84,6 @@ namespace SmartReader
                 classesToPreserve = classesToPreserve.Union(new string[] { "readability-styled", "page" }).ToArray();
             }
         }
-
-
 
         /// <summary>Set the Debug option and write the data on Logger</summary>
         /// <value>Default: false</value>
@@ -151,7 +117,6 @@ namespace SmartReader
         { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
         { "hasContent", new Regex(@"\S$", RegexOptions.IgnoreCase) }
         };
-
 
         private String[] DivToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
 
