@@ -424,12 +424,8 @@ namespace SmartReader
         }
 
         private IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
-        {
+        {                        
             return node.QuerySelectorAll(String.Join(",", tagNames));
-            //return [].concat.apply([], tagNames.map(function(tag) {
-            //    var collection = node.getElementsByTagName(tag);
-            //    return Array.isArray(collection) ? collection : Array.from(collection);
-            //}));
         }
 
         /**
@@ -785,7 +781,7 @@ namespace SmartReader
             // which means we don't remove the top candidates even they have "share".
             ForEachNode(articleContent.Children, (topCandidate) =>
             {
-                CleanMatchedNodes(topCandidate as IElement, "/ share /");
+                CleanMatchedNodes(topCandidate as IElement, "share");
             });
 
             // If there is only one h2 and its text content substantially equals article title,
@@ -2219,16 +2215,17 @@ namespace SmartReader
             //   Sentences<br>
             // </div>
             var brNodes = GetAllNodesWithTag(doc.DocumentElement, new string[] { "div > br" });
+            IEnumerable<IElement> totalNodes = nodes;
             if (brNodes.Length > 0)
             {
-                var set = new HashSet<INode>();
+                var set = new HashSet<IElement>();
 
                 foreach (var node in brNodes)
                 {
-                    set.Add(node.Parent);
+                    set.Add(node.ParentElement);
                 }
 
-                nodes = nodes.Concat(set.ToArray()) as IHtmlCollection<IElement>;
+                totalNodes = nodes.Concat(set.ToArray());
             }
 
             // FIXME we should have a fallback for helperIsVisible, but this is
@@ -2238,12 +2235,35 @@ namespace SmartReader
             double score = 0;
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
             // this callback:			
-            return SomeNode(nodes, (node) =>
+            return SomeNode(totalNodes, (node) =>
             {
-                score += GetScore(node, score, helperIsVisible);
+                if (helperIsVisible != null && !helperIsVisible(node))
+                    return false;
+                var matchString = node.ClassName + " " + node.Id;
+
+                if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
+                    !regExps["okMaybeItsACandidate"].IsMatch(matchString))
+                {
+                    return false;
+                }
+
+                if (node.Matches("li p"))
+                {
+                    return false;
+                }
+
+                var textContentLength = node.TextContent.Trim().Length;
+                if (textContentLength < 140)
+                {
+                    return false;
+                }
+
+                score += Math.Sqrt(textContentLength - 140);
 
                 if (score > 20)
+                {                    
                     return true;
+                }
                 else
                     return false;
             });
