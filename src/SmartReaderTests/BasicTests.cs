@@ -73,7 +73,7 @@ namespace SmartReaderTests
                 Article found = Reader.ParseArticle("https://localhost/", sourceContent);
 
                 IArticleTest expected = GetTestArticle(expectedMetadata);
-                AssertProperties(expected, found);
+                AssertProperties(expected, found);             
             }
         }
     }
