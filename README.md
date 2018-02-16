@@ -88,6 +88,8 @@ if(article.IsReadable)
 
 It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
 
+The **TimeToRead** calculation is based on the research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages in the research, but it is just an educated guess for the others languages.
+
 ## Demo & Console Projects
 
 The demo project is a simple ASP.NET Core webpage that allows you to input an address and see the results of the library.
@@ -113,3 +115,6 @@ The project uses the **Apache License**.
 - [Unosviluppatore](https://github.com/unosviluppatore)
 - [DanRigby](https://github.com/DanRigby)
 - [Yasindn](https://github.com/yasindn)
+- [jamie-lord](https://github.com/jamie-lord)
+
+Thanks to all the people involved.
