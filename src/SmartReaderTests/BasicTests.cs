@@ -63,6 +63,7 @@ namespace SmartReaderTests
         [Fact]
         public void TestPages()
         {
+            int examined = 0;
             foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages"))
             {
                 var sourceContent = File.ReadAllText(Path.Combine(d, @"source.html"));
@@ -73,8 +74,12 @@ namespace SmartReaderTests
                 Article found = Reader.ParseArticle("https://localhost/", sourceContent);
 
                 IArticleTest expected = GetTestArticle(expectedMetadata);
-                AssertProperties(expected, found);             
+                AssertProperties(expected, found);
+
+                examined++;
             }
+
+            Assert.Equal(74, examined);
         }
     }
 }
