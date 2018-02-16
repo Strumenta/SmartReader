@@ -474,24 +474,29 @@ namespace SmartReader
 		 */
         private string GetBase(Uri startUri)
         {
-            StringBuilder sb = new StringBuilder(startUri.Scheme + ":");
+            StringBuilder sb = new StringBuilder(startUri.Scheme + "://");
 
             if (!String.IsNullOrEmpty(startUri.UserInfo))
                 sb.Append(startUri.UserInfo + "@");
 
             sb.Append(startUri.Host);
 
-            if (startUri.Port != 80)
+            if (startUri.Port != 80 && startUri.Port != 443)
                 sb.Append(":" + startUri.Port);
 
             return sb.ToString();
+        }
+
+        private string GetPathBase(Uri startUri)
+        {
+            return GetBase(startUri) + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf("/") + 1);            
         }
 
         private string ToAbsoluteURI(string uriToCheck)
         {
             var scheme = uri.Scheme;
             var prePath = GetBase(uri);
-            var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
+            var pathBase = GetPathBase(uri);
 
             // If this is already an absolute URI, return it.
             if (Uri.IsWellFormedUriString(uriToCheck, UriKind.Absolute))
@@ -507,7 +512,7 @@ namespace SmartReader
 
             // Prepath-rooted relative URI.
             if (uriToCheck[0] == '/')
-                return prePath + uri;
+                return prePath + uriToCheck;
 
             // Dotslash relative URI.
             if (uriToCheck.IndexOf("./") == 0)
@@ -515,7 +520,7 @@ namespace SmartReader
 
             // Standard relative URI; add entire path. pathBase already includes a
             // trailing "/".
-            return pathBase + uri;
+            return pathBase + uriToCheck;
         }
 
         private void FixRelativeUris(IElement articleContent)
