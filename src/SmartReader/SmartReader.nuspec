@@ -16,7 +16,7 @@
     <tags>Readability SmartReader reader article scraping reading web</tags>
     <dependencies>
       <group targetFramework="netstandard1.3">
-        <dependency id="AngleSharp" version="0.9.9" />
+        <dependency id="AngleSharp" version="0.9.9.1" />
         <dependency id="System.Text.Encoding.CodePages" version="4.3.0" />
       </group>
     </dependencies>

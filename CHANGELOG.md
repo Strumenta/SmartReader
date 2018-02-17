@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.3.0 - 2018/02/17 
+- Cleanup of the code and naming issues (Thanks to [jamie-lord](https://github.com/jamie-lord))
+- Improved testing
+- Added improvement from January update of Readability
+- Fixed bug for the detection of the readability of article
+- Fixed bug for the fixing of relative URIs
+- Fixed bug in elimination of certain nodes
+- Added detection of featured image and images found in the article
+
 ## 0.2.0 - 2018/01/15
 - Added improvements from December updates of Readability
 - Solved [issue #2](https://github.com/Strumenta/SmartReader/issues/2) (Thanks to [Yasindn](https://github.com/yasindn))
