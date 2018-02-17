@@ -44,12 +44,6 @@ namespace SmartReader
         private string author;
         private string charset;
 
-        // A list of scores
-        private Dictionary<IElement, double> readabilityScores = new Dictionary<IElement, double>();
-
-        // A list of datatables
-        private List<IElement> readabilityDataTable = new List<IElement>();
-
         // Start with all flags set        
         Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
 
@@ -94,7 +88,7 @@ namespace SmartReader
         public TextWriter Logger { get; set; } = null;
 
         /// <summary>The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true</summary>
-        /// <value>Default: false</value>
+        /// <value>Default: true</value>
         public bool ContinueIfNotReadable { get; set; } = true;
 
         // Element tags to score by default.
@@ -306,6 +300,13 @@ namespace SmartReader
 
             // Remove IDs and classes.
             CleanIDsAndClasses(articleContent);
+
+            // Remove attributes we set
+            if (!Debug)
+            {
+                CleanReaderAttributes(articleContent, "datatable");
+                CleanReaderAttributes(articleContent, "readability-score");
+            }
         }
 
         /**
@@ -709,6 +710,25 @@ namespace SmartReader
         }
 
         /**
+        * Remove attributes Reader added to store values.
+        *
+        * @param Element
+        * @return void
+        **/
+        private void CleanReaderAttributes(IElement node, string attribute)
+        {            
+            if (!String.IsNullOrEmpty(node.GetAttribute(attribute)))
+            {
+                node.RemoveAttribute(attribute);
+            }
+
+            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
+            {
+                CleanReaderAttributes(node, attribute);
+            }
+        }
+
+        /**
 		 * Prepare the article node for display. Clean out any inline styles,
 		 * iframes, forms, strip extraneous <p> tags, etc.
 		 *
@@ -777,7 +797,7 @@ namespace SmartReader
             CleanConditionally(articleContent, "table");
             CleanConditionally(articleContent, "ul");
             CleanConditionally(articleContent, "div");
-
+            
             // Remove extra paragraphs
             RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
             {
@@ -808,22 +828,18 @@ namespace SmartReader
 		**/
         private void InitializeNode(IElement node)
         {
-            //node.readability = { "contentScore": 0};
-            //node.SetAttribute("contentScore", "0");
-            readabilityScores.Add(node, 0);
+            SetReadabilityScore(node, 0);
 
             switch (node.TagName)
             {
                 case "DIV":
-                    //node.readability.contentScore += 5;
-                    readabilityScores[node] += 5;
+                    AddToReadabilityScore(node, 5);
                     break;
 
                 case "PRE":
                 case "TD":
                 case "BLOCKQUOTE":
-                    //node.readability.contentScore += 3;
-                    readabilityScores[node] += 3;
+                    AddToReadabilityScore(node, 3);
                     break;
 
                 case "ADDRESS":
@@ -834,8 +850,7 @@ namespace SmartReader
                 case "DT":
                 case "LI":
                 case "FORM":
-                    //node.readability.contentScore -= 3;
-                    readabilityScores[node] -= 3;
+                    AddToReadabilityScore(node, -3);
                     break;
 
                 case "H1":
@@ -845,13 +860,36 @@ namespace SmartReader
                 case "H5":
                 case "H6":
                 case "TH":
-                    //node.readability.contentScore -= 5;
-                    readabilityScores[node] -= 5;
+                    AddToReadabilityScore(node, -5);
                     break;
             }
 
-            //node.readability.contentScore += this._getClassWeight(node);
-            readabilityScores[node] += GetClassWeight(node);
+            AddToReadabilityScore(node, GetClassWeight(node));
+        }
+
+        private void AddToReadabilityScore(IElement node, double score)
+        {
+            if (GetReadabilityScore(node) > 0)
+            {
+                double current = double.Parse(node.GetAttribute("readability-score"), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+
+                node.SetAttribute("readability-score", (current + score).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
+            }
+            else
+                SetReadabilityScore(node, score);
+        }
+
+        private void SetReadabilityScore(IElement node, double score)
+        {
+            node.SetAttribute("readability-score", score.ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
+        }
+
+        private double GetReadabilityScore(IElement node)
+        {            
+            if (!String.IsNullOrEmpty(node.GetAttribute("readability-score")))
+                return double.Parse(node.GetAttribute("readability-score"), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+            else
+                return 0.0;
         }
 
         private INode RemoveAndGetNext(INode node)
@@ -1076,8 +1114,7 @@ namespace SmartReader
                 List<IElement> candidates = new List<IElement>();
                 ForEachNode(elementsToScore, (elementToScore) =>
                 {
-                    //if (!elementToScore.parentNode || typeof(elementToScore.parentNode.tagName) === 'undefined')
-                    if (elementToScore.Parent == null || elementToScore.Parent.NodeType != NodeType.Element)
+                    if (elementToScore.Parent == null)
                         return;
 
                     // If this paragraph is less than 25 characters, don't even count it.
@@ -1106,9 +1143,8 @@ namespace SmartReader
                     {
                         if (String.IsNullOrEmpty((ancestor as IElement)?.TagName))
                             return;
-
-                        //if (typeof(ancestor.readability) === 'undefined')
-                        if (!readabilityScores.ContainsKey(ancestor as IElement))
+                        
+                        if (GetReadabilityScore(ancestor as IElement) == 0)
                         {
                             InitializeNode(ancestor as IElement);
                             candidates.Add(ancestor as IElement);
@@ -1125,7 +1161,8 @@ namespace SmartReader
                             scoreDivider = 2;
                         else
                             scoreDivider = level * 3;
-                        readabilityScores[ancestor as IElement] += contentScore / scoreDivider;
+                        
+                        AddToReadabilityScore(ancestor as IElement, contentScore / scoreDivider);
                     }, 0);
                 });
 
@@ -1140,8 +1177,9 @@ namespace SmartReader
                     // Scale the final candidates score based on link density. Good content
                     // should have a relatively small link density (5% or less) and be mostly
                     // unaffected by this operation.
-                    var candidateScore = readabilityScores[candidate] * (1 - GetLinkDensity(candidate));
-                    readabilityScores[candidate] = candidateScore;
+                    var candidateScore = GetReadabilityScore(candidate) * (1 - GetLinkDensity(candidate));
+                    SetReadabilityScore(candidate, candidateScore);
+
 
                     //this.log('Candidate:', candidate, "with score " + candidateScore);
 
@@ -1150,8 +1188,8 @@ namespace SmartReader
                         IElement aTopCandidate = null;
                         if (t < topCandidates.Count)
                             aTopCandidate = topCandidates[t];
-
-                        if (aTopCandidate == null || candidateScore > readabilityScores[aTopCandidate])
+                        
+                        if (aTopCandidate == null || candidateScore > GetReadabilityScore(aTopCandidate))
                         {
                             topCandidates.Insert(t, candidate);
                             if (topCandidates.Count > NTopCandidates)
@@ -1192,10 +1230,9 @@ namespace SmartReader
                     //var alternativeCandidateAncestors = [];                    
                     List<IElement> alternativeCandidateAncestors = new List<IElement>();
                     for (var i = 1; i < topCandidates.Count; i++)
-                    {
-                        if (readabilityScores[topCandidates[i]] / readabilityScores[topCandidate] >= 0.75)
-                        {
-                            //alternativeCandidateAncestors.Add(getNodeAncestors(topCandidates[i]) as IElement);
+                    {                        
+                        if (GetReadabilityScore(topCandidates[i]) / GetReadabilityScore(topCandidate) >= 0.75)
+                        {                            
                             var possibleAncestor = GetNodeAncestors(topCandidates[i]) as IElement;
                             if (possibleAncestor != null)
                                 alternativeCandidateAncestors.Add(possibleAncestor);
@@ -1220,7 +1257,8 @@ namespace SmartReader
                             parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
                         }
                     }
-                    if (!readabilityScores.ContainsKey(topCandidate))
+                    
+                    if (GetReadabilityScore(topCandidate) == 0)
                     {
                         InitializeNode(topCandidate);
                     }
@@ -1233,17 +1271,19 @@ namespace SmartReader
                     // below does some of that - but only if we've looked high enough up the DOM
                     // tree.
                     parentOfTopCandidate = topCandidate.Parent as IElement;
-                    var lastScore = readabilityScores[topCandidate];
+                    
+                    var lastScore = GetReadabilityScore(topCandidate);
                     // The scores shouldn't get too low.
                     var scoreThreshold = lastScore / 3;
                     while (parentOfTopCandidate.TagName != "BODY")
-                    {
-                        if (!readabilityScores.ContainsKey(parentOfTopCandidate))
+                    {                        
+                        if (GetReadabilityScore(parentOfTopCandidate) == 0)
                         {
                             parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
                             continue;
                         }
-                        var parentScore = readabilityScores[parentOfTopCandidate];
+                        
+                        var parentScore = GetReadabilityScore(parentOfTopCandidate);
                         if (parentScore < scoreThreshold)
                             break;
                         if (parentScore > lastScore)
@@ -1252,7 +1292,8 @@ namespace SmartReader
                             topCandidate = parentOfTopCandidate;
                             break;
                         }
-                        lastScore = readabilityScores[parentOfTopCandidate];
+                        
+                        lastScore = GetReadabilityScore(parentOfTopCandidate);
                         parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
                     }
 
@@ -1264,7 +1305,8 @@ namespace SmartReader
                         topCandidate = parentOfTopCandidate;
                         parentOfTopCandidate = topCandidate.Parent as IElement;
                     }
-                    if (!readabilityScores.ContainsKey(topCandidate))
+                    
+                    if (GetReadabilityScore(topCandidate) == 0)
                     {
                         InitializeNode(topCandidate);
                     }
@@ -1277,7 +1319,7 @@ namespace SmartReader
                 if (isPaging)
                     articleContent.Id = "readability-content";
 
-                var siblingScoreThreshold = Math.Max(10, readabilityScores[topCandidate] * 0.2);
+                var siblingScoreThreshold = Math.Max(10, GetReadabilityScore(topCandidate) * 0.2);
                 // Keep potential top candidate's parent node to try to get text direction of it later.
                 parentOfTopCandidate = topCandidate.ParentElement;
                 var siblings = parentOfTopCandidate.Children;
@@ -1299,11 +1341,11 @@ namespace SmartReader
                         double contentBonus = 0;
 
                         // Give a bonus if sibling nodes and top candidates have the example same classname
-                        if (sibling.ClassName == topCandidate.ClassName && topCandidate.ClassName != "")
-                            contentBonus += readabilityScores[topCandidate] * 0.2;
-
-                        if (readabilityScores.ContainsKey(sibling) &&
-                            ((readabilityScores[sibling] + contentBonus) >= siblingScoreThreshold))
+                        if (sibling.ClassName == topCandidate.ClassName && topCandidate.ClassName != "")                            
+                            contentBonus += GetReadabilityScore(topCandidate) * 0.2;
+                                                
+                        if (GetReadabilityScore(sibling) > 0 &&
+                        ((GetReadabilityScore(sibling) + contentBonus) >= siblingScoreThreshold))
                         {
                             append = true;
                         }
@@ -1357,9 +1399,6 @@ namespace SmartReader
                 if (Debug)
                     Logger.WriteLine("<h2>Article content post-prep:</h2>" + articleContent.InnerHtml);
 
-
-                //if (curPageNum == 1)
-                //{
                 if (neededToCreateTopCandidate)
                 {
                     // We already created a fake div thing, and there wouldn't have been any siblings left
@@ -1381,7 +1420,6 @@ namespace SmartReader
                     }
                     articleContent.AppendChild(div);
                 }
-                //}
 
                 if (Debug)
                     Logger.WriteLine("<h2>Article content after paging:</h2>" + articleContent.InnerHtml);
@@ -1412,12 +1450,6 @@ namespace SmartReader
                         return null;
                     }
                 }
-                //else if (!String.IsNullOrEmpty(doc.Direction))
-                //{
-                //	articleDir = doc.Direction;
-                //
-                //	return articleContent;
-                //}
                 else
                 {
                     // Find out text direction from ancestors of final top candidate.
@@ -1684,8 +1716,7 @@ namespace SmartReader
 		 * @param Element
 		 */
         private bool HasChildBlockElement(IElement element)
-        {
-            //return someNode(element.ChildNodes, (node) => {                
+        {            
             var b = SomeNode(element?.ChildNodes, (node) =>
             {
                 return divToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1
@@ -1706,7 +1737,6 @@ namespace SmartReader
 		**/
         private string GetInnerText(IElement e, bool normalizeSpaces = true)
         {
-            //normalizeSpaces = (typeof normalizeSpaces === 'undefined') ? true : normalizeSpaces;
             var textContent = e.TextContent.Trim();
 
             if (normalizeSpaces)
@@ -1778,7 +1808,7 @@ namespace SmartReader
             if (textLength == 0)
                 return 0;
 
-            var linkLength = 0;
+            float linkLength = 0;
 
             // XXX implement _reduceNodeList?
             ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
@@ -1888,7 +1918,7 @@ namespace SmartReader
 
         private bool IsDataTable(IElement node)
         {
-            return readabilityDataTable.Contains(node);
+            return !String.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
         }
 
         /**
@@ -1939,27 +1969,27 @@ namespace SmartReader
                 var table = tables[i];
                 var role = table.GetAttribute("role");
                 if (role == "presentation")
-                {
-                    //table._readabilityDataTable = false;
+                {                    
+                    table.SetAttribute("dataTable", "false");
                     continue;
                 }
                 var datatable = table.GetAttribute("datatable");
                 if (datatable == "0")
-                {
-                    //table._readabilityDataTable = false;
+                {                   
+                    table.SetAttribute("dataTable", "false");
                     continue;
                 }
                 var summary = table.GetAttribute("summary");
                 if (!String.IsNullOrEmpty(summary))
                 {
-                    readabilityDataTable.Add(table);
+                    table.SetAttribute("dataTable", "true");                    
                     continue;
                 }
 
                 var caption = table.GetElementsByTagName("caption")?.ElementAtOrDefault(0);
                 if (caption != null && caption.ChildNodes.Length > 0)
                 {
-                    readabilityDataTable.Add(table);
+                    table.SetAttribute("dataTable", "true");                    
                     continue;
                 }
 
@@ -1973,28 +2003,26 @@ namespace SmartReader
                 {
                     if (Debug)
                         Logger.WriteLine("Data table because found data-y descendant");
-                    //table._readabilityDataTable = true;
-                    readabilityDataTable.Add(table);
+                    table.SetAttribute("dataTable", "true");
                     continue;
                 }
 
                 // Nested tables indicate a layout table:
                 if (table.GetElementsByTagName("table").ElementAtOrDefault(0) != null)
-                {
-                    //table._readabilityDataTable = false;
+                {                    
+                    table.SetAttribute("dataTable", "false");
                     continue;
                 }
 
                 var sizeInfo = GetRowAndColumnCount(table);
                 if (sizeInfo.Item1 >= 10 || sizeInfo.Item2 > 4)
-                {
-                    //table._readabilityDataTable = true;
-                    readabilityDataTable.Add(table);
+                {                    
+                    table.SetAttribute("dataTable", "true");                 
                     continue;
                 }
                 // Now just go by size entirely:
                 if (sizeInfo.Item1 * sizeInfo.Item2 > 10)
-                    readabilityDataTable.Add(table);
+                    table.SetAttribute("dataTable", "true");
             }
         }
 
@@ -2006,9 +2034,6 @@ namespace SmartReader
 		 **/
         private void CleanConditionally(IElement e, string tag)
         {
-            if (tag == "div")
-            { }
-
             if (!FlagIsActive(Flags.CleanConditionally))
                 return;
 
@@ -2042,10 +2067,10 @@ namespace SmartReader
                     // If there are not very many commas, and the number of
                     // non-paragraph elements is more than paragraphs or other
                     // ominous signs, remove the element.
-                    var p = node.GetElementsByTagName("p").Length;
-                    var img = node.GetElementsByTagName("img").Length;
-                    var li = node.GetElementsByTagName("li").Length - 100;
-                    var input = node.GetElementsByTagName("input").Length;
+                    float p = node.GetElementsByTagName("p").Length;
+                    float img = node.GetElementsByTagName("img").Length;
+                    float li = node.GetElementsByTagName("li").Length - 100;
+                    float input = node.GetElementsByTagName("input").Length;
 
                     var embedCount = 0;
                     var embeds = node.GetElementsByTagName("embed");
@@ -2058,14 +2083,25 @@ namespace SmartReader
                     var linkDensity = GetLinkDensity(node);
                     var contentLength = GetInnerText(node).Length;
 
+                    if(node.TextContent.Contains("See also") && li == -100)
+                    {
+                        Console.WriteLine(contentLength);
+                    }
+
                     var haveToRemove =
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
                       (!isList && li > p) ||
-                      (input > Math.Floor((double)p / 3)) ||
+                      (input > Math.Floor(p / 3)) ||
                       (!isList && contentLength < 25 && (img == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
                       (!isList && weight < 25 && linkDensity > 0.2) ||
                       (weight >= 25 && linkDensity > 0.5) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
+
+                    if (node.TextContent.Contains("See also") && li == -100)
+                    {
+                        
+                        Console.WriteLine(linkDensity);
+                    }
                     return haveToRemove;
                 }
                 return false;

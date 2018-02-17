@@ -13,13 +13,13 @@ namespace SmartReaderConsole
         {            
             var pages = Directory.EnumerateDirectories(@"..\SmartReaderTests\test-pages\");
             Random random = new Random();
-            var index = random.Next(pages.Count());
+            var index = random.Next(pages.Count());            
 
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
             Article article = Reader.ParseArticle("https://localhost/", sourceContent);
             var images = article.GetImagesAsync();
-            images.Wait();            
+            images.Wait();        
 
             Console.WriteLine($"Is Readable: {article.IsReadable}");
             Console.WriteLine($"Uri: {article.Uri}");

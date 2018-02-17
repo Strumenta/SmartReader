@@ -80,6 +80,8 @@ namespace SmartReaderTests
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
