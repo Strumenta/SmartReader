@@ -34,7 +34,7 @@ namespace SmartReader
 		*         
 		*/
 
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly HttpClient httpClient = new HttpClient();        
         private Uri uri;
         private IHtmlDocument doc;
         private string articleTitle;
@@ -471,62 +471,11 @@ namespace SmartReader
 		 *
 		 * @param Element
 		 * @return void
-		 */
-        private string GetBase(Uri startUri)
-        {
-            StringBuilder sb = new StringBuilder(startUri.Scheme + "://");
-
-            if (!String.IsNullOrEmpty(startUri.UserInfo))
-                sb.Append(startUri.UserInfo + "@");
-
-            sb.Append(startUri.Host);
-
-            if (startUri.Port != 80 && startUri.Port != 443)
-                sb.Append(":" + startUri.Port);
-
-            return sb.ToString();
-        }
-
-        private string GetPathBase(Uri startUri)
-        {
-            return GetBase(startUri) + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf("/") + 1);            
-        }
-
-        private string ToAbsoluteURI(string uriToCheck)
-        {
-            var scheme = uri.Scheme;
-            var prePath = GetBase(uri);
-            var pathBase = GetPathBase(uri);
-
-            // If this is already an absolute URI, return it.
-            if (Uri.IsWellFormedUriString(uriToCheck, UriKind.Absolute))
-                return uriToCheck;
-
-            // Ignore hash URIs
-            if (uriToCheck[0] == '#')
-                return uriToCheck;
-
-            // Scheme-rooted relative URI.
-            if (uriToCheck.Length >= 2 && uriToCheck.Substring(0, 2) == "//")
-                return scheme + "://" + uriToCheck.Substring(2);
-
-            // Prepath-rooted relative URI.
-            if (uriToCheck[0] == '/')
-                return prePath + uriToCheck;
-
-            // Dotslash relative URI.
-            if (uriToCheck.IndexOf("./") == 0)
-                return pathBase + uriToCheck.Substring(2);
-
-            // Standard relative URI; add entire path. pathBase already includes a
-            // trailing "/".
-            return pathBase + uriToCheck;
-        }
-
+		 */        
         private void FixRelativeUris(IElement articleContent)
         {
             var scheme = uri.Scheme;
-            var prePath = GetBase(uri);
+            var prePath = uri.GetBase();
             var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
 
             var links = articleContent.GetElementsByTagName("a");
@@ -545,7 +494,7 @@ namespace SmartReader
                     }
                     else
                     {
-                        (link as IElement).SetAttribute("href", ToAbsoluteURI(href));
+                        (link as IElement).SetAttribute("href", uri.ToAbsoluteURI(href));
                     }
                 }
             });
@@ -556,7 +505,7 @@ namespace SmartReader
                 var src = (img as IElement).GetAttribute("src");
                 if (!String.IsNullOrWhiteSpace(src))
                 {
-                    (img as IElement).SetAttribute("src", ToAbsoluteURI(src));
+                    (img as IElement).SetAttribute("src", uri.ToAbsoluteURI(src));
                 }
             });
         }
@@ -1523,10 +1472,10 @@ namespace SmartReader
 
             // Match "description", or Twitter's "twitter:description" (Cards)
             // in name attribute.
-            var namePattern = @"^\s*((((twitter)\s*:\s*)?(description|title))|name)\s*$";
+            var namePattern = @"^\s*((((twitter)\s*:\s*)?(description|title|image))|name)\s*$";
 
             // Match Facebook's Open Graph title & description properties.
-            var propertyPattern = @"^\s*(og|article)\s*:\s*(description|title|published_time)\s*$";
+            var propertyPattern = @"^\s*(og|article)\s*:\s*(description|title|published_time|image)\s*$";
 
             var itemPropPattern = @"\s*datePublished\s*";
 
@@ -1571,12 +1520,6 @@ namespace SmartReader
                     }
                 }
             });
-
-            //Logger.WriteLine("Meta Values");
-            //foreach (var value in values)
-            //{
-            //	Logger.WriteLine($"Key: {value.Key} Value: {value.Value}");
-            //}
 
             if (values.ContainsKey("description"))
             {
@@ -1671,6 +1614,19 @@ namespace SmartReader
                         !String.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
                 }
             }
+
+            if (values.ContainsKey("og:image"))
+            {
+                // Use facebook open graph image.
+                metadata.FeaturedImage = values["og:image"];
+            }
+            else if (values.ContainsKey("twitter:image"))
+            {
+                // Use twitter cards image.
+                metadata.FeaturedImage = values["twitter:image"];
+            }
+            else
+                metadata.FeaturedImage = "";
 
             return metadata;
         }
@@ -2173,35 +2129,7 @@ namespace SmartReader
                 return false;
             else
                 return true;
-        }
-
-        private double GetScore(IElement node, double score, Func<IElement, bool> helperIsVisible)
-        {
-            if (helperIsVisible != null && !helperIsVisible(node))
-                return 0;
-            var matchString = node.ClassName + " " + node.Id;
-
-            if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
-                !regExps["okMaybeItsACandidate"].IsMatch(matchString))
-            {
-                return 0;
-            }
-
-            if (node.Matches("li p"))
-            {
-                return 0;
-            }
-
-            var textContentLength = node.TextContent.Trim().Length;
-            if (textContentLength < 140)
-            {
-                return 0;
-            }
-
-            score += Math.Sqrt(textContentLength - 140);
-
-            return score;
-        }
+        }        
 
         /**
 		 * Decides whether or not the document is reader-able without parsing the whole thing.
@@ -2272,7 +2200,7 @@ namespace SmartReader
                 else
                     return false;
             });
-        }
+        }        
 
         /**
 		 * Runs readability.
@@ -2357,7 +2285,7 @@ namespace SmartReader
             article = new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata, isReadable);
 
             return article;
-        }
+        }       
 
         private async Task<Stream> GetStreamAsync(Uri resource)
         {
@@ -2390,6 +2318,21 @@ namespace SmartReader
         private static async Task<HttpResponseMessage> RequestPageAsync(Uri resource)
         {
             return await httpClient.GetAsync(resource).ConfigureAwait(false);
+        }
+
+        internal static async Task<long> GetImageSizeAsync(Uri imageSrc)
+        {
+            HttpRequestMessage headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
+            var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
+            long size = 0;
+
+            if (response.IsSuccessStatusCode)
+            {               
+                if(response.Content.Headers.ContentLength != null)                
+                    size = response.Content.Headers.ContentLength.Value;
+            }
+
+            return size;
         }
     }
 }

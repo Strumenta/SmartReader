@@ -1,6 +1,4 @@
-﻿// Write your Javascript code.
-
-$(document).ready(function () {
+﻿$(document).ready(function () {
     $("#inputForm").submit(function () {
         analyze();
         return false;
@@ -20,6 +18,7 @@ function analyze() {
             $("#readerable").text(data.article.isReadable);
             $("#title").text(data.article.title);
             $("#dir").text(data.article.dir);
+            $("#image").text(data.article.featuredImage);
             $("#byline").text(data.article.byline);
             $("#author").text(data.article.author);
             $("#publicationDate").text(data.article.publicationDate);
@@ -27,5 +26,6 @@ function analyze() {
             $("#length").text(data.article.length);
             $("#excerpt").text(data.article.excerpt);
             $("#timeToRead").text(data.article.timeToRead);
+            $("#images").text(data.images);
         });
 }

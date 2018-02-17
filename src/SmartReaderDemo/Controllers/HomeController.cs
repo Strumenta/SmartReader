@@ -18,16 +18,19 @@ namespace SmartReaderDemo.Controllers
 
 		public JsonResult Analyze(string url)
 		{
-			Reader sr = new Reader(url);
+			Reader sr = new Reader(url);            
 
 			sr.Debug = true;
 			sr.Logger = new StringWriter();
 
             Article article = sr.GetArticle();
+            var images = article.GetImagesAsync();
+            images.Wait();
 
             return Json(new
-			{
-				article = article,
+            {
+                article = article,
+                images = $"{images.Result.Count()} images found",
 				log = sr.Logger.ToString()
 			});
 		}

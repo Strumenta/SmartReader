@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Net.Http;
+using System.Text;
 
 namespace SmartReader
 {
@@ -16,15 +18,18 @@ namespace SmartReader
         public String Title { get; private set; }
         public String Byline { get; private set; }
         public String Dir { get; private set; }
+        public String FeaturedImage { get; private set; }
         public String Content { get; private set; }
         public String TextContent { get; private set; }
         public String Excerpt { get; private set; }
         public String Language { get; private set; }
-        public String Author { get; private set; }
+        public String Author { get; private set; }        
         public int Length { get; private set; }
         public TimeSpan TimeToRead { get; private set; }
         public DateTime? PublicationDate { get; private set; }
-        public bool IsReadable { get; private set; }
+        public bool IsReadable { get; private set; }        
+
+        private IElement article = null;
 
         public Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable)
         {
@@ -42,6 +47,9 @@ namespace SmartReader
             IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
             TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead());
+            FeaturedImage = metadata.FeaturedImage;
+
+            this.article = article;
         }
 
         private int GetWeightTimeToRead()
@@ -95,6 +103,58 @@ namespace SmartReader
             PublicationDate = new DateTime();
             Author = "";
             TimeToRead = new TimeSpan();
+            FeaturedImage = "";
+        }
+
+        /// <summary>
+        /// Finds images contained in the article.
+        /// </summary>
+        /// <param name="size">The minium size in bytes to be considered a image.</param>        
+        /// <returns>
+        /// A Task object with the images found
+        /// </returns>  
+        public async Task<IEnumerable<Image>> GetImagesAsync(long minSize = 75000)
+        {
+            List<Image> images = new List<Image>();
+
+            var imgs = article != null ? article.QuerySelectorAll("img") : null;
+
+            if (imgs != null)
+            {
+                foreach (var img in imgs)
+                {
+                    long size = 0;
+
+                    Uri imageUri = new Uri(img.GetAttribute("src"));
+
+                    try
+                    {
+                        imageUri = new Uri(this.Uri.ToAbsoluteURI(imageUri.ToString()));
+                        size = await Reader.GetImageSizeAsync(imageUri);
+                    }
+                    catch(Exception e) { }
+
+                    string description = img.GetAttribute("alt");
+                    string title = img.GetAttribute("title");
+
+                    if (size > minSize)
+                    {
+                        images.Add(new Image()
+                        {
+                            Size = size,
+                            Source = imageUri,
+                            Description = description,
+                            Title = title
+                        });
+                    }
+                }
+
+                // if there is no featured image, let's set the first one we found
+                if (String.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
+                    FeaturedImage = images[0].Source.ToString();
+            }
+
+            return images;
         }
     }
 }
