@@ -2268,14 +2268,6 @@ namespace SmartReader
                 }
             }
 
-            //if (typeof this.doc.documentElement.firstElementChild === "undefined") {
-            //    this._getNextNode = this._getNextNodeNoElementProperties;
-            //}
-            // Remove script tags from the document.            
-            RemoveScripts(doc.DocumentElement);
-
-            PrepDocument();
-
             var isReadable = IsProbablyReaderable(IsVisible);
 
             // we stop only if it's not readable and we are not debugging
@@ -2288,6 +2280,11 @@ namespace SmartReader
                 else if (ContinueIfNotReadable == false)
                     return new Article(uri, articleTitle, false);
             }
+
+            // Remove script tags from the document.            
+            RemoveScripts(doc.DocumentElement);
+
+            PrepDocument();            
 
             var metadata = GetArticleMetadata();
             articleTitle = metadata.Title;
