@@ -43,6 +43,8 @@ namespace SmartReader
         private string language;
         private string author;
         private string charset;
+        private struct Attempt { public IElement content; public long length; }
+        private List<Attempt> attempts = new List<Attempt>();
 
         // Start with all flags set        
         Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
@@ -754,6 +756,7 @@ namespace SmartReader
             Clean(articleContent, "embed");
             Clean(articleContent, "h1");
             Clean(articleContent, "footer");
+            Clean(articleContent, "link");
 
             // Clean out elements have "share" in their id/class combinations from final top candidates,
             // which means we don't remove the top candidates even they have "share".
@@ -1428,33 +1431,52 @@ namespace SmartReader
                 if (Debug)
                     Logger.WriteLine("<h2>Article content after paging:</h2>" + articleContent.InnerHtml);
 
+                var parseSuccessful = true;
+
                 // Now that we've gone through the full algorithm, check to see if
                 // we got any meaningful content. If we didn't, we may need to re-run
                 // grabArticle with different flags set. This gives us a higher likelihood of
                 // finding the content, and the sieve approach gives us a higher likelihood of
                 // finding the -right- content.
-                if (GetInnerText(articleContent, true).Length < WordThreshold)
+				var textLength = GetInnerText(articleContent, true).Length;                
+				if(textLength < WordThreshold) 
                 {
-                    page.InnerHtml = pageCacheHtml;
+                    parseSuccessful = false;
+					page.InnerHtml = pageCacheHtml;
 
                     if (FlagIsActive(Flags.StripUnlikelys))
                     {
                         RemoveFlag(Flags.StripUnlikelys);
+						attempts.Add(new Attempt() { content = articleContent, length = textLength});
                     }
                     else if (FlagIsActive(Flags.WeightClasses))
                     {
                         RemoveFlag(Flags.WeightClasses);
+                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
                     }
                     else if (FlagIsActive(Flags.CleanConditionally))
                     {
                         RemoveFlag(Flags.CleanConditionally);
+                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
                     }
                     else
                     {
-                        return null;
+                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
+                        // No luck after removing flags, just return the longest text we found during the different loops
+                        attempts.OrderByDescending(x => x.length);
+						
+						// But first check if we actually have something
+						if (attempts.Count == 0)
+                        {
+							return null;
+						}
+				
+						articleContent = attempts[0].content;
+						parseSuccessful = true;
                     }
                 }
-                else
+                
+				if(parseSuccessful)
                 {
                     // Find out text direction from ancestors of final top candidate.
                     IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(GetElementAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;
