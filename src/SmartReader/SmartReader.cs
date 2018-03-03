@@ -36,7 +36,7 @@ namespace SmartReader
 
         private static readonly HttpClient httpClient = new HttpClient();        
         private Uri uri;
-        private IHtmlDocument doc;
+        private IHtmlDocument doc = null;
         private string articleTitle;
         private string articleByline;
         private string articleDir;
@@ -197,7 +197,8 @@ namespace SmartReader
         {
             HtmlParser parser = new HtmlParser();
 
-            doc = parser.Parse(await GetStreamAsync(uri));
+            if(doc == null)
+                doc = parser.Parse(await GetStreamAsync(uri));
 
             return Parse();
         }
@@ -212,11 +213,14 @@ namespace SmartReader
         {
             HtmlParser parser = new HtmlParser();
 
-            Task<Stream> result = GetStreamAsync(uri);
-            result.Wait();
-            Stream stream = result.Result;
+            if (doc == null)
+            {
+                Task<Stream> result = GetStreamAsync(uri);
+                result.Wait();
+                Stream stream = result.Result;
 
-            doc = parser.Parse(stream);
+                doc = parser.Parse(stream);
+            }
 
             return Parse();
         }
