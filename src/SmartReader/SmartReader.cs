@@ -1151,7 +1151,7 @@ namespace SmartReader
                         if (String.IsNullOrEmpty((ancestor as IElement)?.TagName))
                             return;
                         
-                        if (GetReadabilityScore(ancestor as IElement) == 0)
+                        if (GetReadabilityScore(ancestor as IElement).CompareTo(0.0) == 0)
                         {
                             InitializeNode(ancestor as IElement);
                             candidates.Add(ancestor as IElement);
@@ -1265,7 +1265,7 @@ namespace SmartReader
                         }
                     }
                     
-                    if (GetReadabilityScore(topCandidate) == 0)
+                    if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
                     {
                         InitializeNode(topCandidate);
                     }
@@ -1284,7 +1284,7 @@ namespace SmartReader
                     var scoreThreshold = lastScore / 3;
                     while (parentOfTopCandidate.TagName != "BODY")
                     {                        
-                        if (GetReadabilityScore(parentOfTopCandidate) == 0)
+                        if (GetReadabilityScore(parentOfTopCandidate).CompareTo(0.0) == 0)
                         {
                             parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
                             continue;
@@ -1313,7 +1313,7 @@ namespace SmartReader
                         parentOfTopCandidate = topCandidate.Parent as IElement;
                     }
                     
-                    if (GetReadabilityScore(topCandidate) == 0)
+                    if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
                     {
                         InitializeNode(topCandidate);
                     }
@@ -1366,7 +1366,7 @@ namespace SmartReader
                             {
                                 append = true;
                             }
-                            else if (nodeLength < 80 && nodeLength > 0 && linkDensity == 0 &&
+                            else if (nodeLength < 80 && nodeLength > 0 && linkDensity.CompareTo(0) == 0 &&
                                  new Regex(@"\.( |$)", RegexOptions.IgnoreCase).IsMatch(nodeContent))
                             {
                                 append = true;
@@ -2109,7 +2109,7 @@ namespace SmartReader
                     var linkDensity = GetLinkDensity(node);
                     var contentLength = GetInnerText(node).Length;
 
-                    if(node.TextContent.Contains("See also") && li == -100)
+                    if(node.TextContent.Contains("See also") && li.CompareTo(-100) == 0)
                     {
                         Console.WriteLine(contentLength);
                     }
@@ -2118,12 +2118,12 @@ namespace SmartReader
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
                       (!isList && li > p) ||
                       (input > Math.Floor(p / 3)) ||
-                      (!isList && contentLength < 25 && (img == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
+                      (!isList && contentLength < 25 && (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
                       (!isList && weight < 25 && linkDensity > 0.2) ||
                       (weight >= 25 && linkDensity > 0.5) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
 
-                    if (node.TextContent.Contains("See also") && li == -100)
+                    if (node.TextContent.Contains("See also") && li.CompareTo(-100) == 0)
                     {
                         
                         Console.WriteLine(linkDensity);

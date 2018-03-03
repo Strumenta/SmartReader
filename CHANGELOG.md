@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 - Fixed [issue #5](https://github.com/Strumenta/SmartReader/issues/5)
 - Added improvements from February updates of Readability
 - Added new test page
+- Fixed comparison bugs in readability scores
 
 ## 0.3.0 - 2018/02/17 
 - Cleanup of the code and naming issues (Thanks to [jamie-lord](https://github.com/jamie-lord))

@@ -22,7 +22,7 @@
     <PackageIconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />

@@ -90,7 +90,7 @@ namespace SmartReader
 
         public Article(Uri uri, string title, bool readable)
         {
-            IsReadable = false;
+            IsReadable = readable;
             Uri = uri;
             Title = title;
             Dir = "";
@@ -109,7 +109,7 @@ namespace SmartReader
         /// <summary>
         /// Finds images contained in the article.
         /// </summary>
-        /// <param name="size">The minium size in bytes to be considered a image.</param>        
+        /// <param name="minSize">The minium size in bytes to be considered a image.</param>        
         /// <returns>
         /// A Task object with the images found
         /// </returns>  
