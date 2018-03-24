@@ -10,8 +10,8 @@ namespace SmartReaderConsole
     class Program
     {
         static void Main(string[] args)
-        {            
-            var pages = Directory.EnumerateDirectories(@"..\SmartReaderTests\test-pages\");
+        {
+            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
             Random random = new Random();
             var index = random.Next(pages.Count());            
 

@@ -69,9 +69,9 @@ namespace SmartReaderTests
         }
 
         public static IEnumerable<object[]> GetTests()
-        {
-            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages"))
-            {
+        {            
+            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages\"))
+            {                
                 yield return new object[] { d };               
             }
         }
@@ -91,6 +91,6 @@ namespace SmartReaderTests
             IArticleTest expected = GetTestArticle(expectedMetadata);
 
             AssertProperties(expected, found);        
-        }
+        }        
     }
 }

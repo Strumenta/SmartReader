@@ -56,8 +56,13 @@ namespace SmartReader
         {
             CultureInfo culture = CultureInfo.InvariantCulture;
 
-            if (!String.IsNullOrWhiteSpace(Language))
-                culture = new CultureInfo(Language);
+            try
+            {
+                if (!String.IsNullOrWhiteSpace(Language))
+                    culture = new CultureInfo(Language);
+            }
+            catch(CultureNotFoundException)
+            { }
 
             Dictionary<String, int> CharactersMinute = new Dictionary<string, int>()
             {
