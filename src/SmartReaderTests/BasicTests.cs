@@ -48,7 +48,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
             //mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
             //mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Par(sr.ReadLine  ()));
-            //mockArticle.Setup(x => x.Language).Returns(sr.ReadLine());			
+            mockArticle.Setup(x => x.Language).Returns(String.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
             mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
             //mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Pars(sr.ReadLin()));
 
@@ -63,7 +63,7 @@ namespace SmartReaderTests
             Assert.Equal(expected.Byline, found.Byline);
             //Assert.Equal(expected.Author, found.Author);
             //Assert.Equal(expected.PublicationDate, found.PublicationDate);
-            //Assert.Equal(expected.Language, found.Language);			
+            Assert.Equal(expected.Language, found.Language);			
             Assert.Equal(expected.Excerpt, found.Excerpt);
             //Assert.Equal(expected.TimeToRead, found.TimeToRead);
         }

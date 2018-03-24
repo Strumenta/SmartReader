@@ -1609,24 +1609,18 @@ namespace SmartReader
                 }
             }
 
-            // added language extraction
-            if (String.IsNullOrEmpty(language))
+            // added language extraction            
+            IEnumerable<string> LanguageHeuristics()
             {
-                metadata.Language = doc.GetElementsByTagName("html")[0].GetAttribute("lang");
-
-                if (String.IsNullOrEmpty(metadata.Language))
-                {
-                    metadata.Language = doc.QuerySelector("meta[http-equiv=\"Content-Language\"]")?.GetAttribute("content");
-                    if (String.IsNullOrEmpty(metadata.Language))
-                    {
-                        // this is wrong, but it's used
-                        metadata.Language = doc.QuerySelector("meta[name=\"lang\"]")?.GetAttribute("value");
-
-                        if (String.IsNullOrEmpty(metadata.Language))
-                            metadata.Language = "";
-                    }
-                }
+                yield return language;
+                yield return doc.GetElementsByTagName("html")[0].GetAttribute("lang");
+                yield return doc.GetElementsByTagName("html")[0].GetAttribute("xml:lang");
+                yield return doc.QuerySelector("meta[http-equiv=\"Content-Language\"]")?.GetAttribute("content");                
+                // this is wrong, but it's used
+                yield return doc.QuerySelector("meta[name=\"lang\"]")?.GetAttribute("value");
             }
+
+            metadata.Language = LanguageHeuristics().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
 
             // added date extraction
             DateTime date;
