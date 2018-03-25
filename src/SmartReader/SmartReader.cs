@@ -58,10 +58,10 @@ namespace SmartReader
         public int NTopCandidates { get; set; } = 5;
 
         /// <summary>
-        /// The default number of words an article must have in order to return a result
+        /// The default number of characters an article must have in order to return a result
         /// </summary>
         /// <value>Default: 500</value>
-        public int WordThreshold { get; set; } = 500;
+        public int CharThreshold { get; set; } = 500;
 
         // These are the IDs and classes that readability sets itself.
         private String[] idsToPreserve = { "readability-content", "readability-page-1" };
@@ -681,7 +681,7 @@ namespace SmartReader
                         // If we've hit another <br><br>, we're done adding children to this <p>.
                         if ((next as IElement)?.TagName == "BR")
                         {
-                            var nextElem = NextElement(next);
+                            var nextElem = NextElement(next.NextSibling);
                             if (nextElem != null && (nextElem as IElement).TagName == "BR")
                                 break;
                         }
@@ -757,6 +757,7 @@ namespace SmartReader
             Clean(articleContent, "h1");
             Clean(articleContent, "footer");
             Clean(articleContent, "link");
+            Clean(articleContent, "aside");
 
             // Clean out elements have "share" in their id/class combinations from final top candidates,
             // which means we don't remove the top candidates even they have "share".
@@ -1439,7 +1440,7 @@ namespace SmartReader
                 // finding the content, and the sieve approach gives us a higher likelihood of
                 // finding the -right- content.
 				var textLength = GetInnerText(articleContent, true).Length;                
-				if(textLength < WordThreshold) 
+				if(textLength < CharThreshold) 
                 {
                     parseSuccessful = false;
 					page.InnerHtml = pageCacheHtml;

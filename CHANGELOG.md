@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.4.0 - 2018/04/01
+- Fixed [issue #7](https://github.com/Strumenta/SmartReader/issues/7)
+- Added support to attribute xml:lang for language detection (Thanks to [Gábor Gergely](https://github.com/kodfodrasz))
+- Added new test pages for language detection
+- Added improvements from March updates of Readability
+
 ## 0.3.1 - 2018/03/03
 - Fixed [issue #5](https://github.com/Strumenta/SmartReader/issues/5)
 - Added improvements from February updates of Readability
