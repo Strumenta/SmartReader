@@ -34,7 +34,7 @@ namespace SmartReader
 		*         
 		*/
 
-        private static readonly HttpClient httpClient = new HttpClient();        
+        private static readonly HttpClient httpClient = new HttpClient();
         private Uri uri;
         private IHtmlDocument doc = null;
         private string articleTitle;
@@ -96,6 +96,17 @@ namespace SmartReader
         // Element tags to score by default.
         public String[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');
 
+        public enum RegularExpressions
+        {
+            UnlikelyCandidates,
+            PossibleCandidates,
+            Positive,
+            Negative,
+            Extraneous,
+            Byline,
+            Videos
+        }         
+
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
@@ -106,8 +117,8 @@ namespace SmartReader
         { "extraneous", new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase) },
         { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
         { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
-        { "videos", new Regex(@"\/\/(www\.)?(dailymotion|youtube|youtube-nocookie|player\.vimeo)\.com", RegexOptions.IgnoreCase) },
+        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },       
+        { "videos", new Regex(@"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)", RegexOptions.IgnoreCase) },
         { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
         { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
         { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
@@ -2257,7 +2268,7 @@ namespace SmartReader
                 else
                     return false;
             });
-        }        
+        }                
 
         /**
 		 * Runs readability.
@@ -2387,6 +2398,40 @@ namespace SmartReader
             }
 
             return size;
+        }
+
+        /// <summary>Allow to add an option to the default regular expressions</summary>
+        /// <param name="expression">A RegularExpression indicating the expression to change</param>
+        /// <param name="option">A string representing the new option</param>          
+        public void AddOptionToRegularExpression(RegularExpressions expression, string option)
+        {
+            switch (expression)
+            {
+                case RegularExpressions.UnlikelyCandidates:
+                    regExps["unlikelyCandidates"] = new Regex($"{regExps["unlikelyCandidates"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.PossibleCandidates:
+                    regExps["okMaybeItsACandidate"] = new Regex($"{regExps["okMaybeItsACandidate"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Positive:
+                    regExps["positive"] = new Regex($"{regExps["positive"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Negative:
+                    regExps["negative"] = new Regex($"{regExps["negative"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Extraneous:
+                    regExps["extraneous"] = new Regex($"{regExps["extraneous"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Byline:
+                    regExps["byline"] = new Regex($"{regExps["byline"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Videos:
+                    string original = regExps["videos"].ToString().Substring(0, regExps["videos"].ToString().Length - 1);
+                    regExps["videos"] = new Regex($"{original}|{option})", RegexOptions.IgnoreCase);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
