@@ -66,7 +66,7 @@ namespace SmartReader
         // These are the IDs and classes that readability sets itself.
         private String[] idsToPreserve = { "readability-content", "readability-page-1" };
 
-        private String[] classesToPreserve = { "readability-styled", "page" };
+        private String[] classesToPreserve = { "page" };
         public String[] ClassesToPreserve
         {
             get
@@ -77,7 +77,7 @@ namespace SmartReader
             {
                 classesToPreserve = value;
 
-                classesToPreserve = classesToPreserve.Union(new string[] { "readability-styled", "page" }).ToArray();
+                classesToPreserve = classesToPreserve.Union(new string[] { "page" }).ToArray();
             }
         }
 
@@ -105,7 +105,7 @@ namespace SmartReader
             Extraneous,
             Byline,
             Videos
-        }         
+        }
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -117,7 +117,7 @@ namespace SmartReader
         { "extraneous", new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase) },
         { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
         { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },       
+        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
         { "videos", new Regex(@"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)", RegexOptions.IgnoreCase) },
         { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
         { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
@@ -132,6 +132,17 @@ namespace SmartReader
         private String[] presentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
 
         private String[] deprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
+
+        // The commented out elements qualify as phrasing content but tend to be
+        // removed by readability when put into paragraphs, so we ignore them here.
+        private String[] phrasingElems = {
+          // "CANVAS", "IFRAME", "SVG", "VIDEO",
+            "ABBR", "AUDIO", "B", "BDO", "BR", "BUTTON", "CITE", "CODE", "DATA",
+            "DATALIST", "DFN", "EM", "EMBED", "I", "IMG", "INPUT", "KBD", "LABEL",
+            "MARK", "MATH", "METER", "NOSCRIPT", "OBJECT", "OUTPUT", "PROGRESS", "Q",
+            "RUBY", "SAMP", "SCRIPT", "SELECT", "SMALL", "SPAN", "STRONG", "SUB",
+            "SUP", "TEXTAREA", "TIME", "VAR", "WBR"
+        };
 
         private List<Action<IElement>> CustomOperations = new List<Action<IElement>>();
 
@@ -450,6 +461,25 @@ namespace SmartReader
         }
 
         /**
+        * Iterate over a NodeList, return true if all of the provided iterate
+        * function calls return true, false otherwise.
+        *
+        * For convenience, the current object context is applied to the
+        * provided iterate function.
+        *
+        * @param  NodeList nodeList The NodeList.
+        * @param  Function fn       The iterate function.
+        * @return Boolean
+        */
+        private bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
+        {
+            if (nodeList != null)
+                return nodeList.All(fn);
+
+            return false;
+        }
+
+        /**
 		 * Concat all nodelists passed as arguments.
 		 *
 		 * @return ...NodeList
@@ -599,9 +629,10 @@ namespace SmartReader
                   doc.GetElementsByTagName("h1"),
                   doc.GetElementsByTagName("h2")
                 );
+                var trimmedTitle = curTitle.Trim();
                 var match = SomeNode(headings, (heading) =>
                 {
-                    return heading.TextContent == curTitle;
+                    return heading.TextContent.Trim() == trimmedTitle;
                 });
 
                 // If we don't, let's extract the title out of the original title string.
@@ -723,11 +754,18 @@ namespace SmartReader
                                 break;
                         }
 
+                        if (!IsPhrasingContent(next))
+                            break;
+
                         // Otherwise, make this node a child of the new <p>.
                         var sibling = next.NextSibling;
                         p.AppendChild(next);
                         next = sibling;
                     }
+
+                    while (p.LastChild != null && IsWhitespace(p.LastChild))
+                        p.RemoveChild(p.LastChild);
+
                 }
             });
         }
@@ -1074,6 +1112,13 @@ namespace SmartReader
                 {
                     var matchString = node.ClassName + " " + node.Id;
 
+                    if (!IsProbablyVisible(node))
+                    {                        
+                        Logger.WriteLine("Removing hidden node - " + matchString);
+                        node = RemoveAndGetNext(node) as IElement;
+                        continue;
+                    }
+
                     // Check to see if this node is a byline, and remove it if it is.
                     if (CheckByline(node, matchString))
                     {
@@ -1114,11 +1159,39 @@ namespace SmartReader
                     // Turn all divs that don't have children block level elements into p's
                     if (node.TagName == "DIV")
                     {
+                        // Put phrasing content into paragraphs.
+                        INode p = null;
+                        var childNode = node.FirstChild;
+                        while (childNode != null)
+                        {
+                            var nextSibling = childNode.NextSibling;
+                            if (IsPhrasingContent(childNode))
+                            {
+                                if (p != null)
+                                {
+                                    p.AppendChild(childNode);
+                                }
+                                else if (!IsWhitespace(childNode))
+                                {
+                                    p = doc.CreateElement("p");
+                                    node.ReplaceChild(p, childNode);
+                                    p.AppendChild(childNode);
+                                }
+                            }
+                            else if (p != null)
+                            {
+                                while (p.LastChild != null && IsWhitespace(p.LastChild))                p.RemoveChild(p.LastChild);
+
+                                p = null;
+                            }
+                            childNode = nextSibling;
+                        }
+
                         // Sites like http://mobile.slate.com encloses each paragraph with a DIV
                         // element. DIVs with only a P element inside and no text content can be
                         // safely converted into plain P elements to avoid confusing the scoring
                         // algorithm with DIVs with are, in practice, paragraphs.
-                        if (HasSinglePInsideElement(node))
+                        if (HasSinglePInsideElement(node) && GetLinkDensity(node) < 0.25)
                         {
                             var newNode = node.Children[0];
                             node.Parent.ReplaceChild(newNode, node);
@@ -1129,22 +1202,7 @@ namespace SmartReader
                         {
                             node = SetNodeTag(node, "P");
                             elementsToScore.Add(node);
-                        }
-                        else
-                        {
-                            // EXPERIMENTAL
-                            ForEachNode(node.ChildNodes, (childNode) =>
-                            {
-                                if (childNode.NodeType == NodeType.Text && childNode.TextContent.Trim().Length > 0)
-                                {
-                                    var p = doc.CreateElement("p");
-                                    p.TextContent = childNode.TextContent;
-                                    p.SetAttribute("style", "display: inline;");
-                                    p.ClassName = "readability-styled";
-                                    node.ReplaceChild(p, childNode);
-                                }
-                            });
-                        }
+                        }                        
                     }
                     node = GetNextNode(node);
                 }
@@ -1787,6 +1845,23 @@ namespace SmartReader
             return b;
         }
 
+        /***
+        * Determine if a node qualifies as phrasing content.
+        * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content
+        **/
+        bool IsPhrasingContent(INode node)
+        {
+            return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
+              ((node.NodeName == "A" || node.NodeName == "DEL" || node.NodeName == "INS") &&
+                EveryNode(node.ChildNodes, IsPhrasingContent));
+        }
+
+        bool IsWhitespace(INode node)
+        {
+            return (node.NodeType == NodeType.Text && node.TextContent.Trim().Length == 0) ||
+                   (node.NodeType == NodeType.Element && node.NodeName == "BR");
+        }
+
         /**
 		 * Get the inner text of a node - cross browser compatibly.
 		 * This also strips out any excess whitespace to be found.
@@ -1831,19 +1906,16 @@ namespace SmartReader
             if (e == null || e.TagName.ToLower() == "svg")
                 return;
 
-            if (e.ClassName != "readability-styled")
+            // Remove `style` and deprecated presentational attributes
+            for (var i = 0; i < presentationalAttributes.Length; i++)
             {
-                // Remove `style` and deprecated presentational attributes
-                for (var i = 0; i < presentationalAttributes.Length; i++)
-                {
-                    e.RemoveAttribute(presentationalAttributes[i]);
-                }
+                e.RemoveAttribute(presentationalAttributes[i]);
+            }
 
-                if (deprecatedSizeAttributeElems.FirstOrDefault(x => x == e.TagName) != null)
-                {
-                    e.RemoveAttribute("width");
-                    e.RemoveAttribute("height");
-                }
+            if (deprecatedSizeAttributeElems.FirstOrDefault(x => x == e.TagName) != null)
+            {
+                e.RemoveAttribute("width");
+                e.RemoveAttribute("height");
             }
 
             var cur = e.FirstElementChild;
@@ -2225,7 +2297,12 @@ namespace SmartReader
                 return false;
             else
                 return true;
-        }        
+        }
+
+        bool IsProbablyVisible(IElement node)
+        {            
+            return node?.Style?.Display != "none" && !node.HasAttribute("hidden");
+        }
 
         /**
 		 * Decides whether or not the document is reader-able without parsing the whole thing.
@@ -2257,9 +2334,10 @@ namespace SmartReader
                 totalNodes = nodes.Concat(set.ToArray());
             }
 
-            // FIXME we should have a fallback for helperIsVisible, but this is
-            // problematic because of jsdom's elem.style handling - see
-            // https://github.com/mozilla/readability/pull/186 for context.
+            if (helperIsVisible == null)
+            {
+                helperIsVisible = IsProbablyVisible;
+            }
 
             double score = 0;
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
