@@ -2456,6 +2456,7 @@ namespace SmartReader
 
             PostProcessContent(articleContent);
             
+            // perform custom operations
             foreach (var operation in CustomOperations)
                 operation(articleContent);
 
@@ -2527,6 +2528,39 @@ namespace SmartReader
             }
 
             return size;
+        }
+
+        /// <summary>Allow to replace the default regular expressions</summary>
+        /// <param name="expression">A RegularExpression indicating the expression to change</param>
+        /// <param name="newExpression">A string representing the new option</param> 
+        public void ReplaceRegularExpression(RegularExpressions expression, string newExpression)
+        {
+            switch (expression)
+            {
+                case RegularExpressions.UnlikelyCandidates:
+                    regExps["unlikelyCandidates"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.PossibleCandidates:
+                    regExps["okMaybeItsACandidate"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Positive:
+                    regExps["positive"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Negative:
+                    regExps["negative"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Extraneous:
+                    regExps["extraneous"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Byline:
+                    regExps["byline"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.Videos:
+                    regExps["videos"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
+                default:
+                    break;
+            }
         }
 
         /// <summary>Allow to add an option to the default regular expressions</summary>

@@ -24,8 +24,18 @@ namespace SmartReaderConsole
 
             Reader reader = new Reader("https://localhost/", sourceContent);
 
+            // add a custom operation
             reader.AddCustomOperation(AddInfo);
-            Article article = reader.GetArticle();            
+
+            // add an option to a regular expression
+            reader.AddOptionToRegularExpression(Reader.RegularExpressions.Positive, "principale");
+
+            reader.ReplaceRegularExpression(Reader.RegularExpressions.Videos, @"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)");
+
+            // get the article
+            Article article = reader.GetArticle();
+            
+            // get info about images in the article
             var images = article.GetImagesAsync();
             images.Wait();
 

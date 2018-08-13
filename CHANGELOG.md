@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.5.0 - 2018/08/13
+- Added support for custom operations (Thanks to [Gábor Gergely](https://github.com/kodfodrasz)
+- Added support to modify regular expressions used to determine what is part of the article and what is discarded (Thanks to [Gábor Gergely](https://github.com/kodfodrasz)
+- Added improvements from latest updates of Readability
+
 ## 0.4.0 - 2018/04/01
 - Fixed [issue #7](https://github.com/Strumenta/SmartReader/issues/7)
 - Added support to attribute xml:lang for language detection (Thanks to [Gábor Gergely](https://github.com/kodfodrasz))

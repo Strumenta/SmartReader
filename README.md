@@ -34,6 +34,54 @@ The library tries to detect the correct encoding of the text, if the correct tag
 On the `Article` object you can call `GetImagesAsync` to obtain a Task for a list of `Image` objects, representing the images found in the extracted article. The method is async because it makes HEAD Requests, to obtain the size of the images and only returns the ones that are bigger then the specified size. The size by default is 75KB.
 This is to exclude things such as images used in the UI.
 
+### Options
+
+#### Customize Regular Expressions
+
+You can customize the regular expressions that are used to determine whether a part of the document will be inside the article. There are two methods to do this:
+
+- `void` **AddOptionToRegularExpression(RegularExpressions expression, string option)**<br>Add an option (i.e., usually a class name) to the regular expression. <br>
+- `void` **ReplaceRegularExpression(RegularExpressions expression, string newExpression)**<br>Replace the selected regular expression. <br>
+
+The type `RegularExpression` is an `enum` that can have one of the following values, corresponding to a regular expression:
+- UnlikelyCandidates
+- PossibleCandidates
+  - Positive
+  - Negative
+  - Extraneous (note: this regular expression is not used anywhere at the moment)
+  - Byline
+  - Videos
+
+Except for the *Videos* regular expression they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
+
+The *Videos* regular expression represents a domain of origin of an embedded video. Since this is a string representing a regular expression, you have to remember to escape any dot present. This option is used to determine if an embed should be maintained in the article, because people generally want to see videos. If an embed matches one of the domains of this option is maintained, otherwise it is not.
+
+```
+// how to add the domain example.com
+AddOptionToRegularExpression(RegularExpressions.Videos, "example\.com");
+```
+
+#### Add Custom Operations
+
+The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is returned to the user. A custom operation receives as argument the article (an `IElement`) after the processing is complete and it is ready to be returned to the user.
+
+```csharp
+// example of custom operation
+void AddInfo(AngleSharp.Dom.IElement element)
+{       
+    // we add a paragraph to the first div we find
+	element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
+}
+
+[..]
+Reader reader = // ..
+
+// add a custom operation
+reader.AddCustomOperation(AddInfo);
+```
+
+As you can see the custom operation operate on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
+
 ## Examples
 
 Using the `GetArticle` method.
@@ -121,6 +169,6 @@ The project uses the **Apache License**.
 - [Dan Rigby](https://github.com/DanRigby)
 - [Yasindn](https://github.com/yasindn)
 - [Jamie Lord](https://github.com/jamie-lord)
-- [Gábor Gergely](https://github.com/kodfodrasz)
+- [Gï¿½bor Gergely](https://github.com/kodfodrasz)
 
 Thanks to all the people involved.
