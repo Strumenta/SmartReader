@@ -9,6 +9,11 @@ namespace SmartReaderConsole
 {
     class Program
     {
+        static void AddInfo(AngleSharp.Dom.IElement element)
+        {       
+            element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
+        }
+
         static void Main(string[] args)
         {
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
@@ -17,9 +22,12 @@ namespace SmartReaderConsole
 
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
-            Article article = Reader.ParseArticle("https://localhost/", sourceContent);
+            Reader reader = new Reader("https://localhost/", sourceContent);
+
+            reader.AddCustomOperation(AddInfo);
+            Article article = reader.GetArticle();            
             var images = article.GetImagesAsync();
-            images.Wait();        
+            images.Wait();
 
             Console.WriteLine($"Is Readable: {article.IsReadable}");
             Console.WriteLine($"Uri: {article.Uri}");

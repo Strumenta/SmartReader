@@ -133,6 +133,8 @@ namespace SmartReader
 
         private String[] deprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
 
+        private List<Action<IElement>> CustomOperations = new List<Action<IElement>>();
+
         /// <summary>
         /// Reads content from the given URI.
         /// </summary>
@@ -199,6 +201,30 @@ namespace SmartReader
             articleByline = "";
             articleDir = "";
         }
+
+        /// <summary>
+        /// Add a custom operation to be performed after the article is parsed
+        /// </summary>    
+        public void AddCustomOperation(Action<IElement> operation)
+        {
+            CustomOperations.Add(operation);
+        }
+
+        /// <summary>
+        /// Remove a custom operation to be performed after the article is parsed
+        /// </summary>    
+        public void RemoveCustomOperation(Action<IElement> operation)
+        {
+            CustomOperations.Remove(operation);
+        }
+
+        /// <summary>
+        /// Remove all custom operation to be performed after the article is parsed
+        /// </summary>    
+        public void RemoveAllCustomOperations()
+        {
+            CustomOperations.Clear();
+        }        
 
         /// <summary>
         /// Read and parse the article asynchronously from the given URI.
@@ -1159,8 +1185,10 @@ namespace SmartReader
 
                     // Initialize and score ancestors.                    
                     ForEachNode(ancestors, (ancestor, level) =>
-                    {
-                        if (String.IsNullOrEmpty((ancestor as IElement)?.TagName))
+                    {                               
+                        if (String.IsNullOrEmpty((ancestor as IElement)?.TagName) ||
+                            (ancestor as IElement)?.ParentElement == null ||
+                            String.IsNullOrEmpty((ancestor as IElement)?.ParentElement?.TagName))                            
                             return;
                         
                         if (GetReadabilityScore(ancestor as IElement).CompareTo(0.0) == 0)
@@ -2316,7 +2344,7 @@ namespace SmartReader
             // Remove script tags from the document.            
             RemoveScripts(doc.DocumentElement);
 
-            PrepDocument();            
+            PrepDocument();
 
             var metadata = GetArticleMetadata();
             articleTitle = metadata.Title;
@@ -2329,6 +2357,9 @@ namespace SmartReader
                 Logger.WriteLine("<h2>Grabbed:</h2>" + articleContent.InnerHtml);
 
             PostProcessContent(articleContent);
+            
+            foreach (var operation in CustomOperations)
+                operation(articleContent);
 
             if (Debug)
                 Logger.WriteLine("<h2>Post Process result:</h2>" + articleContent.InnerHtml);
