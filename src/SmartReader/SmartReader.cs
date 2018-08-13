@@ -110,7 +110,7 @@ namespace SmartReader
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
-        { "unlikelyCandidates", new Regex(@"banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
+        { "unlikelyCandidates", new Regex(@"-ad-|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
         { "okMaybeItsACandidate", new Regex(@"and|article|body|column|main|shadow", RegexOptions.IgnoreCase) },
         { "positive", new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase) },
         { "negative", new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase) },
