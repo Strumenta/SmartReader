@@ -596,7 +596,7 @@ namespace SmartReader
 
             try
             {
-                curTitle = origTitle = doc.Title;
+                curTitle = origTitle = doc.Title.Trim();
 
                 // If they had an element with id "title" in their HTML
                 //if (typeof curTitle !== "string")
@@ -766,6 +766,9 @@ namespace SmartReader
                     while (p.LastChild != null && IsWhitespace(p.LastChild))
                         p.RemoveChild(p.LastChild);
 
+                    if (p.Parent.NodeName == "P")
+                        SetNodeTag(p.ParentElement, "DIV");
+
                 }
             });
         }
@@ -899,6 +902,22 @@ namespace SmartReader
                 var next = NextElement(br.NextSibling);
                 if (next != null && (next as IElement).TagName == "P")
                     br.Parent.RemoveChild(br);
+            });
+
+            // Remove single-cell tables
+            ForEachNode(GetAllNodesWithTag(articleContent, new string[] { "table" }), (table) =>
+            {
+                var tbody = HasSingleTagInsideElement(table as IElement, "TBODY") ? (table as IElement).FirstElementChild : table;
+                if (HasSingleTagInsideElement(tbody as IElement, "TR"))
+                {
+                    var row = (tbody as IElement).FirstElementChild;
+                    if (HasSingleTagInsideElement(row, "TD"))
+                    {
+                        var cell = row.FirstElementChild;
+                        cell = SetNodeTag(cell, EveryNode(cell.ChildNodes, IsPhrasingContent) ? "P" : "DIV");
+                        table.Parent.ReplaceChild(cell, table);
+                    }
+                }
             });
         }
 
@@ -1191,7 +1210,7 @@ namespace SmartReader
                         // element. DIVs with only a P element inside and no text content can be
                         // safely converted into plain P elements to avoid confusing the scoring
                         // algorithm with DIVs with are, in practice, paragraphs.
-                        if (HasSinglePInsideElement(node) && GetLinkDensity(node) < 0.25)
+                        if (HasSingleTagInsideElement(node, "P") && GetLinkDensity(node) < 0.25)
                         {
                             var newNode = node.Children[0];
                             node.Parent.ReplaceChild(newNode, node);
@@ -1798,16 +1817,17 @@ namespace SmartReader
         }
 
         /**
-		 * Check if this node has only whitespace and a single P element
+		 * Check if this node has only whitespace and a single element with given tag
 		 * Returns false if the DIV node contains non-empty text nodes
-		 * or if it contains no P or more than 1 element.
+		 * or if it contains no element with given tag or more than 1 element.
 		 *
 		 * @param Element
+         * @param string tag of child element
 		**/
-        private bool HasSinglePInsideElement(IElement element)
+        private bool HasSingleTagInsideElement(IElement element, string tag)
         {
-            // There should be exactly 1 element child which is a P:
-            if (element.Children.Length != 1 || element.Children[0].TagName != "P")
+            // There should be exactly 1 element child with given tag:
+            if (element.Children.Length != 1 || element.Children[0].TagName != tag)
             {
                 return false;
             }
