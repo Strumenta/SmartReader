@@ -3,5 +3,8 @@
   "byline": null,
   "excerpt": "Daring Fireball is written and produced by John Gruber.",
   "readerable": true,
-  "language": "en"
+  "language": "en",
+  "timeToRead" : "00:01:00",
+  "publicationDate" : null,
+  "author" : null
 }

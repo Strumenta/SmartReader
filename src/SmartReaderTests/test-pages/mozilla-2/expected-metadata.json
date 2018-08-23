@@ -4,5 +4,6 @@
   "dir": "ltr",
   "excerpt": "Built for those who build the Web. Introducing the only browser made for developers.",
   "readerable": false,
-  "language": "en"
+  "language": "en",
+  "timeToRead" : "00:01:00"
 }

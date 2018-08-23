@@ -3,5 +3,6 @@
   "byline": null,
   "excerpt": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n        tempor incididunt ut labore et dolore magna aliqua.",
   "readerable": true,
-  "language": null
+  "language": null,
+  "timeToRead" : "00:00:00"
 }

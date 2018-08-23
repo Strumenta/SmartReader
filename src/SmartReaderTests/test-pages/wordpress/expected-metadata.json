@@ -4,5 +4,8 @@
   "dir": "ltr",
   "excerpt": "Stack Overflow published its analysis of 2017 hiring trends based on the targeting options employers selected when posting to Stack Overflow Jobs. The report, which compares data from 200 companies…",
   "readerable": true,
-  "language": "en-US"
+  "language": "en-US",
+  "timeToRead" : "00:02:00",
+  "publicationDate" : "2017-03-10T00:16:02.0000000+01:00",
+  "author" : null
 }

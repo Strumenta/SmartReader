@@ -38,7 +38,7 @@ namespace SmartReaderTests
             _output = output;
         }
 
-        public IArticleTest GetTestArticle(JObject metadata)
+        public IArticleTest GetTestArticle(JObject metadata, string content)
         {
             var mockArticle = new Mock<IArticleTest>();
             mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
@@ -46,11 +46,12 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
             mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
             mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
-            //mockArticle.Setup(x => x.Author).Returns(sr.ReadLine());
-            //mockArticle.Setup(x => x.PublicationDate).Returns(DateTime.Par(sr.ReadLine  ()));
+            mockArticle.Setup(x => x.Author).Returns(String.IsNullOrEmpty(metadata["author"]?.ToString()) ? null : metadata["author"].ToString());
+            mockArticle.Setup(x => x.PublicationDate).Returns(String.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
             mockArticle.Setup(x => x.Language).Returns(String.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
             mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
-            //mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Pars(sr.ReadLin()));
+            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));
+            mockArticle.Setup(x => x.Content).Returns(content);
 
             return mockArticle.Object;
         }
@@ -60,12 +61,13 @@ namespace SmartReaderTests
             Assert.Equal(expected.IsReadable, found.IsReadable);
             Assert.Equal(expected.Title, found.Title);
             Assert.Equal(expected.Dir, found.Dir);
-            Assert.Equal(expected.Byline, found.Byline);
-            //Assert.Equal(expected.Author, found.Author);
-            //Assert.Equal(expected.PublicationDate, found.PublicationDate);
+            Assert.Equal(expected.Byline, found.Byline);            
+            Assert.Equal(expected.Author, found.Author);
+            Assert.Equal(expected.PublicationDate, found.PublicationDate);
             Assert.Equal(expected.Language, found.Language);			
             Assert.Equal(expected.Excerpt, found.Excerpt);
-            //Assert.Equal(expected.TimeToRead, found.TimeToRead);
+            Assert.Equal(expected.TimeToRead, found.TimeToRead);
+            Assert.Equal(expected.Content, found.Content);
         }
 
         public static IEnumerable<object[]> GetTests()
@@ -88,7 +90,7 @@ namespace SmartReaderTests
             var expectedMetadata = JObject.Parse(expectedMetadataString);            
             Article found = Reader.ParseArticle("https://localhost/", sourceContent);
 
-            IArticleTest expected = GetTestArticle(expectedMetadata);
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
 
             AssertProperties(expected, found);        
         }        

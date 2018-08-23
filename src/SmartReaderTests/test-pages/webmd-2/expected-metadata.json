@@ -3,5 +3,8 @@
   "byline": "By Kelli  Miller\n                                                    WebMD Health News",
   "excerpt": "Drug-resistant bacteria, dubbed",
   "readerable": true,
-  "language": "en"
+  "language": "en",
+  "timeToRead" : "00:01:00",
+  "publicationDate" : null,
+  "author" : "Kelli  Miller"
 }

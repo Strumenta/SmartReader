@@ -3,5 +3,8 @@
   "byline": "Mark Di Stefano",
   "excerpt": "An inquest into Eloise Parry's death has been adjourned until July...",
   "readerable": true,
-  "language": "en"
+  "language": "en",
+  "timeToRead" : "00:01:00",
+  "publicationDate" : null,
+  "author" : "Mark Di Stefano"
 }

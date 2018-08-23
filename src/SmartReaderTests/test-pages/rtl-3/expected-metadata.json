@@ -4,5 +4,6 @@
   "excerpt": "Lorem ipsum dolor sit amet.",
   "dir": "rtl",
   "readerable": true,
-  "language": null
+  "language": null,
+  "timeToRead" : "00:00:00"
 }
