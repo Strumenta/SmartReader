@@ -14,6 +14,11 @@ namespace SmartReaderConsole
             element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
         }
 
+        static void RemoveElement(AngleSharp.Dom.IElement element)
+        {
+            element.QuerySelector(".removeable")?.Remove();
+        }
+
         static void Main(string[] args)
         {
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
@@ -24,8 +29,18 @@ namespace SmartReaderConsole
 
             Reader reader = new Reader("https://localhost/", sourceContent);
 
-            // add a custom operation
-            reader.AddCustomOperation(AddInfo);
+            reader.ClassesToPreserve = new string[] { "info" };
+
+            reader.Debug = true;
+            reader.Logger = Console.Out;
+
+            reader.ClassesToPreserve = reader.ClassesToPreserve.Append("info").ToArray();
+
+            // add a custom operation at the start
+            reader.AddCustomOperationStart(RemoveElement);
+
+            // add a custom operation at the end
+            reader.AddCustomOperationEnd(AddInfo);
 
             // add an option to a regular expression
             reader.AddOptionToRegularExpression(Reader.RegularExpressions.Positive, "principale");

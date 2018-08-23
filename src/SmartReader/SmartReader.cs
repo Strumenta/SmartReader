@@ -67,6 +67,10 @@ namespace SmartReader
         private String[] idsToPreserve = { "readability-content", "readability-page-1" };
 
         private String[] classesToPreserve = { "page" };
+        /// <summary>
+        /// The classes that must be preserved
+        /// </summary>
+        /// <value>Default: "page"</value>
         public String[] ClassesToPreserve
         {
             get
@@ -118,7 +122,7 @@ namespace SmartReader
         { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
         { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
         { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
-        { "videos", new Regex(@"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)", RegexOptions.IgnoreCase) },
+        { "videos", new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase) },        
         { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
         { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
         { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
@@ -144,7 +148,9 @@ namespace SmartReader
             "SUP", "TEXTAREA", "TIME", "VAR", "WBR"
         };
 
-        private List<Action<IElement>> CustomOperations = new List<Action<IElement>>();
+        private List<Action<IElement>> CustomOperationsStart = new List<Action<IElement>>();
+
+        private List<Action<IElement>> CustomOperationsEnd = new List<Action<IElement>>();
 
         /// <summary>
         /// Reads content from the given URI.
@@ -214,28 +220,61 @@ namespace SmartReader
         }
 
         /// <summary>
+        /// Add a custom operation to be performed before the article is parsed
+        /// </summary>    
+        public void AddCustomOperationStart(Action<IElement> operation)
+        {
+            CustomOperationsStart.Add(operation);
+        }
+
+        /// <summary>
+        /// Remove a custom operation to be performed before the article is parsed
+        /// </summary>    
+        public void RemoveCustomOperationStart(Action<IElement> operation)
+        {
+            CustomOperationsStart.Remove(operation);
+        }
+
+        /// <summary>
+        /// Remove all custom operation to be performed before the article is parsed
+        /// </summary>    
+        public void RemoveAllCustomOperationsStart()
+        {
+            CustomOperationsStart.Clear();
+        }
+
+        /// <summary>
         /// Add a custom operation to be performed after the article is parsed
         /// </summary>    
-        public void AddCustomOperation(Action<IElement> operation)
+        public void AddCustomOperationEnd(Action<IElement> operation)
         {
-            CustomOperations.Add(operation);
+            CustomOperationsEnd.Add(operation);
         }
 
         /// <summary>
         /// Remove a custom operation to be performed after the article is parsed
         /// </summary>    
-        public void RemoveCustomOperation(Action<IElement> operation)
+        public void RemoveCustomOperationEnd(Action<IElement> operation)
         {
-            CustomOperations.Remove(operation);
+            CustomOperationsEnd.Remove(operation);
         }
 
         /// <summary>
         /// Remove all custom operation to be performed after the article is parsed
         /// </summary>    
+        public void RemoveAllCustomOperationsEnd()
+        {
+            CustomOperationsEnd.Clear();
+        }
+
+        /// <summary>
+        /// Remove all custom operation
+        /// </summary>    
         public void RemoveAllCustomOperations()
         {
-            CustomOperations.Clear();
-        }        
+            CustomOperationsStart.Clear();
+            CustomOperationsEnd.Clear();
+        }
 
         /// <summary>
         /// Read and parse the article asynchronously from the given URI.
@@ -1102,7 +1141,9 @@ namespace SmartReader
 		**/
         private IElement GrabArticle(IElement page = null)
         {
-            //this.log("**** grabArticle ****");
+            if (Debug)
+                Logger.WriteLine("**** grabArticle ****");
+
             var doc = this.doc;
             var isPaging = (page != null ? true : false);
             page = page != null ? page : this.doc.Body;
@@ -1110,7 +1151,8 @@ namespace SmartReader
             // We can't grab an article if we don't have a page!
             if (page == null)
             {
-                //this.log("No body found in document. Abort.");
+                if (Debug)
+                    Logger.WriteLine("No body found in document. Abort.");                
                 return null;
             }
 
@@ -1132,8 +1174,9 @@ namespace SmartReader
                     var matchString = node.ClassName + " " + node.Id;
 
                     if (!IsProbablyVisible(node))
-                    {                        
-                        Logger.WriteLine("Removing hidden node - " + matchString);
+                    {
+                        if (Debug)
+                            Logger.WriteLine("Removing hidden node - " + matchString);
                         node = RemoveAndGetNext(node) as IElement;
                         continue;
                     }
@@ -1153,7 +1196,8 @@ namespace SmartReader
                             node.TagName != "BODY" &&
                             node.TagName != "A")
                         {
-                            //this.log("Removing unlikely candidate - " + matchString);
+                            if (Debug)
+                                Logger.WriteLine("Removing unlikely candidate - " + matchString);                            
                             node = RemoveAndGetNext(node) as IElement;
                             continue;
                         }
@@ -1180,22 +1224,22 @@ namespace SmartReader
                     {
                         // Put phrasing content into paragraphs.
                         INode p = null;
-                        var childNode = node.FirstChild;
+                        var childNode = node.FirstChild;                      
                         while (childNode != null)
-                        {
+                        {                           
                             var nextSibling = childNode.NextSibling;
                             if (IsPhrasingContent(childNode))
-                            {
+                            {                               
                                 if (p != null)
                                 {
-                                    p.AppendChild(childNode);
+                                    p.AppendChild(childNode);         
                                 }
                                 else if (!IsWhitespace(childNode))
                                 {
                                     p = doc.CreateElement("p");
                                     node.ReplaceChild(p, childNode);
                                     p.AppendChild(childNode);
-                                }
+                                }                               
                             }
                             else if (p != null)
                             {
@@ -1213,6 +1257,8 @@ namespace SmartReader
                         if (HasSingleTagInsideElement(node, "P") && GetLinkDensity(node) < 0.25)
                         {
                             var newNode = node.Children[0];
+                            // preserve the old DIV classes into the new P node
+                            newNode.ClassName += " " + node.ClassName;
                             node.Parent.ReplaceChild(newNode, node);
                             node = newNode;
                             elementsToScore.Add(node);
@@ -2233,12 +2279,7 @@ namespace SmartReader
                     }
 
                     var linkDensity = GetLinkDensity(node);
-                    var contentLength = GetInnerText(node).Length;
-
-                    if(node.TextContent.Contains("See also") && li.CompareTo(-100) == 0)
-                    {
-                        Console.WriteLine(contentLength);
-                    }
+                    var contentLength = GetInnerText(node).Length;                 
 
                     var haveToRemove =
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
@@ -2249,11 +2290,6 @@ namespace SmartReader
                       (weight >= 25 && linkDensity > 0.5) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
 
-                    if (node.TextContent.Contains("See also") && li.CompareTo(-100) == 0)
-                    {
-                        
-                        Console.WriteLine(linkDensity);
-                    }
                     return haveToRemove;
                 }
                 return false;
@@ -2439,10 +2475,17 @@ namespace SmartReader
                     return new Article(uri, articleTitle, false);
             }
 
+            // perform custom operations at the start
+            foreach (var operation in CustomOperationsStart)
+                operation(doc.DocumentElement);
+
             // Remove script tags from the document.            
             RemoveScripts(doc.DocumentElement);
 
             PrepDocument();
+
+            if (Debug)
+                Logger.WriteLine("<h2>Pre-GrabArticle:</h2>" + doc.DocumentElement.InnerHtml);
 
             var metadata = GetArticleMetadata();
             articleTitle = metadata.Title;
@@ -2456,8 +2499,8 @@ namespace SmartReader
 
             PostProcessContent(articleContent);
             
-            // perform custom operations
-            foreach (var operation in CustomOperations)
+            // perform custom operations at the end
+            foreach (var operation in CustomOperationsEnd)
                 operation(articleContent);
 
             if (Debug)

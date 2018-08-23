@@ -46,8 +46,8 @@ You can customize the regular expressions that are used to determine whether a p
 The type `RegularExpression` is an `enum` that can have one of the following values, corresponding to a regular expression:
 - UnlikelyCandidates
 - PossibleCandidates
-  - Positive
-  - Negative
+  - Positive (increases chances to keep the element)
+  - Negative (decreases chances to keep the element)
   - Extraneous (note: this regular expression is not used anywhere at the moment)
   - Byline
   - Videos
@@ -63,7 +63,7 @@ AddOptionToRegularExpression(RegularExpressions.Videos, "example\.com");
 
 #### Add Custom Operations
 
-The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is returned to the user. A custom operation receives as argument the article (an `IElement`) after the processing is complete and it is ready to be returned to the user.
+The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is processed or it is returned to the user. A custom operation receives as argument the article (an `IElement`). For custom operations at the start the element is the entire document, for custom operations executed after the processing is complete the element is the article extracted.
 
 ```csharp
 // example of custom operation
@@ -73,14 +73,39 @@ void AddInfo(AngleSharp.Dom.IElement element)
 	element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
 }
 
+static void RemoveElement(AngleSharp.Dom.IElement element)
+{
+    // we remove the first element with class removeable
+    element.QuerySelector(".removeable")?.Remove();
+}
+
 [..]
 Reader reader = // ..
 
-// add a custom operation
-reader.AddCustomOperation(AddInfo);
+// add a custom operation at the start
+reader.AddCustomOperationStart(RemoveElement);
+
+// add a custom operation at the end
+reader.AddCustomOperationEnd(AddInfo);
 ```
 
 As you can see the custom operation operate on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
+
+#### Preserve CSS Classes
+
+Normally the library strips all classes of the elements except for `page`. This is done because classes are used to govern the display of the article, but they are irrelevant to the content itself. However, there is an option to preserve other classes. This is mostly useful if you want to perform custom operations on certain elements and you need CSS classes to identify them.
+
+You can preserve classes using the property `ClassesToPreserve` which is an array of class names that will be preserved. Note that this has no effect if an element that contains the class is eliminated from the extracted article. This means that the option **does not maintain the element in any case**, it just maintains the class if the element is kept in the extracted article.
+
+```
+Reader reader = // ..
+
+// preserve the class info
+reader.ClassesToPreserve = new string[] { "info" };
+```
+
+The class `page` is always kept, no matter the value you assign to this option.
+
 
 ## Examples
 
