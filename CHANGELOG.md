@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.5.1 - 2018/08/27
+- Added support for custom operations before processing
+- Added fix to preserve CSS classes when removing a DIV with only one P
+- Improved testing
+- Added improvements from August updates of Readability
+
 ## 0.5.0 - 2018/08/13
 - Added support for custom operations (Thanks to [Gábor Gergely](https://github.com/kodfodrasz)
 - Added support to modify regular expressions used to determine what is part of the article and what is discarded (Thanks to [Gábor Gergely](https://github.com/kodfodrasz)
