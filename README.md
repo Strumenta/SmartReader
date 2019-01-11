@@ -145,6 +145,7 @@ if(article.IsReadable)
 - `TextWriter` **Logger** <br> Where the debug data is going to be written. <br> *Default: null*
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
+- `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article. <br>*Default: ["page"]*
 
 ## Article Model
 

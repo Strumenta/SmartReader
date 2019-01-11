@@ -20,7 +20,7 @@ namespace SmartReaderConsole
         }
 
         static void Main(string[] args)
-        {
+        {            
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
             Random random = new Random();
             var index = random.Next(pages.Count());            

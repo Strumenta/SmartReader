@@ -1626,7 +1626,7 @@ namespace SmartReader
                     {
                         attempts.Add(new Attempt() { content = articleContent, length = textLength });
                         // No luck after removing flags, just return the longest text we found during the different loops
-                        attempts.OrderByDescending(x => x.length);
+                        attempts = attempts.OrderByDescending(x => x.length).ToList();
 						
 						// But first check if we actually have something
 						if (attempts.Count == 0)
@@ -1693,11 +1693,13 @@ namespace SmartReader
 
             // Match "description", or Twitter's "twitter:description" (Cards)
             // in name attribute.
-            var namePattern = @"^\s*((((twitter)\s*:\s*)?(description|title|image))|name)\s*$";
-
+            // name is a single value
+            var namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image)|name)\s*$";   
+            
             // Match Facebook's Open Graph title & description properties.
-            var propertyPattern = @"^\s*(og|article)\s*:\s*(description|title|published_time|image)\s*$";
-
+            // property is a space-separated list of values
+            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image)\s*$";
+            
             var itemPropPattern = @"\s*datePublished\s*";
 
             // Find description tags.
@@ -1706,6 +1708,9 @@ namespace SmartReader
                 var elementName = (element as IElement).GetAttribute("name") ?? "";
                 var elementProperty = (element as IElement).GetAttribute("property") ?? "";
                 var itemProp = (element as IElement).GetAttribute("itemprop") ?? "";
+                var content = (element as IElement).GetAttribute("content");
+                MatchCollection matches = null;
+                String name = "";
 
                 if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
                 {
@@ -1714,10 +1719,34 @@ namespace SmartReader
                     return;
                 }
 
-                String name = "";
-                if (Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
+                if (!String.IsNullOrEmpty(elementProperty))
+                {
+                    matches = Regex.Matches(elementProperty, propertyPattern);
+                    if (matches.Count > 0)
+                    {
+                        for(int i = 0; i < matches.Count; i++)
+                        {
+                            // Convert to lowercase, and remove any whitespace
+                            // so we can match below.
+                            name = Regex.Replace(matches[i].Value.ToLower(), @"\s+", "");
+                            // multiple authors
+                            values[name] = content.Trim();
+                        }
+                    }
+                }
+
+                if (matches.Count
+                 == 0 && !String.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
+                    if (!String.IsNullOrEmpty(content))
+                    {
+                        // Convert to lowercase, remove any whitespace, and convert dots
+                        // to colons so we can match below.
+                        name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""),@"\.",":");
+                        values[name] = content.Trim();
+                    }
+
                 }
                 else if (Regex.IsMatch(elementProperty, propertyPattern, RegexOptions.IgnoreCase))
                 {
@@ -1730,7 +1759,7 @@ namespace SmartReader
 
                 if (!String.IsNullOrEmpty(name))
                 {
-                    var content = (element as IElement).GetAttribute("content");
+                    content = (element as IElement).GetAttribute("content");
                     if (!String.IsNullOrEmpty(content))
                     {
                         // Convert to lowercase and remove any whitespace
@@ -1746,11 +1775,29 @@ namespace SmartReader
             {
                 metadata.Excerpt = values["description"];
             }
+            else if (values.ContainsKey("dc:description"))
+            {
+                metadata.Excerpt = values["dc:description"];
+            }
+            else if (values.ContainsKey("dcterm:description"))
+            {
+                metadata.Excerpt = values["dcterm:description"];
+            }
             else if (values.ContainsKey("og:description"))
             {
                 // Use facebook open graph description.
                 metadata.Excerpt = values["og:description"];
             }
+            else if (values.ContainsKey("weibo:article:description"))
+            {
+                // Use weibo description.
+                metadata.Excerpt = values["weibo:article:description"];
+            }
+            else if (values.ContainsKey("weibo:webpage:description"))
+            {
+                // Use weibo description.
+                metadata.Excerpt = values["weibo:webpage:description"];
+            }            
             else if (values.ContainsKey("twitter:description"))
             {
                 // Use twitter cards description.
@@ -1760,10 +1807,33 @@ namespace SmartReader
             metadata.Title = GetArticleTitle();
             if (String.IsNullOrEmpty(metadata.Title))
             {
-                if (values.ContainsKey("og:title"))
+                if (values.ContainsKey("dc:title"))
+                {                    
+                    metadata.Title = values["dc:title"];
+                }
+                else if (values.ContainsKey("dcterm:title"))
+                {
+                    metadata.Title = values["dcterm:title"];
+                }
+                else if (values.ContainsKey("og:title"))
                 {
                     // Use facebook open graph title.
                     metadata.Title = values["og:title"];
+                }
+                else if (values.ContainsKey("weibo:article:title"))
+                {
+                    // Use weibo title
+                    metadata.Title = values["weibo:article:title"];
+                }
+                else if (values.ContainsKey("weibo:webpage:title"))
+                {
+                    // Use weibo title
+                    metadata.Title = values["weibo:webpage:title"];
+                }
+                else if (values.ContainsKey("title"))
+                {
+                    // Use HTML title
+                    metadata.Title = values["title"];
                 }
                 else if (values.ContainsKey("twitter:title"))
                 {
@@ -1771,7 +1841,7 @@ namespace SmartReader
                     metadata.Title = values["twitter:title"];
                 }
             }
-
+           
             // added language extraction            
             IEnumerable<string> LanguageHeuristics()
             {
@@ -1842,6 +1912,25 @@ namespace SmartReader
             }
             else
                 metadata.FeaturedImage = "";
+
+            if(String.IsNullOrEmpty(metadata.Author))
+            {
+                if (values.ContainsKey("dc:creator"))
+                {
+                    // Use twitter cards title.
+                    metadata.Title = values["dc:creator"];
+                }
+                else if (values.ContainsKey("dc:creator"))
+                {
+                    // Use twitter cards title.
+                    metadata.Title = values["dcterm:creator"];
+                }
+                else if (values.ContainsKey("author"))
+                {
+                    // Use twitter cards title.
+                    metadata.Title = values["author"];
+                }
+            }
 
             return metadata;
         }
@@ -2356,8 +2445,8 @@ namespace SmartReader
         }
 
         bool IsProbablyVisible(IElement node)
-        {            
-            return node?.Style?.Display != "none" && !node.HasAttribute("hidden");
+        {
+            return (node.Style == null || node?.Style?.Display != "none") && !node.HasAttribute("hidden");
         }
 
         /**
