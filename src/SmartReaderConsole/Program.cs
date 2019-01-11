@@ -23,8 +23,8 @@ namespace SmartReaderConsole
         {            
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
             Random random = new Random();
-            var index = random.Next(pages.Count());            
-
+            var index = random.Next(pages.Count());
+            
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
             Reader reader = new Reader("https://localhost/", sourceContent);

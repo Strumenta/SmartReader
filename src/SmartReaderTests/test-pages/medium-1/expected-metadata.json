@@ -1,9 +1,10 @@
 {
-  "title": "Better Student Journalism — Medium",
+  "title": "The Open Journalism Project: Better Student Journalism",
   "byline": "Pippin Lee",
   "excerpt": "We pushed out the first version of the Open Journalism site in January. Here’s what we’ve learned about student journali…",
   "readerable": true,
   "timeToRead" : "00:12:00",
   "publicationDate" : "17/03/2015 17:27:40",
-  "author" : "Pippin Lee"
+  "author" : "Pippin Lee",
+  "siteName": "Medium"
 }

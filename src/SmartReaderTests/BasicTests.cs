@@ -24,6 +24,7 @@ namespace SmartReaderTests
         String Excerpt { get; set; }
         String Language { get; set; }
         String Author { get; set; }
+        String SiteName { get; set; }
         int Length { get; set; }
         TimeSpan TimeToRead { get; set; }
         DateTime? PublicationDate { get; set; }
@@ -50,6 +51,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.PublicationDate).Returns(String.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
             mockArticle.Setup(x => x.Language).Returns(String.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
             mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
+            mockArticle.Setup(x => x.SiteName).Returns(metadata["siteName"]?.ToString() ?? "");
             mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));
             mockArticle.Setup(x => x.Content).Returns(content);
 
@@ -62,10 +64,11 @@ namespace SmartReaderTests
             Assert.Equal(expected.Title, found.Title);
             Assert.Equal(expected.Dir, found.Dir);
             Assert.Equal(expected.Byline, found.Byline);            
-            Assert.Equal(expected.Author, found.Author);
-            Assert.Equal(expected.PublicationDate, found.PublicationDate);
+            Assert.Equal(expected.Author, found.Author);            
+            Assert.Equal(expected.PublicationDate?.ToString(), found.PublicationDate?.ToString());
             Assert.Equal(expected.Language, found.Language);			
             Assert.Equal(expected.Excerpt, found.Excerpt);
+            Assert.Equal(expected.SiteName, found.SiteName);
             Assert.Equal(expected.TimeToRead, found.TimeToRead);
             Assert.Equal(expected.Content, found.Content);
         }

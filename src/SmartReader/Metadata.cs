@@ -10,5 +10,6 @@ namespace SmartReader
         public string FeaturedImage { get; set; } = "";
         public DateTime? PublicationDate { get; set; } = null;
         public string Author { get; set; } = "";
+        public string SiteName { get; set; } = "";
     }
 }

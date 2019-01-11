@@ -1,7 +1,9 @@
 {
-  "title": "draft-dejong-remotestorage-04 - remoteStorage",
+  "title": "remoteStorage",
   "byline": "AUTHORING",
   "readerable": true,
   "language": "en",
-  "timeToRead" : "00:30:00"
+  "timeToRead" : "00:30:00",
+  "siteName": "",
+  "author" : "Jong, Michiel de"
 }

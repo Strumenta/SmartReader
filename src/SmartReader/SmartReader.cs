@@ -122,7 +122,7 @@ namespace SmartReader
         { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
         { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
         { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
-        { "videos", new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase) },        
+        { "videos", new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase) },
         { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
         { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
         { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
@@ -286,7 +286,7 @@ namespace SmartReader
         {
             HtmlParser parser = new HtmlParser();
 
-            if(doc == null)
+            if (doc == null)
                 doc = parser.Parse(await GetStreamAsync(uri));
 
             return Parse();
@@ -537,7 +537,7 @@ namespace SmartReader
         }
 
         private IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
-        {                        
+        {
             return node.QuerySelectorAll(String.Join(",", tagNames));
         }
 
@@ -584,14 +584,14 @@ namespace SmartReader
 		 *
 		 * @param Element
 		 * @return void
-		 */        
+		 */
         private void FixRelativeUris(IElement articleContent)
         {
             var scheme = uri.Scheme;
             var prePath = uri.GetBase();
             var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
 
-            var links = articleContent.GetElementsByTagName("a");
+            var links = GetAllNodesWithTag(articleContent, new string[] { "a" });
 
             ForEachNode(links, (link) =>
             {
@@ -612,7 +612,7 @@ namespace SmartReader
                 }
             });
 
-            var imgs = articleContent.GetElementsByTagName("img");
+            var imgs = GetAllNodesWithTag(articleContent, new string[] {"img"});
             ForEachNode(imgs, (img) =>
             {
                 var src = (img as IElement).GetAttribute("src");
@@ -621,6 +621,26 @@ namespace SmartReader
                     (img as IElement).SetAttribute("src", uri.ToAbsoluteURI(src));
                 }
             });
+        }
+
+        /**
+		* Clean the article title found in a tag
+		*
+		* @return string
+		**/
+        private string CleanTitle(string title, string siteName)
+        {
+            // eliminate any text after a separator
+            if (!String.IsNullOrEmpty(siteName) && title.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
+            {
+
+                // we eliminate the text after the separator only if it is the site name
+                title = Regex.Replace(title, $"(.*) [\\|\\-\\\\/>»] {siteName}.*", "$1", RegexOptions.IgnoreCase);
+            }
+
+            title = regExps["normalize"].Replace(title, " ");
+
+            return title;
         }
 
         /**
@@ -653,7 +673,7 @@ namespace SmartReader
             if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
             {
                 titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != 1;
-                curTitle = Regex.Replace(origTitle, @"(.*)[\|\-\\\/>»].*", "$1", RegexOptions.IgnoreCase);
+                curTitle = Regex.Replace(origTitle, @"(.*)[\|\-\\\/>»].*", "$1", RegexOptions.IgnoreCase);                
 
                 // If the resulting title is too short (3 words or fewer), remove
                 // the first part instead:
@@ -693,6 +713,7 @@ namespace SmartReader
             }
 
             curTitle = curTitle.Trim();
+            //return regExps["normalize"].Replace(textContent, " ");
 
             // If we now have 4 words or fewer as our title, and either no
             // 'hierarchical' separators (\, /, > or ») were found in the original
@@ -1694,11 +1715,11 @@ namespace SmartReader
             // Match "description", or Twitter's "twitter:description" (Cards)
             // in name attribute.
             // name is a single value
-            var namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image)|name)\s*$";   
+            var namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image|site_name)|name)\s*$";
             
             // Match Facebook's Open Graph title & description properties.
             // property is a space-separated list of values
-            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image)\s*$";
+            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)\s*$";
             
             var itemPropPattern = @"\s*datePublished\s*";
 
@@ -1735,8 +1756,8 @@ namespace SmartReader
                     }
                 }
 
-                if (matches.Count
-                 == 0 && !String.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
+                if ((matches == null || matches.Count == 0)
+                  && !String.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
                     if (!String.IsNullOrEmpty(content))
@@ -1804,44 +1825,54 @@ namespace SmartReader
                 metadata.Excerpt = values["twitter:description"];
             }
 
-            metadata.Title = GetArticleTitle();
-            if (String.IsNullOrEmpty(metadata.Title))
-            {
-                if (values.ContainsKey("dc:title"))
-                {                    
-                    metadata.Title = values["dc:title"];
-                }
-                else if (values.ContainsKey("dcterm:title"))
-                {
-                    metadata.Title = values["dcterm:title"];
-                }
-                else if (values.ContainsKey("og:title"))
-                {
-                    // Use facebook open graph title.
-                    metadata.Title = values["og:title"];
-                }
-                else if (values.ContainsKey("weibo:article:title"))
-                {
-                    // Use weibo title
-                    metadata.Title = values["weibo:article:title"];
-                }
-                else if (values.ContainsKey("weibo:webpage:title"))
-                {
-                    // Use weibo title
-                    metadata.Title = values["weibo:webpage:title"];
-                }
-                else if (values.ContainsKey("title"))
-                {
-                    // Use HTML title
-                    metadata.Title = values["title"];
-                }
-                else if (values.ContainsKey("twitter:title"))
-                {
-                    // Use twitter cards title.
-                    metadata.Title = values["twitter:title"];
-                }
+            // Get the name of the site
+            if (values.ContainsKey("og:site_name"))
+                metadata.SiteName = values["og:site_name"];
+
+            // Find the title of the article
+            if (values.ContainsKey("dc:title"))
+            {                    
+                metadata.Title = values["dc:title"];
             }
-           
+            else if (values.ContainsKey("dcterm:title"))
+            {
+                metadata.Title = values["dcterm:title"];
+            }
+            else if (values.ContainsKey("og:title"))
+            {
+                // Use facebook open graph title.
+                metadata.Title = values["og:title"];                
+            }
+            else if (values.ContainsKey("weibo:article:title"))
+            {
+                // Use weibo title
+                metadata.Title = values["weibo:article:title"];
+            }
+            else if (values.ContainsKey("weibo:webpage:title"))
+            {
+                // Use weibo title
+                metadata.Title = values["weibo:webpage:title"];
+            }
+            else if (values.ContainsKey("title"))
+            {
+                // Use HTML title
+                metadata.Title = values["title"];
+            }
+            else if (values.ContainsKey("twitter:title"))
+            {
+                // Use twitter cards title.
+                metadata.Title = values["twitter:title"];
+            }
+
+            metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
+            
+            // We did not find any title,
+            // we try to get it from the title tag
+            if (String.IsNullOrEmpty(metadata.Title))
+                metadata.Title = GetArticleTitle();
+
+            Console.WriteLine($"definitive title {metadata.Title}");
+
             // added language extraction            
             IEnumerable<string> LanguageHeuristics()
             {
@@ -1918,20 +1949,20 @@ namespace SmartReader
                 if (values.ContainsKey("dc:creator"))
                 {
                     // Use twitter cards title.
-                    metadata.Title = values["dc:creator"];
+                    metadata.Author = values["dc:creator"];
                 }
                 else if (values.ContainsKey("dc:creator"))
                 {
                     // Use twitter cards title.
-                    metadata.Title = values["dcterm:creator"];
+                    metadata.Author = values["dcterm:creator"];
                 }
                 else if (values.ContainsKey("author"))
                 {
                     // Use twitter cards title.
-                    metadata.Title = values["author"];
+                    metadata.Author = values["author"];
                 }
             }
-
+            
             return metadata;
         }
 

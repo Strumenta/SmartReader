@@ -23,7 +23,8 @@ namespace SmartReader
         public String TextContent { get; private set; }
         public String Excerpt { get; private set; }
         public String Language { get; private set; }
-        public String Author { get; private set; }        
+        public String Author { get; private set; }
+        public String SiteName { get; private set; }
         public int Length { get; private set; }
         public TimeSpan TimeToRead { get; private set; }
         public DateTime? PublicationDate { get; private set; }
@@ -43,7 +44,8 @@ namespace SmartReader
             Length = article.TextContent.Length;
             Language = String.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
             PublicationDate = metadata.PublicationDate;
-            Author = String.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;            
+            Author = String.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;
+            SiteName = metadata.SiteName;
             IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
             TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead());
