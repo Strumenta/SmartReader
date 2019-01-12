@@ -5,14 +5,14 @@
     <version>$version$</version>
     <title>SmartReader</title>
     <description>$description$</description>
-    <authors>Gabriele Tomassetti</authors>
+    <authors>Strumenta</authors>
     <owners>sviluppatore</owners>
-    <licenseUrl>https://github.com/strumenta/SmartReader/blob/master/LICENSE</licenseUrl>
+    <license>https://github.com/strumenta/SmartReader/blob/master/LICENSE</license>
     <projectUrl>https://github.com/strumenta/SmartReader</projectUrl>
     <iconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>For all changes see: https://github.com/strumenta/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
-    <copyright>Strumenta 2017-2018</copyright>
+    <copyright>Strumenta 2017-2019</copyright>
     <tags>Readability SmartReader reader article scraping reading web</tags>
     <dependencies>
       <group targetFramework="netstandard1.3">

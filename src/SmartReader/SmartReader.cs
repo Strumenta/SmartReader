@@ -27,7 +27,7 @@ namespace SmartReader
     public class Reader
     {
         /*
-		* This code is, for the most part, a port of the readibility library of Firefox Reader View
+		* This code is, for the most part, a port of the readability library of Firefox Reader View
 		* available at: https://github.com/mozilla/readability
 		* which is in turn heavily based on Arc90's readability.js (1.7f.1) script
 		* available at: http://code.google.com/p/arc90labs-readability
@@ -1920,11 +1920,10 @@ namespace SmartReader
 
             if (metadata.PublicationDate == null)
             {
-                // as a last resort check the URL for a data
+                // as a last resort check the URL for a date
                 Match maybeDate = Regex.Match(uri.PathAndQuery, "/(?<year>[0-9]{4})/(?<month>[0-9]{2})/(?<day>[0-9]{2})?");
                 if (maybeDate.Success)
-                {
-                    //metadata.PublicationDate = DateTime.Parse(maybeDate.Value);                
+                {                                  
                     metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value),
                         int.Parse(maybeDate.Groups["month"].Value),
                         !String.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);

@@ -158,6 +158,8 @@ if(article.IsReadable)
 - `String` **TextContent**<br>The pure text of the article
 - `String` **Excerpt**<br>A summary of the article, based on metadata or first paragraph
 - `String` **Language**<br>Language string (es. 'en-US')
+- `String` **Author**<br>Author of the article
+- `String` **SiteName**<br>Name of the site that hosts the article
 - `int` **Length**<br>Length of the text of the article
 - `TimeSpan` **TimeToRead**<br>Average time needed to read the article
 - `DateTime?` **PublicationDate**<br>Date of publication of the article

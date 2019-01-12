@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.5.2 - 2019/01/12
+- Added metadata for site name
+- Fixed bugs for recognition of title and author metadata
+- Added improvements from latest updates of Readability
+- Improved documentation
+
 ## 0.5.1 - 2018/08/27
 - Added support for custom operations before processing
 - Added fix to preserve CSS classes when removing a DIV with only one P
