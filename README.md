@@ -40,7 +40,7 @@ This is to exclude things such as images used in the UI.
 
 You can customize the regular expressions that are used to determine whether a part of the document will be inside the article. There are two methods to do this:
 
-- `void` **AddOptionToRegularExpression(RegularExpressions expression, string option)**<br>Add an option (i.e., usually a class name) to the regular expression. <br>
+- `void` **AddOptionToRegularExpression(RegularExpressions expression, string option)**<br>Add an option (i.e., usually a CSS class name) to the regular expression. <br>
 - `void` **ReplaceRegularExpression(RegularExpressions expression, string newExpression)**<br>Replace the selected regular expression. <br>
 
 The type `RegularExpression` is an `enum` that can have one of the following values, corresponding to a regular expression:
@@ -52,7 +52,7 @@ The type `RegularExpression` is an `enum` that can have one of the following val
   - Byline
   - Videos
 
-Except for the *Videos* regular expression they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
+Except for the *Videos* regular expression, they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
 
 The *Videos* regular expression represents a domain of origin of an embedded video. Since this is a string representing a regular expression, you have to remember to escape any dot present. This option is used to determine if an embed should be maintained in the article, because people generally want to see videos. If an embed matches one of the domains of this option is maintained, otherwise it is not.
 
@@ -63,7 +63,7 @@ AddOptionToRegularExpression(RegularExpressions.Videos, "example\.com");
 
 #### Add Custom Operations
 
-The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is processed or it is returned to the user. A custom operation receives as argument the article (an `IElement`). For custom operations at the start the element is the entire document, for custom operations executed after the processing is complete the element is the article extracted.
+The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is processed or it is returned to the user. A custom operation receives as argument the article (an `IElement`). For custom operations at the beginning, the element is the entire document; for custom operations executed after the processing is complete, the element is the article extracted.
 
 ```csharp
 // example of custom operation
@@ -197,6 +197,6 @@ The project uses the **Apache License**.
 - [Dan Rigby](https://github.com/DanRigby)
 - [Yasindn](https://github.com/yasindn)
 - [Jamie Lord](https://github.com/jamie-lord)
-- [G�bor Gergely](https://github.com/kodfodrasz)
+- [Gábor Gergely](https://github.com/kodfodrasz)
 
 Thanks to all the people involved.
