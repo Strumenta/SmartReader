@@ -7,7 +7,7 @@
     <description>$description$</description>
     <authors>Strumenta</authors>
     <owners>sviluppatore</owners>
-    <license>https://github.com/strumenta/SmartReader/blob/master/LICENSE</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>https://github.com/strumenta/SmartReader</projectUrl>
     <iconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

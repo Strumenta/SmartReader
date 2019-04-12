@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("SmartReader")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Strumenta")]
 [assembly: AssemblyProduct("SmartReader")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyDescription("A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla")]
