@@ -659,8 +659,8 @@ namespace SmartReader
                 curTitle = origTitle = doc.Title.Trim();
 
                 // If they had an element with id "title" in their HTML
-                //if (typeof curTitle !== "string")
-                //    curTitle = origTitle = this._getInnerText(doc.getElementsByTagName('title')[0]);
+                if (typeof(string) != curTitle.GetType())
+                    curTitle = origTitle = GetInnerText(doc.GetElementsByTagName("title")[0]);
             }
             catch (Exception e) {/* ignore exceptions setting the title. */}
 
@@ -1726,7 +1726,7 @@ namespace SmartReader
             
             // Match Facebook's Open Graph title & description properties.
             // property is a space-separated list of values
-            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)\s*$";
+            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)\s*";
             
             var itemPropPattern = @"\s*datePublished\s*";
 
@@ -1758,19 +1758,18 @@ namespace SmartReader
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
                     {
-                        for(int i = 0; i < matches.Count; i++)
+                        for(int i = matches.Count - 1; i >= 0; i--)
                         {
                             // Convert to lowercase, and remove any whitespace
                             // so we can match below.
                             name = Regex.Replace(matches[i].Value.ToLower(), @"\s+", "");
-                            
+                           
                             // multiple authors
-                            if(values.ContainsKey(name))
-                                values[name] = content.Trim();
+                            values[name] = content.Trim();                            
                         }
                     }
                 }
-
+                
                 if ((matches == null || matches.Count == 0)
                   && !String.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
@@ -1780,7 +1779,6 @@ namespace SmartReader
                         // Convert to lowercase, remove any whitespace, and convert dots
                         // to colons so we can match below.
                         name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.",":");
-                        //name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+:\s", ":"), @"\.", ":");
                         values[name] = content.Trim();
                     }
 
@@ -1807,9 +1805,6 @@ namespace SmartReader
                     }
                 }
             });
-
-            foreach (var v in values)
-                Console.WriteLine($"{v.Key}: {v.Value}");
 
             if (values.ContainsKey("description"))
             {
