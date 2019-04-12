@@ -118,10 +118,10 @@ namespace SmartReader
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
-        { "unlikelyCandidates", new Regex(@"-ad-|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
+        { "unlikelyCandidates", new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
         { "okMaybeItsACandidate", new Regex(@"and|article|body|column|main|shadow", RegexOptions.IgnoreCase) },
         { "positive", new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase) },
-        { "negative", new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase) },
+        { "negative", new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase) },
         { "extraneous", new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase) },
         { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
         { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
@@ -183,7 +183,7 @@ namespace SmartReader
         public Reader(string uri, string text)
         {
             this.uri = new Uri(uri);
-            
+                        
             var context = BrowsingContext.New(Configuration.Default.WithCss());
             HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(text);
@@ -841,9 +841,7 @@ namespace SmartReader
             {
                 replacement.AppendChild(node.FirstChild);
             }
-            node.Parent.ReplaceChild(replacement, node);
-            //if (node.readability)
-            //    replacement.readability = node.readability;
+            node.Parent.ReplaceChild(replacement, node);            
 
             for (var i = 0; i < node.Attributes.Length; i++)
             {
@@ -898,12 +896,16 @@ namespace SmartReader
             Clean(articleContent, "link");
             Clean(articleContent, "aside");
 
-            // Clean out elements have "share" in their id/class combinations from final top candidates,
+            // Clean out elements with little content that have "share" in their id/class combinations from final top candidates,
             // which means we don't remove the top candidates even they have "share".
-            ForEachNode(articleContent.Children, (topCandidate) =>
-            {
-                CleanMatchedNodes(topCandidate as IElement, "share");
-            });
+
+            var shareElementThreshold = CharThreshold;
+
+            ForEachNode(articleContent.Children, (topCandidate) => {
+                CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
+                    return new Regex(@"share", RegexOptions.IgnoreCase).IsMatch(matchString) && node.TextContent.Length < shareElementThreshold;
+                    });
+                });
 
             // If there is only one h2 and its text content substantially equals article title,
             // they are probably using it as a header and not a subheader,
@@ -1101,14 +1103,17 @@ namespace SmartReader
                 return false;
             }
 
+
             String rel = "";
+            String itemprop = "";
 
             if (node is IElement && !String.IsNullOrEmpty(node.GetAttribute("rel")))
             {
                 rel = node.GetAttribute("rel");
+                itemprop = node.GetAttribute("itemprop");
             }
 
-            if ((rel == "author" || regExps["byline"].IsMatch(matchString)) && IsValidByline(node.TextContent))
+            if ((rel == "author" || (!String.IsNullOrEmpty(itemprop) && itemprop.IndexOf("author") != -1) || regExps["byline"].IsMatch(matchString)) && IsValidByline(node.TextContent))
             {
                 if (rel == "author")
                     author = node.TextContent.Trim();
@@ -1215,6 +1220,7 @@ namespace SmartReader
                     {
                         if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
                             !regExps["okMaybeItsACandidate"].IsMatch(matchString) &&
+                            !HasAncestorTag(node, "table") &&
                             node.TagName != "BODY" &&
                             node.TagName != "A")
                         {
@@ -1731,6 +1737,12 @@ namespace SmartReader
                 var elementProperty = (element as IElement).GetAttribute("property") ?? "";
                 var itemProp = (element as IElement).GetAttribute("itemprop") ?? "";
                 var content = (element as IElement).GetAttribute("content");
+
+                // avoid issues with no meta tags
+                if (String.IsNullOrEmpty(content))
+                {
+                    return;
+                }
                 MatchCollection matches = null;
                 String name = "";
 
@@ -1751,8 +1763,10 @@ namespace SmartReader
                             // Convert to lowercase, and remove any whitespace
                             // so we can match below.
                             name = Regex.Replace(matches[i].Value.ToLower(), @"\s+", "");
+                            
                             // multiple authors
-                            values[name] = content.Trim();
+                            if(values.ContainsKey(name))
+                                values[name] = content.Trim();
                         }
                     }
                 }
@@ -1765,7 +1779,8 @@ namespace SmartReader
                     {
                         // Convert to lowercase, remove any whitespace, and convert dots
                         // to colons so we can match below.
-                        name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""),@"\.",":");
+                        name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.",":");
+                        //name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+:\s", ":"), @"\.", ":");
                         values[name] = content.Trim();
                     }
 
@@ -1792,6 +1807,9 @@ namespace SmartReader
                     }
                 }
             });
+
+            foreach (var v in values)
+                Console.WriteLine($"{v.Key}: {v.Value}");
 
             if (values.ContainsKey("description"))
             {
@@ -1828,7 +1846,7 @@ namespace SmartReader
 
             // Get the name of the site
             if (values.ContainsKey("og:site_name"))
-                metadata.SiteName = values["og:site_name"];
+                metadata.SiteName = values["og:site_name"];           
 
             // Find the title of the article
             if (values.ContainsKey("dc:title"))
@@ -2190,18 +2208,21 @@ namespace SmartReader
             {
                 // Allow youtube and vimeo videos through as people usually want to see those.
                 if (isEmbed)
-                {
-                    StringBuilder attributeValues = new StringBuilder();
-                    foreach (var attr in element.Attributes)
-                        attributeValues.Append(attr.Value + "|");
-
+                {                    
                     // First, check the elements attributes to see if any of them contain youtube or vimeo
-                    if (regExps["videos"].IsMatch(attributeValues.ToString()))
-                        return false;
+                    for (var i = 0; i < element.Attributes.Length; i++)
+                    {
+                        if (regExps["videos"].IsMatch(element.Attributes[i].Value))
+                        {
+                            return false;
+                        }
+                    }
 
-                    // Then check the elements inside this element for the same.
-                    if (regExps["videos"].IsMatch(element.InnerHtml))
+                    // For embed with <object> tag, check inner HTML as well.
+                    if (element.TagName == "object" && regExps["videos"].IsMatch(element.InnerHtml))
+                    {
                         return false;
+                    }
                 }
 
                 return true;
@@ -2364,7 +2385,13 @@ namespace SmartReader
             // TODO: Consider taking into account original contentScore here.
             RemoveNodes(e.GetElementsByTagName(tag), (node) =>
             {
-                // First check if we're in a data table, in which case don't remove us.                
+                // First check if this node IS data table, in which case don't remove it.
+                if (tag == "table" && IsDataTable(node))
+                {
+                    return false;
+                }
+
+                // Next check if we're inside a data table, in which case don't remove it as well.
                 if (HasAncestorTag(node, "table", -1, IsDataTable))
                 {
                     return false;
@@ -2372,8 +2399,6 @@ namespace SmartReader
 
                 var weight = GetClassWeight(node);
                 var contentScore = 0;
-
-                //this.log("Cleaning Conditionally", node);
 
                 if (weight + contentScore < 0)
                 {
@@ -2391,11 +2416,29 @@ namespace SmartReader
                     float input = node.GetElementsByTagName("input").Length;
 
                     var embedCount = 0;
-                    var embeds = node.GetElementsByTagName("embed");
-                    for (int ei = 0, il = embeds.Length; ei < il; ei += 1)
+                    var embeds = ConcatNodeLists(
+                        node.GetElementsByTagName("object"),
+                        node.GetElementsByTagName("embed"),
+                        node.GetElementsByTagName("iframe"));
+
+                    for (var i = 0; i < embeds.Count(); i++)
                     {
-                        if (!regExps["videos"].IsMatch(embeds[ei].Attributes["Src"].Value))
-                            embedCount += 1;
+                        // If this embed has attribute that matches video regex, don't delete it.
+                        for (var j = 0; j < embeds.ElementAt(i).Attributes.Length; j++)
+                        {
+                            if (regExps["videos"].IsMatch(embeds.ElementAt(i).Attributes[j].Value))
+                            {
+                                return false;
+                            }
+                        }
+
+                        // For embed with <object> tag, check inner HTML as well.
+                        if (embeds.ElementAt(i).TagName == "object" && regExps["videos"].IsMatch(embeds.ElementAt(i).InnerHtml))
+                        {
+                            return false;
+                        }
+
+                        embedCount++;
                     }
 
                     var linkDensity = GetLinkDensity(node);
@@ -2415,21 +2458,23 @@ namespace SmartReader
                 return false;
             });
         }
-
+            
         /**
-		 * Clean out elements whose id/class combinations match specific string.
+		 * Clean out elements that match the specified conditions
+         * 
 		 *
 		 * @param Element
 		 * @param RegExp match id/class combination.
 		 * @return void
 		 **/
-        private void CleanMatchedNodes(IElement e, string regex)
+        void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter = null)
         {
             var endOfSearchMarkerNode = GetNextNode(e, true);
             var next = GetNextNode(e);
             while (next != null && next != endOfSearchMarkerNode)
             {
-                if (Regex.IsMatch(next.ClassName + " " + next.Id, regex))
+                //if (Regex.IsMatch(next.ClassName + " " + next.Id, regex))
+                if (filter(next, next.ClassName + " " + next.Id))
                 {
                     next = RemoveAndGetNext(next as INode) as IElement;
                 }

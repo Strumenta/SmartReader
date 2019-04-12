@@ -24,7 +24,7 @@ namespace SmartReaderConsole
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
            
             Random random = new Random();
-            var index = random.Next(pages.Count());
+            var index = random.Next(pages.Count());            
             
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
             
@@ -32,7 +32,7 @@ namespace SmartReaderConsole
 
             reader.ClassesToPreserve = new string[] { "info" };
 
-            reader.Debug = true;
+            reader.Debug = true;            
             reader.Logger = Console.Out;
 
             reader.ClassesToPreserve = reader.ClassesToPreserve.Append("info").ToArray();
