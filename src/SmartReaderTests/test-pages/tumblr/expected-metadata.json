@@ -1,10 +1,12 @@
 {
   "title": "Minecraft 1.8 - The Bountiful Update",
-  "byline": null,
-  "dir": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "+ Added Granite, Andesite, and Diorite stone blocks, with smooth versions\n+ Added Slime Block\n+ Added Iron Trapdoor\n+ Added Prismarine and Sea Lantern blocks\n+ Added the Ocean Monument\n+ Added Red...",
   "readerable": true,
   "language": "en",
-  "timeToRead" : "00:02:00",
+  "timeToRead": "00:02:00",
+  "publicationDate": null,
+  "author": null,
   "siteName": "Minecraft Update News"
 }

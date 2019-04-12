@@ -1,9 +1,12 @@
 {
   "title": "Le projet de loi sur le renseignement massivement approuvé à l'Assemblée",
-  "byline": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "Largement approuvé par les députés, le texte sera désormais examiné par le Sénat, puis le Conseil constitutionnel.",
   "readerable": true,
   "language": "fr",
-  "timeToRead" : "00:08:00",
+  "timeToRead": "00:08:00",
+  "publicationDate": null,
+  "author": null,
   "siteName": "Le Monde.fr"
 }

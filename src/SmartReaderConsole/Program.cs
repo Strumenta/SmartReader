@@ -24,8 +24,8 @@ namespace SmartReaderConsole
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
            
             Random random = new Random();
-            var index = random.Next(pages.Count());            
-            
+            var index = random.Next(pages.Count());
+
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
             
             Reader reader = new Reader("https://localhost/", sourceContent);
@@ -63,12 +63,13 @@ namespace SmartReaderConsole
             Console.WriteLine($"Publication Date: {article.PublicationDate}");
             Console.WriteLine($"Direction of the Text: {article.Dir}");
             Console.WriteLine($"Language: {article.Language}");
+            Console.WriteLine($"Site Name: {article.SiteName}");
             Console.WriteLine($"TimeToRead: {article.TimeToRead}");
             Console.WriteLine($"Excerpt: {article.Excerpt}");
             Console.WriteLine($"TextContent:\n {article.TextContent}");
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
-            Console.WriteLine($"Images Found: {images.Result?.Count()}");            
+            Console.WriteLine($"Images Found: {images.Result?.Count()}");
         }
     }
 }

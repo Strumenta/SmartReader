@@ -1,8 +1,12 @@
 {
   "title": "Basic tag cleaning test",
-  "byline": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n        tempor incididunt ut labore et dolore magna aliqua.",
   "readerable": true,
   "language": null,
-  "timeToRead" : "00:01:00"
+  "timeToRead": "00:01:00",
+  "publicationDate": null,
+  "author": null,
+  "siteName": ""
 }

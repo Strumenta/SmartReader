@@ -1,10 +1,12 @@
 {
   "title": "Firefox — Customize and make it your own — The most flexible browser on the Web",
-  "byline": null,
+  "byline": "",
   "dir": "ltr",
   "excerpt": "It’s easier than ever to personalize Firefox and make it work the way\n                                you do.\n                                No other browser gives you so much choice and flexibility.",
   "readerable": true,
   "language": "en",
-  "timeToRead" : "00:01:00",
+  "timeToRead": "00:01:00",
+  "publicationDate": null,
+  "author": null,
   "siteName": "Mozilla"
 }

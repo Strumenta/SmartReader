@@ -58,6 +58,25 @@ namespace SmartReaderTests
             return mockArticle.Object;
         }
 
+        private void UpdateExpectedJson(Article article, string directory)
+        {
+            var obj = new
+            {
+                title = article.Title,
+                byline = article.Byline,
+                dir = article.Dir,
+                excerpt = article.Excerpt,
+                readerable = article.IsReadable,
+                language = article.Language,
+                timeToRead = article.TimeToRead,
+                publicationDate = article.PublicationDate,
+                author = article.Author,
+                siteName = article.SiteName
+            };
+
+            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented));
+        }
+
         private void AssertProperties(IArticleTest expected, Article found)
         {
             Assert.Equal(expected.IsReadable, found.IsReadable);
@@ -85,15 +104,16 @@ namespace SmartReaderTests
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
         {
-            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
-            var expectedMetadata = JObject.Parse(expectedMetadataString);            
+            var expectedMetadata = JObject.Parse(expectedMetadataString); 
+            
             Article found = Reader.ParseArticle("https://localhost/", sourceContent);
 
             IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
+
+            Article article = found;            
 
             AssertProperties(expected, found);        
         }        

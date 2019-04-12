@@ -1,9 +1,12 @@
 {
   "title": "RTL Test",
-  "byline": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "Lorem ipsum dolor sit amet.",
-  "dir": null,
   "readerable": true,
   "language": null,
-  "timeToRead" : "00:01:00"
+  "timeToRead": "00:01:00",
+  "publicationDate": null,
+  "author": null,
+  "siteName": ""
 }

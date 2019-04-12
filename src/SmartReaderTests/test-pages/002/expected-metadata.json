@@ -1,11 +1,12 @@
 {
   "title": "This API is so Fetching!",
   "byline": "Nikhil Marathe",
+  "dir": "",
   "excerpt": "For more than a decade the Web has used XMLHttpRequest (XHR) to achieve asynchronous requests in JavaScript. While very useful, XHR is not a very ...",
   "readerable": true,
   "language": "en-US",
-  "timeToRead" : "00:12:00",
-  "publicationDate" : null,
-  "author" : "Nikhil Marathe",
+  "timeToRead": "00:12:00",
+  "publicationDate": null,
+  "author": "Nikhil Marathe",
   "siteName": "Mozilla Hacks – the Web developer blog"
 }

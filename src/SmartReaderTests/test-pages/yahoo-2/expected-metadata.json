@@ -1,8 +1,12 @@
 {
   "title": "Yahoo News - Latest News & Headlines",
   "byline": "NATALIYA VASILYEVA",
+  "dir": "",
   "excerpt": "The latest news and headlines from Yahoo! News. Get breaking news stories and in-depth coverage with videos and photos.",
   "readerable": true,
   "language": "en-US",
-  "timeToRead" : "00:02:00"
+  "timeToRead": "00:02:00",
+  "publicationDate": null,
+  "author": null,
+  "siteName": ""
 }

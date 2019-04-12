@@ -1,9 +1,12 @@
 {
   "title": "remoteStorage",
   "byline": "AUTHORING",
+  "dir": "",
+  "excerpt": "",
   "readerable": true,
   "language": "en",
-  "timeToRead" : "00:30:00",
-  "siteName": "",
-  "author" : "Jong, Michiel de"
+  "timeToRead": "00:30:00",
+  "publicationDate": null,
+  "author": "Jong, Michiel de",
+  "siteName": ""
 }

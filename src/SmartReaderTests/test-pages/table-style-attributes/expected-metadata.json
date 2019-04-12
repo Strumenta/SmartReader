@@ -1,9 +1,12 @@
 {
   "title": "linux video",
-  "byline": null,
-  "dir": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "linux usability\n    ...or, why do I bother. © 2002, 2003\n        Jamie Zawinski",
   "readerable": true,
   "language": null,
-  "timeToRead" : "00:07:00"
+  "timeToRead": "00:07:00",
+  "publicationDate": null,
+  "author": null,
+  "siteName": ""
 }
