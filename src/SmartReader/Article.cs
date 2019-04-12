@@ -48,7 +48,7 @@ namespace SmartReader
             SiteName = metadata.SiteName;
             IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
-            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead());
+            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead()) > TimeSpan.Zero ? TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead()) : TimeSpan.FromMinutes(1);
             FeaturedImage = metadata.FeaturedImage;
 
             this.article = article;
