@@ -20,13 +20,14 @@ namespace SmartReaderConsole
         }
 
         static void Main(string[] args)
-        {            
-            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
+        {
+            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
+           
             Random random = new Random();
             var index = random.Next(pages.Count());
             
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
-
+            
             Reader reader = new Reader("https://localhost/", sourceContent);
 
             reader.ClassesToPreserve = new string[] { "info" };
@@ -67,7 +68,7 @@ namespace SmartReaderConsole
             Console.WriteLine($"TextContent:\n {article.TextContent}");
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
-            Console.WriteLine($"Images Found: {images.Result?.Count()}");
+            Console.WriteLine($"Images Found: {images.Result?.Count()}");            
         }
     }
 }

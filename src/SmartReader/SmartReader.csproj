@@ -5,10 +5,9 @@
     <Copyright>Strumenta</Copyright>
     <AssemblyTitle>SmartReader</AssemblyTitle>
     <VersionPrefix>0.1.1</VersionPrefix>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>SmartReader</AssemblyName>
     <PackageId>SmartReader</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -34,8 +33,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.9.9.1" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+    <PackageReference Include="AngleSharp" Version="0.11.0" />
+    <PackageReference Include="AngleSharp.Css" Version="0.10.0" />
   </ItemGroup>
 
 </Project>

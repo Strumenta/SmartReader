@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.6.0 - 2019/04/13
+- Updated AngleSharp dependency. Now the minimum version is .NETStandard 2.0 (this is because of AngleSharp.Css)
+
 ## 0.5.2 - 2019/01/12
 - Added metadata for site name
 - Fixed bugs for recognition of title and author metadata

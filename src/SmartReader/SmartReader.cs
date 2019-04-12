@@ -6,9 +6,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using AngleSharp.Parser.Html;
+using AngleSharp.Html;
 using AngleSharp.Dom;
-using AngleSharp.Dom.Html;
+using AngleSharp.Html.Parser;
+using AngleSharp.Css.Dom;
+using AngleSharp.Css.Parser;
+using AngleSharp;
+using AngleSharp.Html.Dom;
 
 namespace SmartReader
 {
@@ -162,10 +166,7 @@ namespace SmartReader
         public Reader(string uri)
         {
             this.uri = new Uri(uri);
-
-            // solves encoding problems
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
+            
             articleTitle = "";
             articleByline = "";
             articleDir = "";
@@ -182,14 +183,11 @@ namespace SmartReader
         public Reader(string uri, string text)
         {
             this.uri = new Uri(uri);
+            
+            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            doc = parser.ParseDocument(text);
 
-            // solves encoding problems
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            HtmlParser parser = new HtmlParser();
-            doc = parser.Parse(text);
-
-            //var biggestFrame = false;
             articleTitle = "";
             articleByline = "";
             articleDir = "";
@@ -206,14 +204,11 @@ namespace SmartReader
         public Reader(string uri, Stream source)
         {
             this.uri = new Uri(uri);
+            
+            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            doc = parser.ParseDocument(source);
 
-            // solves encoding problems
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            HtmlParser parser = new HtmlParser();
-            doc = parser.Parse(source);
-
-            //var biggestFrame = false;
             articleTitle = "";
             articleByline = "";
             articleDir = "";
@@ -284,10 +279,14 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
-            HtmlParser parser = new HtmlParser();
+            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+
+            //if (doc == null)
+            //doc = parser.ParseDocument(await GetStreamAsync(uri));
 
             if (doc == null)
-                doc = parser.Parse(await GetStreamAsync(uri));
+                doc = parser.ParseDocument(await GetStreamAsync(uri));
 
             return Parse();
         }
@@ -300,7 +299,8 @@ namespace SmartReader
         /// </returns>    
         public Article GetArticle()
         {
-            HtmlParser parser = new HtmlParser();
+            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
 
             if (doc == null)
             {
@@ -308,7 +308,7 @@ namespace SmartReader
                 result.Wait();
                 Stream stream = result.Result;
 
-                doc = parser.Parse(stream);
+                doc = parser.ParseDocument(stream);
             }
 
             return Parse();
@@ -343,9 +343,10 @@ namespace SmartReader
             result.Wait();
             Stream stream = result.Result;
 
-            HtmlParser parser = new HtmlParser();
+            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
 
-            smartReader.doc = parser.Parse(stream);
+            smartReader.doc = parser.ParseDocument(stream);
 
             return smartReader.Parse();
         }
@@ -2467,8 +2468,8 @@ namespace SmartReader
         }
 
         private bool IsVisible(IElement element)
-        {
-            if (element.Style?.Display != null && element.Style.Display == "none")
+        {           
+            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() == "none")
                 return false;
             else
                 return true;
@@ -2476,7 +2477,7 @@ namespace SmartReader
 
         bool IsProbablyVisible(IElement node)
         {
-            return (node.Style == null || node?.Style?.Display != "none") && !node.HasAttribute("hidden");
+            return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none") && !node.HasAttribute("hidden");
         }
 
         /**
@@ -2485,7 +2486,7 @@ namespace SmartReader
 		 * @return boolean Whether or not we suspect parse() will suceeed at returning an article object.
 		 */
         private bool IsProbablyReaderable(Func<IElement, bool> helperIsVisible = null)
-        {
+        {            
             var nodes = GetAllNodesWithTag(doc.DocumentElement, new string[] { "p", "pre" });
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
@@ -2518,9 +2519,10 @@ namespace SmartReader
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
             // this callback:			
             return SomeNode(totalNodes, (node) =>
-            {
+            {                
                 if (helperIsVisible != null && !helperIsVisible(node))
                     return false;
+                
                 var matchString = node.ClassName + " " + node.Id;
 
                 if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
