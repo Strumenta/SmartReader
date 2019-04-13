@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.6.0 - 2019/04/13
+## 0.6.0
 - Updated AngleSharp dependency. Now the minimum version is .NETStandard 2.0 (this is because of AngleSharp.Css)
 - Added improvements from latest updates of Readability
 - Fixed bug for property recognition
