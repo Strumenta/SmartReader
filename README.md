@@ -1,6 +1,6 @@
 <img src="https://raw.github.com/strumenta/SmartReader/master/logo.png" width="64">
 
-**SmartReader** is a [.NET Standard 1.3](https://github.com/dotnet/standard/blob/master/docs/versions/netstandard1.3.md) library to extract the main content of a web page, based on a port of the [Readability](https://github.com/mozilla/readability) library by Mozilla, which in turn is based on the famous original Readability library.
+**SmartReader** is a [.NET Standard 2.0](https://github.com/dotnet/standard/blob/master/docs/versions/netstandard2.0.md) library to extract the main content of a web page, based on a port of the [Readability](https://github.com/mozilla/readability) library by Mozilla, which in turn is based on the famous original Readability library.
 
 ## Installation
 

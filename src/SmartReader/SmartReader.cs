@@ -1713,8 +1713,7 @@ namespace SmartReader
 		 * @return Object with optional "excerpt" and "byline" properties
 		 */
         private Metadata GetArticleMetadata()
-        {
-            //dynamic metadata = new ExpandoObject();            
+        {       
             Metadata metadata = new Metadata();
             Dictionary<string, string> values = new Dictionary<string, string>();
             var metaElements = doc.GetElementsByTagName("meta");
