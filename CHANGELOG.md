@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.6.1
+- Fixed bug in dependency listing for the nuget package
+
 ## 0.6.0
 - Updated AngleSharp dependency. Now the minimum version is .NETStandard 2.0 (this is because of AngleSharp.Css)
 - Added improvements from latest updates of Readability

@@ -10,8 +10,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("Strumenta")]
 [assembly: AssemblyProduct("SmartReader")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyDescription("A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla")]
-[assembly: AssemblyVersion("0.6.0")]
+[assembly: AssemblyDescription("A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla. It also determine and gather metadata about the content, such as language, author, main image, etc.")]
+[assembly: AssemblyVersion("0.6.1")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
