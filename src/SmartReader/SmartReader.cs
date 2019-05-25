@@ -13,7 +13,6 @@ using AngleSharp.Css.Dom;
 using AngleSharp.Css.Parser;
 using AngleSharp;
 using AngleSharp.Html.Dom;
-using System.Net;
 
 namespace SmartReader
 {
@@ -410,147 +409,8 @@ namespace SmartReader
                 CleanReaderAttributes(articleContent, "datatable");
                 CleanReaderAttributes(articleContent, "readability-score");
             }
-        }
-
-        /**
-		 * Iterates over a NodeList, calls `filterFn` for each node and removes node
-		 * if function returned `true`.
-		 *
-		 * If function is not passed, removes all the nodes in node list.
-		 *
-		 * @param NodeList nodeList The nodes to operate on
-		 * @param Function filterFn the function to use as a filter
-		 * @return void
-		 */
-        private void RemoveNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
-        {
-            for (var i = nodeList.Count() - 1; i >= 0; i--)
-            {
-                var node = nodeList[i];
-                var parentNode = node.Parent;
-                if (parentNode != null)
-                {
-                    if (filterFn == null || filterFn(node))
-                    {
-                        parentNode.RemoveChild(node);
-                    }
-                }
-            }
-        }
-
-        /**
-		 * Iterates over a NodeList, and calls _setNodeTag for each node.
-		 *
-		 * @param NodeList nodeList The nodes to operate on
-		 * @param String newTagName the new tag name to use
-		 * @return void
-		 */
-        private void ReplaceNodeTags(IHtmlCollection<IElement> nodeList, string newTagName)
-        {
-            for (var i = nodeList.Count() - 1; i >= 0; i--)
-            {
-                var node = nodeList[i];
-                SetNodeTag(node, newTagName);
-            }
-        }
-
-        /**
-		* Iterate over a NodeList, which doesn't natively fully implement the Array
-		* interface.
-		*
-		* For convenience, the current object context is applied to the provided
-		* iterate function.
-		*
-		* @param  NodeList nodeList The NodeList.
-		* @param  Function fn       The iterate function.
-		* @return void
-		*/
-        private void ForEachNode(IEnumerable<INode> nodeList, Action<INode> fn)
-        {
-            if (nodeList != null)
-            {
-                for (int a = 0; a < nodeList.Count(); a++)
-                {
-                    fn(nodeList.ElementAt(a));
-                }
-            }
-        }
-
-        private void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
-        {
-            foreach (var node in nodeList)
-                fn(node, level++);
-        }
-
-        /**
-		 * Iterate over a NodeList, return true if any of the provided iterate
-		 * function calls returns true, false otherwise.
-		 *
-		 * For convenience, the current object context is applied to the
-		 * provided iterate function.
-		 *
-		 * @param  NodeList nodeList The NodeList.
-		 * @param  Function fn       The iterate function.
-		 * @return Boolean
-		 */
-        private bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
-        {
-            if (nodeList != null)
-                return nodeList.Any(fn);
-
-            return false;
-        }
-
-        private bool SomeNode(INodeList nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList != null)
-                return nodeList.Any(fn);
-
-            return false;
-        }
-
-        /**
-        * Iterate over a NodeList, return true if all of the provided iterate
-        * function calls return true, false otherwise.
-        *
-        * For convenience, the current object context is applied to the
-        * provided iterate function.
-        *
-        * @param  NodeList nodeList The NodeList.
-        * @param  Function fn       The iterate function.
-        * @return Boolean
-        */
-        private bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList != null)
-                return nodeList.All(fn);
-
-            return false;
-        }
-
-        /**
-		 * Concat all nodelists passed as arguments.
-		 *
-		 * @return ...NodeList
-		 * @return Array
-		 */
-        private IEnumerable<IElement> ConcatNodeLists(params IEnumerable<IElement>[] arguments)
-        {
-            List<IElement> result = new List<IElement>();
-
-            foreach (var arg in arguments)
-            {
-                result = result.Concat(arg).ToList();
-            }
-
-            return result;
-        }
-
-        private IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
-        {
-            return node.QuerySelectorAll(String.Join(",", tagNames));
-        }
-
+        }        
+        
         /**
         * Removes the id="" and class="" attribute from every element in the given
         * subtree, except those that match IDS_TO_PRESERVE, CLASSES_TO_PRESERVE and
@@ -601,9 +461,9 @@ namespace SmartReader
             var prePath = uri.GetBase();
             var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
 
-            var links = GetAllNodesWithTag(articleContent, new string[] { "a" });
+            var links = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "a" });
 
-            ForEachNode(links, (link) =>
+            NodeUtility.ForEachNode(links, (link) =>
             {
                 var href = (link as IElement).GetAttribute("href");
                 if (!String.IsNullOrWhiteSpace(href))
@@ -622,8 +482,8 @@ namespace SmartReader
                 }
             });
 
-            var imgs = GetAllNodesWithTag(articleContent, new string[] {"img"});
-            ForEachNode(imgs, (img) =>
+            var imgs = NodeUtility.GetAllNodesWithTag(articleContent, new string[] {"img"});
+            NodeUtility.ForEachNode(imgs, (img) =>
             {
                 var src = (img as IElement).GetAttribute("src");
                 if (!String.IsNullOrWhiteSpace(src))
@@ -694,12 +554,12 @@ namespace SmartReader
             {
                 // Check if we have an heading containing this exact string, so we
                 // could assume it's the full title.
-                var headings = ConcatNodeLists(
+                var headings = NodeUtility.ConcatNodeLists(
                   doc.GetElementsByTagName("h1"),
                   doc.GetElementsByTagName("h2")
                 );
                 var trimmedTitle = curTitle.Trim();
-                var match = SomeNode(headings, (heading) =>
+                var match = NodeUtility.SomeNode(headings, (heading) =>
                 {
                     return heading.TextContent.Trim() == trimmedTitle;
                 });
@@ -748,14 +608,14 @@ namespace SmartReader
         private void PrepDocument()
         {
             // Remove all style tags in head
-            RemoveNodes(doc.GetElementsByTagName("style"), null);
+            NodeUtility.RemoveNodes(doc.GetElementsByTagName("style"), null);
 
             if (doc.Body != null)
             {
                 ReplaceBrs(doc.Body);
             }
 
-            ReplaceNodeTags(doc.GetElementsByTagName("font"), "SPAN");
+            NodeUtility.ReplaceNodeTags(doc.GetElementsByTagName("font"), "SPAN");
         }
 
         /**
@@ -784,7 +644,7 @@ namespace SmartReader
 		 */
         private void ReplaceBrs(IElement elem)
         {
-            ForEachNode(GetAllNodesWithTag(elem, new string[] { "br" }), (br) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(elem, new string[] { "br" }), (br) =>
             {
                 var next = br.NextSibling;
 
@@ -835,29 +695,11 @@ namespace SmartReader
                         p.RemoveChild(p.LastChild);
 
                     if (p.Parent.NodeName == "P")
-                        SetNodeTag(p.ParentElement, "DIV");
+                        NodeUtility.SetNodeTag(p.ParentElement, "DIV");
 
                 }
             });
-        }
-
-        private IElement SetNodeTag(IElement node, string tag)
-        {
-            var replacement = node.Owner.CreateElement(tag);
-            while (node.FirstChild != null)
-            {
-                replacement.AppendChild(node.FirstChild);
-            }
-            node.Parent.ReplaceChild(replacement, node);            
-
-            for (var i = 0; i < node.Attributes.Length; i++)
-            {
-                // the possible result of malformed HTML
-                if (!node.Attributes[i].Name.Contains("<") && !node.Attributes[i].Name.Contains(">"))
-                    replacement.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
-            }
-            return replacement;
-        }
+        }        
 
         /**
         * Remove attributes Reader added to store values.
@@ -910,7 +752,7 @@ namespace SmartReader
 
             var shareElementThreshold = CharThreshold;
 
-            ForEachNode(articleContent.Children, (topCandidate) => {
+            NodeUtility.ForEachNode(articleContent.Children, (topCandidate) => {
                 CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
                     return regExps["shareElements"].IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
@@ -955,9 +797,9 @@ namespace SmartReader
             CleanConditionally(articleContent, "table");
             CleanConditionally(articleContent, "ul");
             CleanConditionally(articleContent, "div");
-            
+
             // Remove extra paragraphs
-            RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
+            NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
             {
                 var imgCount = paragraph.GetElementsByTagName("img").Length;
                 var embedCount = paragraph.GetElementsByTagName("embed").Length;
@@ -969,7 +811,7 @@ namespace SmartReader
                 return totalCount == 0 && String.IsNullOrEmpty(GetInnerText(paragraph, false));
             });
 
-            ForEachNode(GetAllNodesWithTag(articleContent, new string[] { "br" }), (br) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "br" }), (br) =>
             {
                 var next = NextElement(br.NextSibling);
                 if (next != null && (next as IElement).TagName == "P")
@@ -977,7 +819,7 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            ForEachNode(GetAllNodesWithTag(articleContent, new string[] { "table" }), (table) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "table" }), (table) =>
             {
                 var tbody = HasSingleTagInsideElement(table as IElement, "TBODY") ? (table as IElement).FirstElementChild : table;
                 if (HasSingleTagInsideElement(tbody as IElement, "TR"))
@@ -986,7 +828,7 @@ namespace SmartReader
                     if (HasSingleTagInsideElement(row, "TD"))
                     {
                         var cell = row.FirstElementChild;
-                        cell = SetNodeTag(cell, EveryNode(cell.ChildNodes, IsPhrasingContent) ? "P" : "DIV");
+                        cell = NodeUtility.SetNodeTag(cell, NodeUtility.EveryNode(cell.ChildNodes, IsPhrasingContent) ? "P" : "DIV");
                         table.Parent.ReplaceChild(cell, table);
                     }
                 }
@@ -1206,7 +1048,7 @@ namespace SmartReader
                 {
                     var matchString = node.ClassName + " " + node.Id;
 
-                    if (!IsProbablyVisible(node))
+                    if (!NodeUtility.IsProbablyVisible(node))
                     {
                         if (Debug)
                             Logger.WriteLine("Removing hidden node - " + matchString);
@@ -1299,7 +1141,7 @@ namespace SmartReader
                         }
                         else if (!HasChildBlockElement(node))
                         {
-                            node = SetNodeTag(node, "P");
+                            node = NodeUtility.SetNodeTag(node, "P");
                             elementsToScore.Add(node);
                         }                        
                     }
@@ -1313,7 +1155,7 @@ namespace SmartReader
 				 * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
 				**/
                 List<IElement> candidates = new List<IElement>();
-                ForEachNode(elementsToScore, (elementToScore) =>
+                NodeUtility.ForEachNode(elementsToScore, (elementToScore) =>
                 {
                     if (elementToScore.Parent == null)
                         return;
@@ -1340,7 +1182,7 @@ namespace SmartReader
                     contentScore += Math.Min(Math.Floor(innerText.Length / 100.0), 3);
 
                     // Initialize and score ancestors.                    
-                    ForEachNode(ancestors, (ancestor, level) =>
+                    NodeUtility.ForEachNode(ancestors, (ancestor, level) =>
                     {                               
                         if (String.IsNullOrEmpty((ancestor as IElement)?.TagName) ||
                             (ancestor as IElement)?.ParentElement == null ||
@@ -1570,7 +1412,7 @@ namespace SmartReader
                             // Turn it into a div so it doesn't get filtered out later by accident.
                             //this.log("Altering sibling:", sibling, 'to div.');
 
-                            sibling = SetNodeTag(sibling, "DIV");
+                            sibling = NodeUtility.SetNodeTag(sibling, "DIV");
                         }
 
                         articleContent.AppendChild(sibling);
@@ -1666,7 +1508,7 @@ namespace SmartReader
                 {
                     // Find out text direction from ancestors of final top candidate.
                     IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(GetElementAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;
-                    SomeNode(ancestors, (ancestor) =>
+                    NodeUtility.SomeNode(ancestors, (ancestor) =>
                     {
                         if (String.IsNullOrEmpty(ancestor.TagName))
                             return false;
@@ -1725,7 +1567,7 @@ namespace SmartReader
             var itemPropPattern = @"\s*datePublished\s*";
 
             // Find description tags.
-            ForEachNode(metaElements, (element) =>
+            NodeUtility.ForEachNode(metaElements, (element) =>
             {
                 var elementName = (element as IElement).GetAttribute("name") ?? "";
                 var elementProperty = (element as IElement).GetAttribute("property") ?? "";
@@ -1878,9 +1720,7 @@ namespace SmartReader
             // we try to get it from the title tag
             if (String.IsNullOrEmpty(metadata.Title))
                 metadata.Title = GetArticleTitle();
-
-            Console.WriteLine($"definitive title {metadata.Title}");
-
+           
             // added language extraction            
             IEnumerable<string> LanguageHeuristics()
             {
@@ -1980,13 +1820,13 @@ namespace SmartReader
 		**/
         private void RemoveScripts(IElement element)
         {
-            RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
+            NodeUtility.RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
             {
                 scriptNode.NodeValue = "";
                 scriptNode.RemoveAttribute("src");
                 return true;
             });
-            RemoveNodes(element.GetElementsByTagName("noscript"));
+            NodeUtility.RemoveNodes(element.GetElementsByTagName("noscript"));
         }
 
         /**
@@ -2006,7 +1846,7 @@ namespace SmartReader
             }
 
             // And there should be no text nodes with real content
-            return !SomeNode(element.ChildNodes, (node) =>
+            return !NodeUtility.SomeNode(element.ChildNodes, (node) =>
             {
                 return node.NodeType == NodeType.Text &&
                        regExps["hasContent"].IsMatch(node.TextContent);
@@ -2028,7 +1868,7 @@ namespace SmartReader
 		 */
         private bool HasChildBlockElement(IElement element)
         {            
-            var b = SomeNode(element?.ChildNodes, (node) =>
+            var b = NodeUtility.SomeNode(element?.ChildNodes, (node) =>
             {
                 return divToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1
                 || HasChildBlockElement(node as IElement);
@@ -2046,7 +1886,7 @@ namespace SmartReader
         {
             return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
               ((node.NodeName == "A" || node.NodeName == "DEL" || node.NodeName == "INS") &&
-                EveryNode(node.ChildNodes, IsPhrasingContent));
+                NodeUtility.EveryNode(node.ChildNodes, IsPhrasingContent));
         }
 
         bool IsWhitespace(INode node)
@@ -2136,7 +1976,7 @@ namespace SmartReader
             float linkLength = 0;
 
             // XXX implement _reduceNodeList?
-            ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
+            NodeUtility.ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
             {
                 linkLength += GetInnerText(linkNode as IElement).Length;
             });
@@ -2193,7 +2033,7 @@ namespace SmartReader
         {
             var isEmbed = new List<string>() { "object", "embed", "iframe" }.IndexOf(tag) != -1;
 
-            RemoveNodes(e.GetElementsByTagName(tag), (element) =>
+            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), (element) =>
             {
                 // Allow youtube and vimeo videos through as people usually want to see those.
                 if (isEmbed)
@@ -2357,7 +2197,7 @@ namespace SmartReader
         /* convert images and figures that have properties like data-src into images that can be loaded without JS */
         private void FixLazyImages(IElement root)
         {
-            ForEachNode(GetAllNodesWithTag(root, new string[] { "img", "picture", "figure" }), (node) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(root, new string[] { "img", "picture", "figure" }), (node) =>
             {
                 var elem = node as IElement;
                 var src = elem.GetAttribute("src");
@@ -2392,7 +2232,7 @@ namespace SmartReader
                                 elem.SetAttribute(copyTo, attr.Value);
                             }
                             else if (elem.TagName == "FIGURE"
-                            && GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
+                            && NodeUtility.GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
                             {
                                 //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
                                 //see the nytimes-3 testcase for an example
@@ -2425,7 +2265,7 @@ namespace SmartReader
             // without effecting the traversal.
             //
             // TODO: Consider taking into account original contentScore here.
-            RemoveNodes(e.GetElementsByTagName(tag), (node) =>
+            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), (node) =>
             {
                 // First check if this node IS data table, in which case don't remove it.
                 if (tag == "table" && IsDataTable(node))
@@ -2458,7 +2298,7 @@ namespace SmartReader
                     float input = node.GetElementsByTagName("input").Length;
 
                     var embedCount = 0;
-                    var embeds = ConcatNodeLists(
+                    var embeds = NodeUtility.ConcatNodeLists(
                         node.GetElementsByTagName("object"),
                         node.GetElementsByTagName("embed"),
                         node.GetElementsByTagName("iframe"));
@@ -2536,7 +2376,7 @@ namespace SmartReader
         {
             for (var headerIndex = 1; headerIndex < 3; headerIndex += 1)
             {
-                RemoveNodes(e.GetElementsByTagName("h" + headerIndex), (header) =>
+                NodeUtility.RemoveNodes(e.GetElementsByTagName("h" + headerIndex), (header) =>
                 {
                     return GetClassWeight(header) < 0;
                 });
@@ -2551,20 +2391,7 @@ namespace SmartReader
         private void RemoveFlag(Flags flag)
         {
             flags = flags & ~flag;
-        }
-
-        private bool IsVisible(IElement element)
-        {           
-            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() == "none")
-                return false;
-            else
-                return true;
-        }
-
-        bool IsProbablyVisible(IElement node)
-        {
-            return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none") && !node.HasAttribute("hidden");
-        }
+        }       
 
         /**
 		 * Decides whether or not the document is reader-able without parsing the whole thing.
@@ -2573,7 +2400,7 @@ namespace SmartReader
 		 */
         private bool IsProbablyReaderable(Func<IElement, bool> helperIsVisible = null)
         {            
-            var nodes = GetAllNodesWithTag(doc.DocumentElement, new string[] { "p", "pre" });
+            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "p", "pre" });
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
             // Some articles' DOM structures might look like
@@ -2582,7 +2409,7 @@ namespace SmartReader
             //   <br>
             //   Sentences<br>
             // </div>
-            var brNodes = GetAllNodesWithTag(doc.DocumentElement, new string[] { "div > br" });
+            var brNodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "div > br" });
             IEnumerable<IElement> totalNodes = nodes;
             if (brNodes.Length > 0)
             {
@@ -2598,13 +2425,13 @@ namespace SmartReader
 
             if (helperIsVisible == null)
             {
-                helperIsVisible = IsProbablyVisible;
+                helperIsVisible = NodeUtility.IsProbablyVisible;
             }
 
             double score = 0;
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
             // this callback:			
-            return SomeNode(totalNodes, (node) =>
+            return NodeUtility.SomeNode(totalNodes, (node) =>
             {                
                 if (helperIsVisible != null && !helperIsVisible(node))
                     return false;
@@ -2669,7 +2496,7 @@ namespace SmartReader
                 }
             }
 
-            var isReadable = IsProbablyReaderable(IsVisible);
+            var isReadable = IsProbablyReaderable(NodeUtility.IsVisible);
 
             // we stop only if it's not readable and we are not debugging
             if (isReadable == false)
