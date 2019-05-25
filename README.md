@@ -197,6 +197,18 @@ In case you want to build the Nuget package yourself you can use the following c
 
 The command must be issued inside the `src/SmartReader` folder.
 
+## Notes
+
+Any request made with certain HTTP APIs of .NET (like HttpClient, WebClient, etc.) follows the permitted values of security protocols that are set in the property `ServicePointManager.SecurityProtocol`. So, it determines which versions of the TLS protocol can use. In recent version of .NET Framework (and other .NETs) the default value of this property has been changed to `SecurityProtocolType.SystemDefault` which basically means whatever combinations of values is deemed the best by the current framework. This is the ideal value because if any TLS version stops being secure the code does not need to be updated. 
+
+This [might cause some issues](https://github.com/Strumenta/SmartReader/issues/10), because a web server might not fulfill the request. Usually this is because it uses an old version of the protocol like SSL 3.0. SmartReader neither specifies a `SecurityProtocol` value for the requests made with its internal HttpClient, nor  it  provides a method to change it. That's because if we do that this will affect all requests made with certain HTTP APIs, even the ones made by other parts of your code. So, if you need to access some article on old, insecure web server you might set the proper value of `SecurityProtocol` yourself.
+
+```
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+```
+
+Alternatively, you can retrieve the content yourself and just use SmartReader to extract the article from the text.
+
 ## License
 
 The project uses the **Apache License**.
