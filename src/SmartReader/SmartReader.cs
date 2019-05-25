@@ -281,10 +281,7 @@ namespace SmartReader
         {
             var context = BrowsingContext.New(Configuration.Default.WithCss());
             HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
-
-            //if (doc == null)
-            //doc = parser.ParseDocument(await GetStreamAsync(uri));
-
+            
             if (doc == null)
                 doc = parser.ParseDocument(await GetStreamAsync(uri));
 
@@ -714,13 +711,11 @@ namespace SmartReader
             }
 
             curTitle = curTitle.Trim();
-            //return regExps["normalize"].Replace(textContent, " ");
-
+            
             // If we now have 4 words or fewer as our title, and either no
             // 'hierarchical' separators (\, /, > or ») were found in the original
             // title or we decreased the number of words by more than 1 word, use
             // the original title.
-
             var curTitleWordCount = wordCount(curTitle);
             if (curTitleWordCount <= 4 && (
                 !titleHadHierarchicalSeparators ||
@@ -1091,8 +1086,6 @@ namespace SmartReader
                 node = node.ParentElement;
             } while (node != null && node.NextElementSibling == null);
 
-            //return node && node.NextElementSibling;
-            //return node.NextSibling as IElement;
             return node?.NextElementSibling;
         }
 
@@ -1192,7 +1185,6 @@ namespace SmartReader
                 // First, node prepping. Trash nodes that look cruddy (like ones with the
                 // class name "comment", etc), and turn divs into P tags where they have been
                 // used inappropriately (as in, where they contain no other block level elements.)
-                //var elementsToScore = [];
                 List<IElement> elementsToScore = new List<IElement>();
                 var node = this.doc.DocumentElement;
 
@@ -1306,7 +1298,6 @@ namespace SmartReader
 				 *
 				 * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
 				**/
-                //var candidates = [];                
                 List<IElement> candidates = new List<IElement>();
                 ForEachNode(elementsToScore, (elementToScore) =>
                 {
@@ -1366,7 +1357,6 @@ namespace SmartReader
 
                 // After we've calculated scores, loop through all of the possible
                 // candidate nodes we found and find the one with the highest score.
-                //var topCandidates = [];
                 List<IElement> topCandidates = new List<IElement>();
                 for (int c = 0, cl = candidates?.Count ?? 0; c < cl; c += 1)
                 {
@@ -1377,10 +1367,7 @@ namespace SmartReader
                     // unaffected by this operation.
                     var candidateScore = GetReadabilityScore(candidate) * (1 - GetLinkDensity(candidate));
                     SetReadabilityScore(candidate, candidateScore);
-
-
-                    //this.log('Candidate:', candidate, "with score " + candidateScore);
-
+            
                     for (var t = 0; t < NTopCandidates; t++)
                     {
                         IElement aTopCandidate = null;
@@ -1413,7 +1400,6 @@ namespace SmartReader
                     var kids = page.ChildNodes;
                     while (kids.Length > 0)
                     {
-                        //this.log("Moving child out:", kids[0]);
                         topCandidate.AppendChild(kids[0]);
                     }
 
@@ -1425,7 +1411,7 @@ namespace SmartReader
                 {
                     // Find a better top candidate node if it contains (at least three) nodes which belong to `topCandidates` array
                     // and whose scores are quite closed with current `topCandidate` node.
-                    //var alternativeCandidateAncestors = [];                    
+  
                     List<IElement> alternativeCandidateAncestors = new List<IElement>();
                     for (var i = 1; i < topCandidates.Count; i++)
                     {                        
@@ -1527,9 +1513,6 @@ namespace SmartReader
                     var sibling = siblings[s];
                     var append = false;
 
-                    //this.log("Looking at sibling node:", sibling, sibling.readability ? ("with score " + sibling.readability.contentScore) : '');
-                    //this.log("Sibling has score", sibling.readability ? sibling.readability.contentScore : 'Unknown');
-
                     if (sibling == topCandidate)
                     {
                         append = true;
@@ -1567,8 +1550,6 @@ namespace SmartReader
 
                     if (append)
                     {
-                        //this.log("Appending node:", sibling);
-
                         if (alterToDivExceptions.ToList().IndexOf(sibling.NodeName) == -1)
                         {
                             // We have a node that isn't a common block level element, like a form or td tag.
@@ -2467,7 +2448,6 @@ namespace SmartReader
             var next = GetNextNode(e);
             while (next != null && next != endOfSearchMarkerNode)
             {
-                //if (Regex.IsMatch(next.ClassName + " " + next.Id, regex))
                 if (filter(next, next.ClassName + " " + next.Id))
                 {
                     next = RemoveAndGetNext(next as INode) as IElement;
@@ -2686,7 +2666,7 @@ namespace SmartReader
         }       
 
         private async Task<Stream> GetStreamAsync(Uri resource)
-        {
+        {            
             var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
             Stream dati = null;
 
@@ -2768,7 +2748,7 @@ namespace SmartReader
 
         /// <summary>Allow to add an option to the default regular expressions</summary>
         /// <param name="expression">A RegularExpression indicating the expression to change</param>
-        /// <param name="option">A string representing the new option</param>          
+        /// <param name="option">A string representing the new option</param>  
         public void AddOptionToRegularExpression(RegularExpressions expression, string option)
         {
             switch (expression)
