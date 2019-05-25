@@ -130,29 +130,32 @@ namespace SmartReader
             {
                 foreach (var img in imgs)
                 {
-                    long size = 0;
-
-                    Uri imageUri = new Uri(img.GetAttribute("src"));
-
-                    try
+                    if (!String.IsNullOrEmpty(img.GetAttribute("src")))
                     {
-                        imageUri = new Uri(this.Uri.ToAbsoluteURI(imageUri.ToString()));
-                        size = await Reader.GetImageSizeAsync(imageUri);
-                    }
-                    catch(Exception e) { }
+                        long size = 0;
 
-                    string description = img.GetAttribute("alt");
-                    string title = img.GetAttribute("title");
+                        Uri imageUri = new Uri(img.GetAttribute("src"));
 
-                    if (size > minSize)
-                    {
-                        images.Add(new Image()
+                        try
                         {
-                            Size = size,
-                            Source = imageUri,
-                            Description = description,
-                            Title = title
-                        });
+                            imageUri = new Uri(this.Uri.ToAbsoluteURI(imageUri.ToString()));
+                            size = await Reader.GetImageSizeAsync(imageUri);
+                        }
+                        catch (Exception e) { }
+
+                        string description = img.GetAttribute("alt");
+                        string title = img.GetAttribute("title");
+
+                        if (size > minSize)
+                        {
+                            images.Add(new Image()
+                            {
+                                Size = size,
+                                Source = imageUri,
+                                Description = description,
+                                Title = title
+                            });
+                        }
                     }
                 }
 
