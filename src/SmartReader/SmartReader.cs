@@ -892,6 +892,8 @@ namespace SmartReader
             // visually linked to other content-ful elements (text, images, etc.).
             MarkDataTables(articleContent);
 
+            FixLazyImages(articleContent);
+
             CleanConditionally(articleContent, "form");
             CleanConditionally(articleContent, "fieldset");
             Clean(articleContent, "object");
@@ -2349,6 +2351,59 @@ namespace SmartReader
                     table.SetAttribute("dataTable", "true");
             }
         }
+
+        /* convert images and figures that have properties like data-src into images that can be loaded without JS */
+        private void FixLazyImages(IElement root)
+        {
+            ForEachNode(GetAllNodesWithTag(root, new string[] { "img", "picture", "figure" }), (node) =>
+            {
+                var elem = node as IElement;
+                var src = elem.GetAttribute("src");
+                var srcset = elem.GetAttribute("srcset");                
+
+                if ((String.IsNullOrEmpty(src) && String.IsNullOrEmpty(srcset))
+                || (!String.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") != -1))
+                {
+                    for (var i = 0; i < elem.Attributes.Length; i++)
+                    {
+                        var attr = elem.Attributes[i];
+                        
+                        if (attr.Name == "src" || attr.Name == "srcset")
+                        {
+                            continue;
+                        }
+                        string copyTo = "";                        
+                        if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)\s+\d", RegexOptions.IgnoreCase))
+                        {                            
+                            copyTo = "srcset";
+                        }
+                        else if (Regex.IsMatch(attr.Value, @"^\s*\S+\.(jpg|jpeg|png|webp)\S*\s*$", RegexOptions.IgnoreCase))
+                        {                            
+                            copyTo = "src";
+                        }
+
+                        if (!String.IsNullOrEmpty(copyTo))
+                        {
+                            //if this is an img or picture, set the attribute directly
+                            if (elem.TagName == "IMG" || elem.TagName == "PICTURE")
+                            {
+                                elem.SetAttribute(copyTo, attr.Value);
+                            }
+                            else if (elem.TagName == "FIGURE"
+                            && GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
+                            {
+                                //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
+                                //see the nytimes-3 testcase for an example
+                                var img = doc.CreateElement("img");
+                                img.SetAttribute(copyTo, attr.Value);
+                                elem.AppendChild(img);
+                            }
+                        }
+                    }
+                }
+            });        
+        }
+
 
         /**
 		 * Clean an element of all tags of type "tag" if they look fishy.
