@@ -13,6 +13,7 @@ using AngleSharp.Css.Dom;
 using AngleSharp.Css.Parser;
 using AngleSharp;
 using AngleSharp.Html.Dom;
+using System.Net;
 
 namespace SmartReader
 {
@@ -170,6 +171,9 @@ namespace SmartReader
             articleTitle = "";
             articleByline = "";
             articleDir = "";
+
+            // setting the default user agent
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");            
         }
 
         /// <summary>
@@ -191,6 +195,9 @@ namespace SmartReader
             articleTitle = "";
             articleByline = "";
             articleDir = "";
+
+            // setting the default user agent
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
         }
 
         /// <summary>
@@ -212,6 +219,9 @@ namespace SmartReader
             articleTitle = "";
             articleByline = "";
             articleDir = "";
+
+            // setting the default user agent
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
         }
 
         /// <summary>
