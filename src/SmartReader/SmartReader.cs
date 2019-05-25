@@ -2204,7 +2204,7 @@ namespace SmartReader
                     }
 
                     // For embed with <object> tag, check inner HTML as well.
-                    if (element.TagName == "object" && regExps["videos"].IsMatch(element.InnerHtml))
+                    if (element.TagName == "OBJECT" && regExps["videos"].IsMatch(element.InnerHtml))
                     {
                         return false;
                     }
@@ -2418,7 +2418,7 @@ namespace SmartReader
                         }
 
                         // For embed with <object> tag, check inner HTML as well.
-                        if (embeds.ElementAt(i).TagName == "object" && regExps["videos"].IsMatch(embeds.ElementAt(i).InnerHtml))
+                        if (embeds.ElementAt(i).TagName == "OBJECT" && regExps["videos"].IsMatch(embeds.ElementAt(i).InnerHtml))
                         {
                             return false;
                         }
