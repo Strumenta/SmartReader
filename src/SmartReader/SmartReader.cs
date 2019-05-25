@@ -113,7 +113,8 @@ namespace SmartReader
             Negative,
             Extraneous,
             Byline,
-            Videos
+            Videos,
+            ShareElements
         }
 
         // All of the regular expressions in use within readability.
@@ -131,7 +132,8 @@ namespace SmartReader
         { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
         { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
         { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
-        { "hasContent", new Regex(@"\S$", RegexOptions.IgnoreCase) }
+        { "hasContent", new Regex(@"\S$", RegexOptions.IgnoreCase) },
+        { "shareElements", new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase) }           
         };
 
         private String[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
@@ -910,7 +912,7 @@ namespace SmartReader
 
             ForEachNode(articleContent.Children, (topCandidate) => {
                 CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
-                    return new Regex(@"share", RegexOptions.IgnoreCase).IsMatch(matchString) && node.TextContent.Length < shareElementThreshold;
+                    return regExps["shareElements"].IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
                 });
 
@@ -2512,7 +2514,7 @@ namespace SmartReader
             var endOfSearchMarkerNode = GetNextNode(e, true);
             var next = GetNextNode(e);
             while (next != null && next != endOfSearchMarkerNode)
-            {
+            {                
                 if (filter(next, next.ClassName + " " + next.Id))
                 {
                     next = RemoveAndGetNext(next as INode) as IElement;
@@ -2806,6 +2808,9 @@ namespace SmartReader
                 case RegularExpressions.Videos:
                     regExps["videos"] = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
+                case RegularExpressions.ShareElements:
+                    regExps["shareElements"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    break;
                 default:
                     break;
             }
@@ -2839,6 +2844,9 @@ namespace SmartReader
                 case RegularExpressions.Videos:
                     string original = regExps["videos"].ToString().Substring(0, regExps["videos"].ToString().Length - 1);
                     regExps["videos"] = new Regex($"{original}|{option})", RegexOptions.IgnoreCase);
+                    break;
+                case RegularExpressions.ShareElements:                    
+                    regExps["shareElements"] = new Regex($"(\b|_)(share|sharedaddy|{option})(\b|_)", RegexOptions.IgnoreCase);
                     break;
                 default:
                     break;
