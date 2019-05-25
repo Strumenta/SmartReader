@@ -10,7 +10,7 @@ You can do it the standard way, by using the [NuGet](https://www.nuget.org/packa
 PM> Install-Package SmartReader
 ```
 
-## Why You May Want To Use It
+## Why you May Want to Use it
 
  There are already other similar good projects, but they don't support .NET Core and they are based on old version of Readability. The original library is already quite stable, but there are always improvement to be made. So by relying on a original library maintained by such a competent organization we can piggyback on their hard work and user base.
 
@@ -51,6 +51,7 @@ The type `RegularExpression` is an `enum` that can have one of the following val
   - Extraneous (note: this regular expression is not used anywhere at the moment)
   - Byline
   - Videos
+  - ShareElements
 
 Except for the *Videos* regular expression, they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
 
@@ -106,6 +107,15 @@ reader.ClassesToPreserve = new string[] { "info" };
 
 The class `page` is always kept, no matter the value you assign to this option.
 
+#### Set Custom User Agent
+
+By default all web requests made by the library use the User Agent *SmartReader Library*. This can be changed by using the function `SetCustomUserAgent`.
+
+```
+Reader.SetCustomUserAgent("SuperAwesome App - for any issue contact admin@example.com");
+```
+
+This function will change the user agent for **all subsequent web requests** with any object of the class.
 
 ## Examples
 
@@ -198,5 +208,6 @@ The project uses the **Apache License**.
 - [Yasindn](https://github.com/yasindn)
 - [Jamie Lord](https://github.com/jamie-lord)
 - [Gábor Gergely](https://github.com/kodfodrasz)
+- [AndySchmitt](https://github.com/AndySchmitt)
 
 Thanks to all the people involved.

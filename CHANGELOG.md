@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.6.2
+- Fixed [issue #9](https://github.com/Strumenta/SmartReader/issues/9)
+- Added Readability update to transform lazy images
+- Added Readability update regarding share elements
+
 ## 0.6.1
 - Fixed bug in dependency listing for the nuget package
 
