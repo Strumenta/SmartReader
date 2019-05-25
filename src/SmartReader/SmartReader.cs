@@ -2789,5 +2789,13 @@ namespace SmartReader
                     break;
             }
         }
+        /// <summary>Allow to set an user agent</summary>
+        /// <param name="userAgent">A string indicating the User Agent used for web requests made by this library</param>
+        public static void SetCustomUserAgent(string userAgent)
+        {
+            httpClient.DefaultRequestHeaders.UserAgent.Clear();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+        }
+
     }
 }
