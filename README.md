@@ -199,15 +199,24 @@ The command must be issued inside the `src/SmartReader` folder.
 
 ## Notes
 
-Any request made with certain HTTP APIs of .NET (like HttpClient, WebClient, etc.) follows the permitted values of security protocols that are set in the property `ServicePointManager.SecurityProtocol`. So, it determines which versions of the TLS protocol can use. In recent version of .NET Framework (and other .NETs) the default value of this property has been changed to `SecurityProtocolType.SystemDefault` which basically means whatever combinations of values is deemed the best by the current framework. This is the ideal value because if any TLS version stops being secure the code does not need to be updated. 
+### Requesting Web Pages Using .NET HTTP APIs
 
-This [might cause some issues](https://github.com/Strumenta/SmartReader/issues/10), because a web server might not fulfill the request. Usually this is because it uses an old version of the protocol like SSL 3.0. SmartReader neither specifies a `SecurityProtocol` value for the requests made with its internal HttpClient, nor  it  provides a method to change it. That's because if we do that this will affect all requests made with certain HTTP APIs, even the ones made by other parts of your code. So, if you need to access some article on old, insecure web server you might set the proper value of `SecurityProtocol` yourself.
+Any request made with certain HTTP APIs of .NET (like HttpClient, WebClient, etc.) follows the permitted values of security protocols that are set in the property `ServicePointManager.SecurityProtocol`. So, it determines which versions of the TLS protocol can use. In recent versions of .NET Framework (and other .NETs platforms) the default value of this property has been changed to `SecurityProtocolType.SystemDefault` which basically means whatever combinations of values is deemed the best by the current framework. This is the ideal value because if any TLS version stops being secure the code does not need to be updated. 
+
+This [might cause some issues](https://github.com/Strumenta/SmartReader/issues/10), because a web server might not be able to fulfill the request. Usually this is because it uses an old version of the SSL/TLS protocol like SSL 3.0. SmartReader neither specifies a `SecurityProtocol` value for the requests made with its internal HttpClient, nor it provides a method to change it. That's because if we did that this would affect all requests made with certain HTTP APIs, even the ones made by other parts of your code. So, if you need to access some article on an old, insecure web server you might set the proper value of `SecurityProtocol` yourself.
 
 ```
 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 ```
 
-Alternatively, you can retrieve the content yourself and just use SmartReader to extract the article from the text.
+Alternatively, you can retrieve the content yourself in some other way and just use SmartReader to extract the article from the text.
+
+### Security of Untrusted Input
+
+SmartReader does not perform any security check on the input. If you are using Smart Reader with untrusted input and you are displaying the content to the user, it is your responsibility to make sure that nothing bad happens.
+
+The Readability team suggests using a sanitizer library. On .NET you could the [HTML Sanitizer](https://github.com/mganss/HtmlSanitizer) library. They also recommend using
+[CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to add further defense-in-depth restrictions to what you allow the resulting content to do.
 
 ## License
 
