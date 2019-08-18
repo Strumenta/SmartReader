@@ -1562,7 +1562,7 @@ namespace SmartReader
             
             // Match Facebook's Open Graph title & description properties.
             // property is a space-separated list of values
-            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)\s*";
+            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)(\s+|$)";
             
             var itemPropPattern = @"\s*datePublished\s*";
 
@@ -1572,7 +1572,7 @@ namespace SmartReader
                 var elementName = (element as IElement).GetAttribute("name") ?? "";
                 var elementProperty = (element as IElement).GetAttribute("property") ?? "";
                 var itemProp = (element as IElement).GetAttribute("itemprop") ?? "";
-                var content = (element as IElement).GetAttribute("content");
+                var content = (element as IElement).GetAttribute("content");              
 
                 // avoid issues with no meta tags
                 if (String.IsNullOrEmpty(content))
@@ -1590,7 +1590,7 @@ namespace SmartReader
                 }
 
                 if (!String.IsNullOrEmpty(elementProperty))
-                {
+                {                    
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
                     {
@@ -1601,7 +1601,7 @@ namespace SmartReader
                             name = Regex.Replace(matches[i].Value.ToLower(), @"\s+", "");
                            
                             // multiple authors
-                            values[name] = content.Trim();                            
+                            values[name] = content.Trim();
                         }
                     }
                 }
@@ -1615,7 +1615,7 @@ namespace SmartReader
                         // Convert to lowercase, remove any whitespace, and convert dots
                         // to colons so we can match below.
                         name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.",":");
-                        values[name] = content.Trim();
+                        values[name] = content.Trim();                      
                     }
 
                 }
@@ -1785,7 +1785,7 @@ namespace SmartReader
             }
             else if (values.ContainsKey("twitter:image"))
             {
-                // Use twitter cards image.
+                // Use twitter cards image.                
                 metadata.FeaturedImage = values["twitter:image"];
             }
             else
