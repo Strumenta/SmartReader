@@ -19,12 +19,15 @@ namespace SmartReaderConsole
             element.QuerySelector(".removeable")?.Remove();
         }
 
-        static void RunRandomExample()
+        static void RunRandomExample(int num = -1)
         {
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
 
             Random random = new Random();
             var index = random.Next(pages.Count());
+
+            if (num != -1)
+                index = num;
 
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
@@ -101,7 +104,7 @@ namespace SmartReaderConsole
         }
 
         static void Main(string[] args)
-        {
+        {           
             RunRandomExample();
         }
     }
