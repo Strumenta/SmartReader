@@ -1642,78 +1642,39 @@ namespace SmartReader
                 }
             });
 
-            if (values.ContainsKey("description"))
+            // Find the the description of the article
+            IEnumerable<string> DescriptionKeys()
             {
-                metadata.Excerpt = values["description"];
+                yield return values.ContainsKey("description") ? values["description"] : null;
+                yield return values.ContainsKey("dc:description") ? values["dc:description"] : null;
+                yield return values.ContainsKey("dcterm:description") ? values["dcterm:description"] : null;
+                yield return values.ContainsKey("og:description") ? values["og:description"] : null;
+                yield return values.ContainsKey("weibo:article:description") ? values["weibo:article:description"] : null;
+                yield return values.ContainsKey("weibo:webpage:description") ? values["weibo:webpage:description"] : null;
+                yield return values.ContainsKey("twitter:description") ? values["twitter:description"] : null;
             }
-            else if (values.ContainsKey("dc:description"))
-            {
-                metadata.Excerpt = values["dc:description"];
-            }
-            else if (values.ContainsKey("dcterm:description"))
-            {
-                metadata.Excerpt = values["dcterm:description"];
-            }
-            else if (values.ContainsKey("og:description"))
-            {
-                // Use facebook open graph description.
-                metadata.Excerpt = values["og:description"];
-            }
-            else if (values.ContainsKey("weibo:article:description"))
-            {
-                // Use weibo description.
-                metadata.Excerpt = values["weibo:article:description"];
-            }
-            else if (values.ContainsKey("weibo:webpage:description"))
-            {
-                // Use weibo description.
-                metadata.Excerpt = values["weibo:webpage:description"];
-            }            
-            else if (values.ContainsKey("twitter:description"))
-            {
-                // Use twitter cards description.
-                metadata.Excerpt = values["twitter:description"];
-            }
+
+            metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
 
             // Get the name of the site
             if (values.ContainsKey("og:site_name"))
-                metadata.SiteName = values["og:site_name"];           
+                metadata.SiteName = values["og:site_name"];
 
             // Find the title of the article
-            if (values.ContainsKey("dc:title"))
-            {                    
-                metadata.Title = values["dc:title"];
-            }
-            else if (values.ContainsKey("dcterm:title"))
+            IEnumerable<string> TitleKeys()
             {
-                metadata.Title = values["dcterm:title"];
-            }
-            else if (values.ContainsKey("og:title"))
-            {
-                // Use facebook open graph title.
-                metadata.Title = values["og:title"];                
-            }
-            else if (values.ContainsKey("weibo:article:title"))
-            {
-                // Use weibo title
-                metadata.Title = values["weibo:article:title"];
-            }
-            else if (values.ContainsKey("weibo:webpage:title"))
-            {
-                // Use weibo title
-                metadata.Title = values["weibo:webpage:title"];
-            }
-            else if (values.ContainsKey("title"))
-            {
-                // Use HTML title
-                metadata.Title = values["title"];
-            }
-            else if (values.ContainsKey("twitter:title"))
-            {
-                // Use twitter cards title.
-                metadata.Title = values["twitter:title"];
+                yield return values.ContainsKey("dc:title") ? values["dc:title"] : null;
+                yield return values.ContainsKey("dcterm:title") ? values["dcterm:title"] : null;
+                yield return values.ContainsKey("og:title") ? values["og:title"] : null;
+                yield return values.ContainsKey("weibo:article:title") ? values["weibo:article:title"] : null;
+                yield return values.ContainsKey("weibo:webpage:title") ? values["weibo:webpage:title"] : null;
+                yield return values.ContainsKey("twitter:title") ? values["twitter:title"] : null;
+                yield return values.ContainsKey("title") ? values["title"] : null;
             }
 
+            metadata.Title = TitleKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            
+            // Let's try to eliminate the site name from the title
             metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
             
             // We did not find any title,
@@ -1734,25 +1695,64 @@ namespace SmartReader
 
             metadata.Language = LanguageHeuristics().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
 
+
+            // Find the featured image of the article
+            IEnumerable<string> FeaturedImageKeys()
+            {
+                yield return values.ContainsKey("og:image") ? values["og:image"] : null;
+                yield return values.ContainsKey("twitter:image") ? values["twitter:image"] : null;
+                yield return values.ContainsKey("weibo:article:image") ? values["weibo:article:image"] : null;
+                yield return values.ContainsKey("weibo:webpage:image") ? values["weibo:webpage:image"] : null;
+            }
+
+            metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+
+            if (String.IsNullOrEmpty(metadata.Author))
+            {
+                // We try to find a meta tag for the author.
+                // Note that there is Open Grapg tag for an author,
+                // but it usually contains a profile URL of the author.
+                // So we do not use it
+                IEnumerable<string> AuthorKeys()
+                {
+                    yield return values.ContainsKey("dc:creator") ? values["dc:creator"] : null;
+                    yield return values.ContainsKey("dcterm:creator") ? values["dcterm:creator"] : null;
+                    yield return values.ContainsKey("author") ? values["author"] : null;
+                }
+
+                metadata.Author = AuthorKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            }
+
             // added date extraction
             DateTime date;
 
-            if (values.ContainsKey("article:published_time")
-                && DateTime.TryParse(values["article:published_time"], out date))
+            // added language extraction            
+            IEnumerable<DateTime?> DateHeuristics()
             {
-                metadata.PublicationDate = date;
+                yield return values.ContainsKey("article:published_time")
+                    && DateTime.TryParse(values["article:published_time"], out date) ? 
+                    date : DateTime.MinValue;
+
+                yield return values.ContainsKey("date")
+                    && DateTime.TryParse(values["date"], out date) ?
+                    date : DateTime.MinValue;
+
+                yield return values.ContainsKey("datepublished")
+                  && DateTime.TryParse(values["datepublished"], out date) ?
+                  date : DateTime.MinValue;
+
+                yield return values.ContainsKey("weibo:article:create_at")
+                  && DateTime.TryParse(values["weibo:article:create_at"], out date) ?
+                  date : DateTime.MinValue;
+
+                yield return values.ContainsKey("weibo:webpage:create_at")
+                  && DateTime.TryParse(values["weibo:webpage:create_at"], out date) ?
+                  date : DateTime.MinValue;                
             }
-            else if (values.ContainsKey("date")
-                && DateTime.TryParse(values["date"], out date))
-            {
-                metadata.PublicationDate = date;
-            }
-            else if (values.ContainsKey("datepublished")
-                && DateTime.TryParse(values["datepublished"], out date))
-            {
-                metadata.PublicationDate = date;
-            }
-            else
+
+            metadata.PublicationDate = DateHeuristics().FirstOrDefault(d => d != DateTime.MinValue);
+
+            if(metadata.PublicationDate == null)            
             {
                 var times = doc.GetElementsByTagName("time");
 
@@ -1775,38 +1775,6 @@ namespace SmartReader
                     metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value),
                         int.Parse(maybeDate.Groups["month"].Value),
                         !String.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
-                }
-            }
-
-            if (values.ContainsKey("og:image"))
-            {
-                // Use facebook open graph image.
-                metadata.FeaturedImage = values["og:image"];
-            }
-            else if (values.ContainsKey("twitter:image"))
-            {
-                // Use twitter cards image.                
-                metadata.FeaturedImage = values["twitter:image"];
-            }
-            else
-                metadata.FeaturedImage = "";
-
-            if(String.IsNullOrEmpty(metadata.Author))
-            {
-                if (values.ContainsKey("dc:creator"))
-                {
-                    // Use twitter cards title.
-                    metadata.Author = values["dc:creator"];
-                }
-                else if (values.ContainsKey("dc:creator"))
-                {
-                    // Use twitter cards title.
-                    metadata.Author = values["dcterm:creator"];
-                }
-                else if (values.ContainsKey("author"))
-                {
-                    // Use twitter cards title.
-                    metadata.Author = values["author"];
                 }
             }
             
