@@ -230,5 +230,6 @@ The project uses the **Apache License**.
 - [Jamie Lord](https://github.com/jamie-lord)
 - [Gábor Gergely](https://github.com/kodfodrasz)
 - [AndySchmitt](https://github.com/AndySchmitt)
+- [Andrew Lombard](https://github.com/alombard)
 
 Thanks to all the people involved.

@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.6.3
+- Fixed [issue #11](https://github.com/Strumenta/SmartReader/issues/11)
+
 ## 0.6.2
 - Fixed [issue #9](https://github.com/Strumenta/SmartReader/issues/9)
 - Added Readability update to transform lazy images
