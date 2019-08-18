@@ -19,20 +19,20 @@ namespace SmartReaderConsole
             element.QuerySelector(".removeable")?.Remove();
         }
 
-        static void Main(string[] args)
+        static void RunRandomExample()
         {
-            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
-           
+            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
+
             Random random = new Random();
             var index = random.Next(pages.Count());
 
             String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
-            
+
             Reader reader = new Reader("https://localhost/", sourceContent);
 
             reader.ClassesToPreserve = new string[] { "info" };
 
-            reader.Debug = true;            
+            reader.Debug = true;
             reader.Logger = Console.Out;
 
             reader.ClassesToPreserve = reader.ClassesToPreserve.Append("info").ToArray();
@@ -50,7 +50,7 @@ namespace SmartReaderConsole
 
             // get the article
             Article article = reader.GetArticle();
-            
+
             // get info about images in the article
             var images = article.GetImagesAsync();
             images.Wait();
@@ -70,6 +70,39 @@ namespace SmartReaderConsole
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
             Console.WriteLine($"Images Found: {images.Result?.Count()}");
+        }
+
+        static void AddFieldToMetadataJsonForTests(string field)
+        {
+            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
+
+            foreach(var p in pages)
+            {                
+                String sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));                
+
+                Reader reader = new Reader("https://localhost/", sourceContent);               
+
+                // get the article
+                Article article = reader.GetArticle();        
+                
+                List<string> lines;
+
+                lines = File.ReadAllLines(Path.Combine(p, "expected-metadata.json")).ToList();
+
+                // add a comma after the last element, if none is present
+                if (lines[lines.Count() - 2][lines[lines.Count() - 2].Length - 1] != ',')
+                    lines[lines.Count() - 2] += ",";
+
+                // insert the new filed before the end of the JSON object
+                lines.Insert(lines.Count() - 1, $"  \"{field.First().ToString().ToLower() + field.Substring(1)}\": \"{article.GetType().GetProperty(field).GetValue(article)}\"");
+
+                File.WriteAllLines(Path.Combine(p, "expected-metadata.json"), lines);
+            }                       
+        }
+
+        static void Main(string[] args)
+        {
+            RunRandomExample();
         }
     }
 }

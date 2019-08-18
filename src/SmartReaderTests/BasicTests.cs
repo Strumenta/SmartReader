@@ -25,6 +25,7 @@ namespace SmartReaderTests
         String Language { get; set; }
         String Author { get; set; }
         String SiteName { get; set; }
+        String FeaturedImage { get; set; }
         int Length { get; set; }
         TimeSpan TimeToRead { get; set; }
         DateTime? PublicationDate { get; set; }
@@ -54,6 +55,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.SiteName).Returns(metadata["siteName"]?.ToString() ?? "");
             mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));
             mockArticle.Setup(x => x.Content).Returns(content);
+            mockArticle.Setup(x => x.FeaturedImage).Returns(metadata["featuredImage"]?.ToString() ?? "");
 
             return mockArticle.Object;
         }
@@ -71,7 +73,8 @@ namespace SmartReaderTests
                 timeToRead = article.TimeToRead,
                 publicationDate = article.PublicationDate,
                 author = article.Author,
-                siteName = article.SiteName
+                siteName = article.SiteName,
+                featuredImage = article.FeaturedImage
             };
 
             File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented));
@@ -90,6 +93,7 @@ namespace SmartReaderTests
             Assert.Equal(expected.SiteName, found.SiteName);
             Assert.Equal(expected.TimeToRead, found.TimeToRead);
             Assert.Equal(expected.Content, found.Content);
+            Assert.Equal(expected.FeaturedImage, found.FeaturedImage);
         }
 
         public static IEnumerable<object[]> GetTests()

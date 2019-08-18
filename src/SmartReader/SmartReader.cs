@@ -1545,9 +1545,9 @@ namespace SmartReader
         }
 
         /**
-		 * Attempts to get excerpt and byline metadata for the article.
+		 * Attempts to get metadata for the article.
 		 *
-		 * @return Object with optional "excerpt" and "byline" properties
+		 * @return void
 		 */
         private Metadata GetArticleMetadata()
         {       
