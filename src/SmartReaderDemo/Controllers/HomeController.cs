@@ -18,10 +18,12 @@ namespace SmartReaderDemo.Controllers
 
 		public JsonResult Analyze(string url)
 		{
-			Reader sr = new Reader(url);            
+            StringWriter log = new StringWriter();
+
+            Reader sr = new Reader(url);  
 
 			sr.Debug = true;
-			sr.Logger = new StringWriter();
+			sr.LoggerDelegate = log.WriteLine;
 
             Article article = sr.GetArticle();
             var images = article.GetImagesAsync();
@@ -31,7 +33,7 @@ namespace SmartReaderDemo.Controllers
             {
                 article = article,
                 images = $"{images.Result.Count()} images found",
-				log = sr.Logger.ToString()
+				log = sr.LoggerDelegate.ToString()
 			});
 		}
 	}

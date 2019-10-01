@@ -36,7 +36,7 @@ namespace SmartReaderConsole
             reader.ClassesToPreserve = new string[] { "info" };
 
             reader.Debug = true;
-            reader.Logger = Console.Out;
+            reader.LoggerDelegate = Console.WriteLine;
 
             reader.ClassesToPreserve = reader.ClassesToPreserve.Append("info").ToArray();
 

@@ -25,6 +25,12 @@ namespace SmartReader
         CleanConditionally = 4
     }
 
+    public enum ReportLevel
+    {
+        Issue,
+        Info
+    }
+
     /// <summary>
     /// SmartReader
     /// </summary>
@@ -91,14 +97,18 @@ namespace SmartReader
         /// </summary>
         /// <value>Default: false</value>
         public bool KeepClasses { get; set; } = false;
-            
-        /// <summary>Set the Debug option and write the data on Logger</summary>
+
+        /// <summary>Set the Debug option and write the data with logger</summary>
         /// <value>Default: false</value>
         public bool Debug { get; set; } = false;
 
-        /// <summary>Where the debug data is going to be written</summary>
-        /// <value>Default: null</value>
-        public TextWriter Logger { get; set; } = null;
+        /// <summary>Set the amount of information written to the logger</summary>
+        /// <value>Default: ReportLevel.Issue</value>
+        public ReportLevel Logging { get; set; } = ReportLevel.Issue;
+
+        /// <summary>The action that will log any message</summary>
+        /// <value>Default: empty action</value>       
+        public Action<string> LoggerDelegate = new Action<string>((msg) => { });
 
         /// <summary>The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true</summary>
         /// <value>Default: true</value>
@@ -983,8 +993,8 @@ namespace SmartReader
 		**/
         private IElement GrabArticle(IElement page = null)
         {
-            if (Debug)
-                Logger.WriteLine("**** grabArticle ****");
+            if (Debug || Logging == ReportLevel.Info)
+                LoggerDelegate("**** grabArticle ****");
 
             var doc = this.doc;
             var isPaging = (page != null ? true : false);
@@ -993,8 +1003,7 @@ namespace SmartReader
             // We can't grab an article if we don't have a page!
             if (page == null)
             {
-                if (Debug)
-                    Logger.WriteLine("No body found in document. Abort.");                
+                LoggerDelegate("No body found in document. Abort.");                
                 return null;
             }
 
@@ -1016,8 +1025,8 @@ namespace SmartReader
 
                     if (!NodeUtility.IsProbablyVisible(node))
                     {
-                        if (Debug)
-                            Logger.WriteLine("Removing hidden node - " + matchString);
+                        if (Debug || Logging == ReportLevel.Info)
+                            LoggerDelegate("Removing hidden node - " + matchString);
                         node = RemoveAndGetNext(node) as IElement;
                         continue;
                     }
@@ -1038,8 +1047,8 @@ namespace SmartReader
                             node.TagName != "BODY" &&
                             node.TagName != "A")
                         {
-                            if (Debug)
-                                Logger.WriteLine("Removing unlikely candidate - " + matchString);                            
+                            if (Debug || Logging == ReportLevel.Info)
+                                LoggerDelegate("Removing unlikely candidate - " + matchString);                            
                             node = RemoveAndGetNext(node) as IElement;
                             continue;
                         }
@@ -1391,14 +1400,14 @@ namespace SmartReader
                     }
                 }
 
-                if (Debug)
-                    Logger.WriteLine("<h2>Article content pre-prep:</h2>" + articleContent.InnerHtml);
+                if (Debug || Logging == ReportLevel.Info)
+                    LoggerDelegate("<h2>Article content pre-prep:</h2>" + articleContent.InnerHtml);
 
                 // So we have all of the content that we need. Now we clean it up for presentation.
                 PrepArticle(articleContent);
 
-                if (Debug)
-                    Logger.WriteLine("<h2>Article content post-prep:</h2>" + articleContent.InnerHtml);
+                if (Debug || Logging == ReportLevel.Info)
+                    LoggerDelegate("<h2>Article content post-prep:</h2>" + articleContent.InnerHtml);
 
                 if (neededToCreateTopCandidate)
                 {
@@ -1422,8 +1431,8 @@ namespace SmartReader
                     articleContent.AppendChild(div);
                 }
 
-                if (Debug)
-                    Logger.WriteLine("<h2>Article content after paging:</h2>" + articleContent.InnerHtml);
+                if (Debug || Logging == ReportLevel.Info)
+                    LoggerDelegate("<h2>Article content after paging:</h2>" + articleContent.InnerHtml);
 
                 var parseSuccessful = true;
 
@@ -2103,8 +2112,8 @@ namespace SmartReader
                 };
                 if (dataTableDescendants.Any(descendantExists))
                 {
-                    if (Debug)
-                        Logger.WriteLine("Data table because found data-y descendant");
+                    if (Debug || Logging == ReportLevel.Info)
+                        LoggerDelegate("Data table because found data-y descendant");
                     table.SetAttribute("dataTable", "true");
                     continue;
                 }
@@ -2435,11 +2444,9 @@ namespace SmartReader
             // we stop only if it's not readable and we are not debugging
             if (isReadable == false)
             {
-                if (Debug == true)
-                {
-                    Logger.WriteLine("<h2>Warning: article probably not readable</h2>");
-                }
-                else if (ContinueIfNotReadable == false)
+                LoggerDelegate("<h2>Warning: article probably not readable</h2>");
+                
+                if (ContinueIfNotReadable == false)
                     return new Article(uri, articleTitle, false);
             }
 
@@ -2452,8 +2459,8 @@ namespace SmartReader
 
             PrepDocument();
 
-            if (Debug)
-                Logger.WriteLine("<h2>Pre-GrabArticle:</h2>" + doc.DocumentElement.InnerHtml);
+            if (Debug || Logging == ReportLevel.Info)
+                LoggerDelegate("<h2>Pre-GrabArticle:</h2>" + doc.DocumentElement.InnerHtml);
 
             var metadata = GetArticleMetadata();
             articleTitle = metadata.Title;
@@ -2462,8 +2469,8 @@ namespace SmartReader
             if (articleContent == null)
                 return new Article(uri, articleTitle, false);
 
-            if (Debug)
-                Logger.WriteLine("<h2>Grabbed:</h2>" + articleContent.InnerHtml);
+            if (Debug || Logging == ReportLevel.Info)
+                LoggerDelegate("<h2>Grabbed:</h2>" + articleContent.InnerHtml);
 
             PostProcessContent(articleContent);
             
@@ -2471,8 +2478,8 @@ namespace SmartReader
             foreach (var operation in CustomOperationsEnd)
                 operation(articleContent);
 
-            if (Debug)
-                Logger.WriteLine("<h2>Post Process result:</h2>" + articleContent.InnerHtml);
+            if (Debug || Logging == ReportLevel.Info)
+                LoggerDelegate("<h2>Post Process result:</h2>" + articleContent.InnerHtml);
 
             // If we haven't found an excerpt in the article's metadata, use the article's
             // first paragraph as the excerpt. This is used for displaying a preview of
