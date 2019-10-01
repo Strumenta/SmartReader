@@ -60,7 +60,9 @@ namespace SmartReader
 
         public static bool IsProbablyVisible(IElement node)
         {
-            return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none") && !node.HasAttribute("hidden");
+            return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none")
+                && !node.HasAttribute("hidden")
+                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true");         
         }
 
         /**
