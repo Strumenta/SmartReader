@@ -185,5 +185,35 @@ namespace SmartReader
         {
             return node.QuerySelectorAll(String.Join(",", tagNames));
         }
+
+        /**
+        * Removes the class="" attribute from every element in the given
+        * subtree, except those that match the classesToPreserve array        
+        *
+        * @param Element
+        * @return void
+        */
+        public static void CleanClasses(IElement node, string[] classesToPreserve)
+        {
+            var className = "";
+
+            if (!String.IsNullOrEmpty(node.GetAttribute("class")))
+                className = String.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => classesToPreserve.Contains(x)));
+
+            if (!String.IsNullOrEmpty(className))
+            {
+                node.SetAttribute("class", className);
+            }
+            else
+            {
+                node.RemoveAttribute("class");
+            }
+
+            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
+            {
+                CleanClasses(node, classesToPreserve);
+            }
+        }
     }
 }

@@ -66,11 +66,8 @@ namespace SmartReader
         /// </summary>
         /// <value>Default: 500</value>
         public int CharThreshold { get; set; } = 500;
-
-        // These are the IDs and classes that readability sets itself.
-        private String[] idsToPreserve = { "readability-content", "readability-page-1" };
-
-        private String[] classesToPreserve = { "page" };
+        
+        private String[] classesToPreserve = { "page" };        
         /// <summary>
         /// The classes that must be preserved
         /// </summary>
@@ -89,6 +86,12 @@ namespace SmartReader
             }
         }
 
+        /// <summary>
+        /// Whether to preserve classes
+        /// </summary>
+        /// <value>Default: false</value>
+        public bool KeepClasses { get; set; } = false;
+            
         /// <summary>Set the Debug option and write the data on Logger</summary>
         /// <value>Default: false</value>
         public bool Debug { get; set; } = false;
@@ -400,8 +403,8 @@ namespace SmartReader
             // Readability cannot open relative uris so we convert them to absolute uris.
             FixRelativeUris(articleContent);
 
-            // Remove IDs and classes.
-            CleanIDsAndClasses(articleContent);
+            // Remove classes
+            NodeUtility.CleanClasses(articleContent, this.classesToPreserve);
 
             // Remove attributes we set
             if (!Debug)
@@ -410,44 +413,7 @@ namespace SmartReader
                 CleanReaderAttributes(articleContent, "readability-score");
             }
         }        
-        
-        /**
-        * Removes the id="" and class="" attribute from every element in the given
-        * subtree, except those that match IDS_TO_PRESERVE, CLASSES_TO_PRESERVE and
-        * the classesToPreserve array from the options object.
-        *
-        * @param Element
-        * @return void
-        */
-        private void CleanIDsAndClasses(IElement node)
-        {
-            if (!this.idsToPreserve.Contains(node.Id))
-            {
-                node.RemoveAttribute("id");
-            }
-
-            var classesToPreserve = this.classesToPreserve;
-            var className = "";
-
-            if (!String.IsNullOrEmpty(node.GetAttribute("class")))
-                className = String.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(x => classesToPreserve.Contains(x)));
-
-            if (!String.IsNullOrEmpty(className))
-            {
-                node.SetAttribute("class", className);
-            }
-            else
-            {
-                node.RemoveAttribute("class");
-            }
-
-            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
-            {
-                CleanIDsAndClasses(node);
-            }
-        }
-
+                             
         /**
 		 * Converts each <a> and <img> uri in the given element to an absolute URI,
 		 * ignoring #ref URIs.
