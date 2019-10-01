@@ -119,7 +119,7 @@ namespace SmartReaderTests
 
             Article article = found;            
 
-            AssertProperties(expected, found);        
+            AssertProperties(expected, found);
         }        
     }
 }

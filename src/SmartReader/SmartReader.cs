@@ -108,7 +108,7 @@ namespace SmartReader
 
         /// <summary>The action that will log any message</summary>
         /// <value>Default: empty action</value>       
-        public Action<string> LoggerDelegate = new Action<string>((msg) => { });
+        public Action<string> LoggerDelegate { get; set; } = new Action<string>((msg) => { });
 
         /// <summary>The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true</summary>
         /// <value>Default: true</value>
@@ -132,7 +132,7 @@ namespace SmartReader
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
-        { "unlikelyCandidates", new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|foot|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
+        { "unlikelyCandidates", new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
         { "okMaybeItsACandidate", new Regex(@"and|article|body|column|main|shadow", RegexOptions.IgnoreCase) },
         { "positive", new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase) },
         { "negative", new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase) },
@@ -344,7 +344,7 @@ namespace SmartReader
         /// </returns>    
         public static async Task<Article> ParseArticleAsync(string uri)
         {
-            Reader smartReader = new Reader(uri);
+            Reader smartReader = new Reader(uri);            
 
             return await smartReader.GetArticleAsync();
         }
