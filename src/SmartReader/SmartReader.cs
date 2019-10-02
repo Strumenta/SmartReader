@@ -1923,6 +1923,5 @@ namespace SmartReader
             httpClient.DefaultRequestHeaders.UserAgent.Clear();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
         }
-
     }
 }

@@ -10,7 +10,9 @@ using AngleSharp.Css.Dom;
 using AngleSharp.Css.Parser;
 using AngleSharp;
 using AngleSharp.Html.Dom;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace SmartReader
     internal static class Readability
     {
         private static Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {        
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
+        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) }
         };
 
         /// <summary>
@@ -119,7 +121,7 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// Get the article title from H1 or H2 element
+        /// Get the article title
         /// </summary>
         /// <param name="doc">The document</param>        
         /// <returns>
@@ -149,13 +151,13 @@ namespace SmartReader
             // If there's a separator in the title, first remove the final part
             if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
             {
-                titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != 1;
+                titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '\\', '»', '/', '>' }) != -1;
                 curTitle = Regex.Replace(origTitle, @"(.*)[\|\-\\\/>»].*", "$1", RegexOptions.IgnoreCase);
 
                 // If the resulting title is too short (3 words or fewer), remove
                 // the first part instead:
                 if (wordCount(curTitle) < 3)
-                    curTitle = Regex.Replace(origTitle, @"[^\|\-\\\/>»] *[\|\-\\\/>»](.*)", "$1", RegexOptions.IgnoreCase);
+                    curTitle = Regex.Replace(origTitle, @"[^\|\-\\\/>»]* [\|\-\\\/>»](.*)", "$1", RegexOptions.IgnoreCase);
             }
             else if (curTitle.IndexOf(": ") != -1)
             {
@@ -198,7 +200,7 @@ namespace SmartReader
             var curTitleWordCount = wordCount(curTitle);
             if (curTitleWordCount <= 4 && (
                 !titleHadHierarchicalSeparators ||
-                curTitleWordCount != wordCount(Regex.Replace(origTitle, @"[\|\-\\\/>» ] +", " ", RegexOptions.IgnoreCase)) - 1))
+                curTitleWordCount != wordCount(Regex.Replace(origTitle, @"[\|\-\\\/>»: ]+", " ", RegexOptions.IgnoreCase)) - 1))
             {
                 curTitle = origTitle;
             }
@@ -436,10 +438,12 @@ namespace SmartReader
             {
                 var times = doc.GetElementsByTagName("time");
 
+                Console.WriteLine($"times: {times.Length}");
+
                 foreach (var time in times)
                 {
                     if (!String.IsNullOrEmpty(time.GetAttribute("pubDate"))
-                        && DateTime.TryParse(time.GetAttribute("pubDate"), out date))
+                        && DateTime.TryParse(time.GetAttribute("datetime"), out date))
                     {
                         metadata.PublicationDate = date;
                     }
