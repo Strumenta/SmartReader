@@ -152,7 +152,7 @@ namespace SmartReader
             if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
             {
                 titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '\\', '»', '/', '>' }) != -1;
-                curTitle = Regex.Replace(origTitle, @"(.*)[\|\-\\\/>»].*", "$1", RegexOptions.IgnoreCase);
+                curTitle = Regex.Replace(origTitle, @"(.*) [\|\-\\\/>»] .*", "$1", RegexOptions.IgnoreCase);
 
                 // If the resulting title is too short (3 words or fewer), remove
                 // the first part instead:

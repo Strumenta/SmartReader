@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Xunit;
 using SmartReader;
 using System.IO;
@@ -10,28 +10,11 @@ using System.Text;
 using System.Linq;
 using Xunit.Abstractions;
 using System.Collections.Generic;
+using AngleSharp.Html.Parser;
+using AngleSharp.Html.Dom;
 
 namespace SmartReaderTests
-{
-    public interface IArticleTest
-    {
-        Uri Uri { get; set; }
-        String Title { get; set; }
-        String Byline { get; set; }
-        String Dir { get; set; }
-        String Content { get; set; }
-        String TextContent { get; set; }
-        String Excerpt { get; set; }
-        String Language { get; set; }
-        String Author { get; set; }
-        String SiteName { get; set; }
-        String FeaturedImage { get; set; }
-        int Length { get; set; }
-        TimeSpan TimeToRead { get; set; }
-        DateTime? PublicationDate { get; set; }
-        bool IsReadable { get; set; }
-    }
-
+{   
     public class BasicTests
     {
         private readonly ITestOutputHelper _output;
@@ -40,86 +23,261 @@ namespace SmartReaderTests
             _output = output;
         }
 
-        public IArticleTest GetTestArticle(JObject metadata, string content)
-        {
-            var mockArticle = new Mock<IArticleTest>();
-            mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
-            mockArticle.Setup(x => x.IsReadable).Returns(Boolean.Parse(metadata["readerable"].ToString()));
-            mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
-            mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.Author).Returns(String.IsNullOrEmpty(metadata["author"]?.ToString()) ? null : metadata["author"].ToString());
-            mockArticle.Setup(x => x.PublicationDate).Returns(String.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
-            mockArticle.Setup(x => x.Language).Returns(String.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
-            mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.SiteName).Returns(metadata["siteName"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));
-            mockArticle.Setup(x => x.Content).Returns(content);
-            mockArticle.Setup(x => x.FeaturedImage).Returns(metadata["featuredImage"]?.ToString() ?? "");
-
-            return mockArticle.Object;
+        [Fact]
+        public void TestCleanTitleNoSitename()
+        {           
+            Assert.Equal("Big title ", Readability.CleanTitle("Big title ", "Wikipedia"));
         }
 
-        private void UpdateExpectedJson(Article article, string directory)
-        {
-            var obj = new
-            {
-                title = article.Title,
-                byline = article.Byline,
-                dir = article.Dir,
-                excerpt = article.Excerpt,
-                readerable = article.IsReadable,
-                language = article.Language,
-                timeToRead = article.TimeToRead,
-                publicationDate = article.PublicationDate,
-                author = article.Author,
-                siteName = article.SiteName,
-                featuredImage = article.FeaturedImage
-            };
-
-            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented));
-        }
-
-        private void AssertProperties(IArticleTest expected, Article found)
-        {
-            Assert.Equal(expected.IsReadable, found.IsReadable);
-            Assert.Equal(expected.Title, found.Title);
-            Assert.Equal(expected.Dir, found.Dir);
-            Assert.Equal(expected.Byline, found.Byline);            
-            Assert.Equal(expected.Author, found.Author);            
-            Assert.Equal(expected.PublicationDate?.ToString(), found.PublicationDate?.ToString());
-            Assert.Equal(expected.Language, found.Language);			
-            Assert.Equal(expected.Excerpt, found.Excerpt);
-            Assert.Equal(expected.SiteName, found.SiteName);
-            Assert.Equal(expected.TimeToRead, found.TimeToRead);
-            Assert.Equal(expected.Content, found.Content);
-            Assert.Equal(expected.FeaturedImage, found.FeaturedImage);
-        }
-
-        public static IEnumerable<object[]> GetTests()
+        [Fact]
+        public void TestCleanTitlePipe()
         {            
-            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages\"))
-            {                
-                yield return new object[] { d };               
-            }
+            Assert.Equal("Big title", Readability.CleanTitle("Big title | Wikipedia", "Wikipedia"));
         }
 
-        [Theory]
-        [MemberData(nameof(GetTests))]
-        public void TestPages(string directory)
+        [Fact]
+        public void TestCleanTitleBackslash()
         {
-            var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
-            var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
-            var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
-            var expectedMetadata = JObject.Parse(expectedMetadataString); 
-            
-            Article found = Reader.ParseArticle("https://localhost/", sourceContent);
+            Assert.Equal("Big title", Readability.CleanTitle("Big title / Wikipedia", "Wikipedia"));
+        }
 
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
+        [Fact]
+        public void TestCleanTitleMark()
+        {
+            Assert.Equal("Big title", Readability.CleanTitle("Big title » Wikipedia", "Wikipedia"));
+        }
 
-            Article article = found;            
+        [Fact]
+        public void TestCleanTitleNoSeparator()
+        {
+            Assert.Equal("Big title Wikipedia", Readability.CleanTitle("Big title Wikipedia", "Wikipedia"));
+        }
 
-            AssertProperties(expected, found);
-        }        
+        [Fact]
+        public void TestCleanTitleNonStandardFormat()
+        {
+            Assert.Equal("Big title [ Wikipedia ]", Readability.CleanTitle("Big title [ Wikipedia ]", "Wikipedia"));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleIdTitle()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>An article with a complex idea</title></head>
+               <body></body>
+               </html>");
+           
+            Assert.Equal("An article with a complex idea", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleSeparator()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>An article with a complex idea » By SomeSite</title></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("An article with a complex idea", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleSeparatorNoSpace()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>An article with a complex idea-error</title></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("An article with a complex idea-error", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleSeparatorFewWords()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>SomeSite - An  incredibly  smart title</title></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("SomeSite - An incredibly smart title", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleSeparatorTooMuchWordsRemoved()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>By SomeSite - An  incredibly  smart title</title></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("By SomeSite - An incredibly smart title", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleColon()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>SomeSite: An  incredibly  smart true title</title></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("An incredibly smart true title", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetArticleTitleH1()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head><title>SomeSite</title></head>
+               <body><h1>The right idea for you</h1></body>
+               </html>");
+
+            Assert.Equal("The right idea for you", Readability.GetArticleTitle(doc));
+        }
+
+        [Fact]
+        public void TestGetMetadataDescription()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>                   
+                    <meta name=""og:description"" content=""The best article there is. Right here""/>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("The best article there is. Right here", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").Excerpt);
+        }
+
+        [Fact]
+        public void TestGetMetadataSiteName()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta name=""og:site_name"" content=""Some Good Site""/>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Some Good Site", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").SiteName);
+        }
+
+        [Fact]
+        public void TestGetMetadataTitle()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>
+                    <title>Some title</title>
+                    <meta property=""twitter:title"" content=""Some Good Idea""/>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Some Good Idea", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").Title);
+        }
+
+        [Fact]
+        public void TestGetMetadataLanguage()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>
+                    <title>Some title</title>
+                    <meta http-equiv=""Content-Language"" content=""it"">
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("it", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").Language);
+        }
+
+        [Fact]
+        public void TestGetMetadataFeaturedImage()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>
+                    <meta name=""weibo:article:image"" content=""https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png"">
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").FeaturedImage);
+        }
+
+        [Fact]
+        public void TestGetMetadataAuthor()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta name=""author"" content=""Secret Man"">
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").Author);
+        }
+
+        [Fact]
+        public void TestGetMetadataDateNoDate()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body></body>
+               </html>");
+
+            Assert.Null(Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+        }
+
+        [Fact]
+        public void TestGetMetadataDateMeta()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta itemprop=""datePublished"" content=""2110-10-21"" />
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+        }
+
+        [Fact]
+        public void TestGetMetadataDateTimeTag()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body><p>Hello. I am talking to you, <time datetime=""01-09-1980"" pubDate=""pubDate"">now</time></p></body>
+               </html>");
+
+            Assert.Equal(new DateTime(1980, 9, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+        }
+
+        [Fact]
+        public void TestGetMetadataDateUrl()
+        {
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body></body>
+               </html>");
+
+            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21"), "").PublicationDate);
+        }
     }
 }
+
