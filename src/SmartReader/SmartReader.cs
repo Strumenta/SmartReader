@@ -1799,29 +1799,25 @@ namespace SmartReader
         private async Task<Stream> GetStreamAsync(Uri resource)
         {            
             var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
-            Stream dati = null;
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                //if (response.Headers?.ETag != null)
-                //	pageETags.Add(response.Headers.ETag.Tag);
-
-                var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
-                if (headLan.Value != null && headLan.Value.Count() > 0)
-                    language = headLan.Value.ElementAt(0);
-
-                var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
-                if (headCont.Value != null && headCont.Value.Count() > 0)
-                {
-                    int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-                    if (index != -1)
-                        charset = headCont.Value.ElementAt(0).Substring(index + 8);
-                }
-
-                dati = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
             }
 
-            return dati;
+            var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
+            if (headLan.Value != null && headLan.Value.Any())
+                language = headLan.Value.ElementAt(0);
+
+            var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
+            if (headCont.Value != null && headCont.Value.Any())
+            {
+                int index = headCont.Value.ElementAt(0).IndexOf("charset=");
+                if (index != -1)
+                    charset = headCont.Value.ElementAt(0).Substring(index + 8);
+            }
+
+            return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         }
 
         private static async Task<HttpResponseMessage> RequestPageAsync(Uri resource)
