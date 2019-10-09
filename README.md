@@ -125,7 +125,7 @@ Using the `GetArticle` method.
 SmartReader.Reader sr = new SmartReader.Reader("https://arstechnica.co.uk/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
 
 sr.Debug = true;
-sr.Logger = new StringWriter();
+sr.LoggerDelegate = Console.WriteLine;
 
 SmartReader.Article article = sr.GetArticle();
 var images = article.GetImagesAsync();
@@ -152,7 +152,8 @@ if(article.IsReadable)
 - `int` **MaxElemsToParse**<br>Max number of nodes supported by this parser. <br> *Default: 0 (no limit)*
 - `int` **NTopCandidates** <br>The number of top candidates to consider when analyzing how tight the competition is among candidates. <br>*Default: 5*
 - `bool` **Debug** <br>Set the Debug option. If set to true the library writes the data on Logger.<br>*Default: false*
-- `TextWriter` **Logger** <br> Where the debug data is going to be written. <br> *Default: null*
+- `Action<string>` **LoggerDelegate** <br>Delegate of a function that accepts as argument a string; it will receive log messages.<br>*Default: does not do anything*
+- `ReportLevel` **Logging** <br>Level of information written with the `LoggerDelegate`. The valid values are the ones for the enum `ReportLevel`: Issue or Info. The first level logs only errors or issue that could prevent correctly obtaining an article. The second level logs all the information needed for debugging a problematic article.<br>*Default: ReportLevel.Issue*
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article. <br>*Default: ["page"]*
@@ -213,7 +214,7 @@ Alternatively, you can retrieve the content yourself in some other way and just 
 
 ### Security of Untrusted Input
 
-SmartReader does not perform any security check on the input. If you are using Smart Reader with untrusted input and you are displaying the content to the user, it is your responsibility to make sure that nothing bad happens.
+SmartReader does not perform any security check on the input. If you are using SmartReader with untrusted input and you are displaying the content to the user, it is your responsibility to make sure that nothing bad happens.
 
 The Readability team suggests using a sanitizer library. On .NET you could the [HTML Sanitizer](https://github.com/mganss/HtmlSanitizer) library. They also recommend using
 [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to add further defense-in-depth restrictions to what you allow the resulting content to do.
@@ -231,5 +232,6 @@ The project uses the **Apache License**.
 - [Gábor Gergely](https://github.com/kodfodrasz)
 - [AndySchmitt](https://github.com/AndySchmitt)
 - [Andrew Lombard](https://github.com/alombard)
+- [LatisVlad](https://github.com/latisvlad))
 
 Thanks to all the people involved.

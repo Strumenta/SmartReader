@@ -78,7 +78,6 @@ namespace SmartReaderConsole
         static void AddFieldToMetadataJsonForTests(string field)
         {
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
-
             foreach(var p in pages)
             {                
                 String sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));                
@@ -104,7 +103,7 @@ namespace SmartReaderConsole
         }
 
         static void Main(string[] args)
-        {           
+        {
             RunRandomExample();
         }
     }

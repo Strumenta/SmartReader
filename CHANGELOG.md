@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.7.0
+- Added Readability update to fix missing Wikipedia content
+- Added Readability update to remove aria-hidden nodes
+- Applied remaining suggestion in [issue #6](https://github.com/Strumenta/SmartReader/issues/6)
+- Improved organization of code
+- Merged pull-request #12 for dealing with problems when retrieving content (Thanks to [LatisVlad](https://github.com/latisvlad))
+
 ## 0.6.3
 - Fixed [issue #11](https://github.com/Strumenta/SmartReader/issues/11)
 
