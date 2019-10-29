@@ -8,8 +8,8 @@
     <authors>Strumenta</authors>
     <owners>sviluppatore</owners>
     <license type="expression">Apache-2.0</license>
-    <projectUrl>https://github.com/strumenta/SmartReader</projectUrl>
-    <iconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</iconUrl>
+    <projectUrl>https://github.com/strumenta/SmartReader</projectUrl>    
+    <icon>logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>For all changes see: https://github.com/strumenta/SmartReader/blob/master/CHANGELOG.md</releaseNotes>
     <copyright>Strumenta 2017-2019</copyright>
@@ -21,4 +21,7 @@
       </group>
     </dependencies>
   </metadata>
+  <files>    
+    <file src="logo.png" target="" />
+  </files>
 </package>
