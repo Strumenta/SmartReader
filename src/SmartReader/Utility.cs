@@ -89,9 +89,11 @@ namespace SmartReader
 
         public static bool IsProbablyVisible(IElement node)
         {
+            // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
             return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none")
                 && !node.HasAttribute("hidden")
-                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true");         
+                // check for "fallback-image" so that wikimedia math images are displayed
+                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));                    
         }
 
         /**
