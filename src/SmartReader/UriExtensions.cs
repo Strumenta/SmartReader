@@ -30,7 +30,7 @@ namespace SmartReader
         {
             var scheme = pageUri.Scheme;
             var prePath = GetBase(pageUri);
-            var pathBase = GetPathBase(pageUri);
+            var pathBase = GetPathBase(pageUri);            
 
             // If this is already an absolute URI, return it.
             if (Uri.IsWellFormedUriString(uriToCheck, UriKind.Absolute))
@@ -39,7 +39,7 @@ namespace SmartReader
             // Ignore hash URIs
             if (uriToCheck[0] == '#')
                 return uriToCheck;
-
+            
             // Scheme-rooted relative URI.
             if (uriToCheck.Length >= 2 && uriToCheck.Substring(0, 2) == "//")
                 return scheme + "://" + uriToCheck.Substring(2);

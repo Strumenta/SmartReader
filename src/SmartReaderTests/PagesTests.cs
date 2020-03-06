@@ -114,10 +114,8 @@ namespace SmartReaderTests
             var expectedMetadata = JObject.Parse(expectedMetadataString); 
             
             Article found = Reader.ParseArticle("https://localhost/", sourceContent);
-
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
-
-            Article article = found;            
+            
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);       
 
             AssertProperties(expected, found);
         }        

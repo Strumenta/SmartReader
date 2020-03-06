@@ -71,12 +71,26 @@ namespace SmartReader
                 var href = (link as IElement).GetAttribute("href");
                 if (!String.IsNullOrWhiteSpace(href))
                 {
-                    // Replace links with javascript: URIs with text content, since
+                    // Remove links with javascript: URIs, since
                     // they won't work after scripts have been removed from the page.
                     if (href.IndexOf("javascript:") == 0)
                     {
-                        var text = doc.CreateTextNode(link.TextContent);
-                        link.Parent.ReplaceChild(text, link);
+                        // if the link only contains simple text content, it can be converted to a text node
+                        if (link.ChildNodes.Length == 1 && link.ChildNodes[0].NodeType == NodeType.Text)
+                        {
+                            var text = doc.CreateTextNode(link.TextContent);
+                            link.Parent.ReplaceChild(text, link);
+                        }
+                        else
+                        {
+                            // if the link has multiple children, they should all be preserved
+                            var container = doc.CreateElement("span");
+                            while (link.ChildNodes.Length > 0)
+                            {
+                                container.AppendChild(link.ChildNodes[0]);
+                            }
+                            link.Parent.ReplaceChild(container, link);
+                        }
                     }
                     else
                     {
