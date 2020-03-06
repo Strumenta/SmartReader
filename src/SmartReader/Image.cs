@@ -10,5 +10,13 @@ namespace SmartReader
         public long Size { get; set; } = 0;
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
+
+        public static string ConvertImageToDataUri(string path, byte[] bytes)
+        {
+            return "data:"
+                        + MimeMapping.MimeUtility.GetMimeMapping(path)
+                        + ";base64,"
+                        + Convert.ToBase64String(bytes);
+        }
     }
 }

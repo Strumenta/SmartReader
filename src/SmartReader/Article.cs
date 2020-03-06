@@ -138,7 +138,7 @@ namespace SmartReader
 
                         try
                         {
-                            imageUri = new Uri(this.Uri.ToAbsoluteURI(imageUri.ToString()));
+                            imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
                             size = await Reader.GetImageSizeAsync(imageUri);
                         }
                         catch (Exception e) { }
@@ -166,5 +166,56 @@ namespace SmartReader
 
             return images;
         }
+
+        /// <summary>
+        /// Convert images contained in the article to their data URI scheme representation
+        /// </summary>
+        /// <param name="minSize">The minium size in bytes to be considered a image. Smaller images are removed</param>        
+        /// <returns>
+        /// An empty Task object
+        /// </returns>  
+        public async Task ConvertImagesToDataUriAsync(long minSize = 75000)
+        {
+            var imgs = article != null ? article.QuerySelectorAll("img") : null;            
+
+            if (imgs != null)
+            {
+                foreach (var img in imgs)
+                {
+                    if (!String.IsNullOrEmpty(img.GetAttribute("src")))
+                    {
+                        long size = 0;
+
+                        Uri imageUri = new Uri(img.GetAttribute("src"));
+
+                        try
+                        {
+                            imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
+                            size = await Reader.GetImageSizeAsync(imageUri);
+                        }
+                        catch (Exception e) { }
+
+                        string description = img.GetAttribute("alt");
+                        string title = img.GetAttribute("title");
+
+                        if (size > minSize)
+                        {
+                            // download image
+                            byte[] bytes = Reader.GetImageBytesAsync(imageUri).GetAwaiter().GetResult();
+
+                            // convert it to data uri scheme and replace the original source
+                            img.SetAttribute("src", Image.ConvertImageToDataUri(imageUri.AbsolutePath, bytes));
+                        }
+                        else
+                        {
+                            img.Remove();
+                        }
+                    }
+                }
+
+                // we update the affected properties
+                Content = article.InnerHtml;
+            }
+        }        
     }
 }

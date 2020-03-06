@@ -73,6 +73,10 @@ namespace SmartReaderConsole
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
             Console.WriteLine($"Images Found: {images.Result?.Count()}");
+
+            article.ConvertImagesToDataUriAsync().Wait();
+
+            Console.WriteLine($"Article with Images Converted: {article.Content}");
         }
 
         static void AddFieldToMetadataJsonForTests(string field)

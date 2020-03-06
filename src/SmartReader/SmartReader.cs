@@ -1840,6 +1840,18 @@ namespace SmartReader
             return size;
         }
 
+        internal static async Task<Byte[]> GetImageBytesAsync(Uri resource)
+        {
+            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
+            }
+
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+        }
+
         /// <summary>Allow to replace the default regular expressions</summary>
         /// <param name="expression">A RegularExpression indicating the expression to change</param>
         /// <param name="newExpression">A string representing the new option</param> 
