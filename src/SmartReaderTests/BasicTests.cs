@@ -12,6 +12,9 @@ using Xunit.Abstractions;
 using System.Collections.Generic;
 using AngleSharp.Html.Parser;
 using AngleSharp.Html.Dom;
+using RichardSzalay.MockHttp;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace SmartReaderTests
 {   
@@ -20,7 +23,7 @@ namespace SmartReaderTests
         private readonly ITestOutputHelper _output;
         public BasicTests(ITestOutputHelper output)
         {
-            _output = output;
+            _output = output;            
         }
 
         [Fact]
@@ -277,6 +280,46 @@ namespace SmartReaderTests
                </html>");
 
             Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21"), "").PublicationDate);
+        }
+
+        [Fact]
+        public void TestConvertImagesAsDataURI()
+        {
+            // creating element
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>
+                    <p>This is a paragraph with an image <img src=""https://localhost/small_image.png"" alt=""Nothing valuable""></img>.</p>
+                    <p>This is a paragraph with an image <img src=""https://localhost/big_image.jpg"" alt=""Something very valuable""></img>.</p>
+               </body>
+               </html>");
+
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+
+            mockHttp.When("https://localhost/small_image.png")
+                    .Respond("image/png", File.OpenRead(@"..\..\..\test-images\small_image.png"));
+
+            mockHttp.When("https://localhost/big_image.jpg")
+                    .Respond("image/jpeg", File.OpenRead(@"..\..\..\test-images\big_image.jpg"));
+
+            Reader.SetCustomHttpClient(mockHttp.ToHttpClient());
+
+            Article article = new Article(new Uri("https://localhost/article"),
+                                            "Great article", "by Ulysses", "", "en", "Nobody",
+                                            doc.Body, new Metadata(), true);
+            
+            article.ConvertImagesToDataUriAsync().Wait();
+
+            // check that there is one image
+            Assert.Equal(1, Regex.Matches(article.Content, "<img").Count);
+            int start = article.Content.IndexOf("src=") + 4;
+            int end = article.Content.IndexOf("\"", start + 1);
+            // check that the src attribute is of the expected length
+            Assert.Equal(572400, end - start);
         }
     }
 }

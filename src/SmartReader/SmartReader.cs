@@ -37,7 +37,7 @@ namespace SmartReader
 		*         
 		*/
 
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static HttpClient httpClient = new HttpClient();
         private Uri uri;
         private IHtmlDocument doc = null;
         private string articleTitle;
@@ -146,6 +146,13 @@ namespace SmartReader
 
         private List<Action<IElement>> CustomOperationsEnd = new List<Action<IElement>>();
 
+        private Reader()
+        {
+            // setting the default user agent
+            if (httpClient.DefaultRequestHeaders.UserAgent.Count == 0)                       
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
+        }
+
         /// <summary>
         /// Reads content from the given URI.
         /// </summary>
@@ -153,16 +160,13 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri)
+        public Reader(string uri) : this()
         {
             this.uri = new Uri(uri);
             
             articleTitle = "";
             articleByline = "";
-            articleDir = "";
-
-            // setting the default user agent
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");            
+            articleDir = "";                   
         }
 
         /// <summary>
@@ -173,7 +177,7 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri, string text)
+        public Reader(string uri, string text) : this()
         {
             this.uri = new Uri(uri);
                         
@@ -184,9 +188,6 @@ namespace SmartReader
             articleTitle = "";
             articleByline = "";
             articleDir = "";
-
-            // setting the default user agent
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
         }
 
         /// <summary>
@@ -197,7 +198,7 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri, Stream source)
+        public Reader(string uri, Stream source) : this()
         {
             this.uri = new Uri(uri);
             
@@ -208,9 +209,6 @@ namespace SmartReader
             articleTitle = "";
             articleByline = "";
             articleDir = "";
-
-            // setting the default user agent
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
         }
 
         /// <summary>
@@ -1833,7 +1831,7 @@ namespace SmartReader
 
             if (response.IsSuccessStatusCode)
             {               
-                if(response.Content.Headers.ContentLength != null)                
+                if(response.Content.Headers.ContentLength != null)
                     size = response.Content.Headers.ContentLength.Value;
             }
 
@@ -1930,6 +1928,13 @@ namespace SmartReader
         {
             httpClient.DefaultRequestHeaders.UserAgent.Clear();
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+        }
+
+        /// <summary>Allow to set a custom HttpClient</summary>
+        /// <param name="client">The new HttpClient for all web requests made by this library</param>
+        public static void SetCustomHttpClient(HttpClient client)
+        {
+            httpClient = client;
         }
     }
 }

@@ -184,32 +184,24 @@ namespace SmartReader
                 {
                     if (!String.IsNullOrEmpty(img.GetAttribute("src")))
                     {
-                        long size = 0;
-
                         Uri imageUri = new Uri(img.GetAttribute("src"));
 
                         try
                         {
-                            imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
-                            size = await Reader.GetImageSizeAsync(imageUri);
-                        }
-                        catch (Exception e) { }
-
-                        string description = img.GetAttribute("alt");
-                        string title = img.GetAttribute("title");
-
-                        if (size > minSize)
-                        {
                             // download image
-                            byte[] bytes = Reader.GetImageBytesAsync(imageUri).GetAwaiter().GetResult();
+                            byte[] bytes = await Reader.GetImageBytesAsync(imageUri);
 
-                            // convert it to data uri scheme and replace the original source
-                            img.SetAttribute("src", Image.ConvertImageToDataUri(imageUri.AbsolutePath, bytes));
+                            if (bytes.LongLength > minSize)
+                            {
+                                // convert it to data uri scheme and replace the original source
+                                img.SetAttribute("src", Image.ConvertImageToDataUri(imageUri.AbsolutePath, bytes));
+                            }
+                            else
+                            {
+                                img.Remove();
+                            }                            
                         }
-                        else
-                        {
-                            img.Remove();
-                        }
+                        catch (Exception e) { }                                                
                     }
                 }
 
