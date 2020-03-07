@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Net.Http;
 using System.Text;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace SmartReader
 {
@@ -39,7 +41,7 @@ namespace SmartReader
             Byline = String.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
             Dir = dir;
             Content = article.InnerHtml;
-            TextContent = article.TextContent;
+            TextContent = ConvertToPlaintext(article);
             Excerpt = metadata.Excerpt;
             Length = article.TextContent.Length;
             Language = String.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
@@ -208,6 +210,89 @@ namespace SmartReader
                 // we update the affected properties
                 Content = article.InnerHtml;
             }
-        }        
+        }
+
+        /// <summary>
+        /// Convert the article content from HTML to Text
+        /// </summary>      
+        /// <returns>
+        /// A string representing the text
+        /// </returns>  
+        private static string ConvertToPlaintext(IElement doc)
+        {
+            StringWriter writer = new StringWriter();
+
+            String text = ConvertToText(doc, writer);
+
+            bool previousSpace = false;            
+            bool previousNewline = false;
+            int index = 0;
+
+            // fix whitespace 
+            // replace tabs with one space
+            text = Regex.Replace(text, "\t+", " ");
+
+            // replace multiple newlines with max two
+            text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
+
+            StringBuilder stringBuilder = new StringBuilder(text);
+
+            while (index < stringBuilder.Length)
+            {
+                // carriage return and line feed are not separator characters
+                bool isSpace = Char.IsSeparator(stringBuilder[index]);              
+                bool isNewline = stringBuilder[index] == '\r' || stringBuilder[index] == '\n';
+
+                // we remove a space before a newline
+                if (previousSpace && isNewline)
+                    stringBuilder.Remove(index - 1, 1);
+                // we remove a space after a newline
+                else if (previousNewline && isSpace)
+                    stringBuilder.Remove(index, 1);
+                // we remove series of spaces
+                else if (previousSpace && isSpace)
+                    stringBuilder.Remove(index, 1);
+                else
+                    index++;
+
+                previousSpace = isSpace;
+                previousNewline = isNewline;                
+            }
+
+            // we trim all whitespace
+            text = stringBuilder.ToString().Trim();
+
+            // replace multiple newlines with max two
+            text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
+
+            return text;
+        }
+
+        private static string ConvertToText(IElement doc, StringWriter text)
+        {
+            if (doc.NodeType == NodeType.Element && doc.NodeName == "P")
+                text.Write(text.NewLine);
+            else if (doc.NodeType == NodeType.Element && doc.NodeName == "BR")
+                text.Write(text.NewLine);
+            
+            if (doc.HasChildNodes)
+            {
+                foreach (INode el in doc.ChildNodes)
+                {
+                    // if the element has other elements we look inside of them
+                    if (el.NodeType == NodeType.Element
+                        || el.NodeType == NodeType.EntityReference)
+                        ConvertToText(el as IElement, text);
+                    // if the element has children text nodes we extract the text
+                    if (el.NodeType == NodeType.Text)
+                        text.Write(el.TextContent);
+                }
+            }
+
+            if (doc.NodeType == NodeType.Element && doc.NodeName == "P")
+                text.Write(text.NewLine);
+
+            return text.ToString();
+        }
     }
 }

@@ -1142,7 +1142,6 @@ namespace SmartReader
                         {
                             // We have a node that isn't a common block level element, like a form or td tag.
                             // Turn it into a div so it doesn't get filtered out later by accident.
-                            //this.log("Altering sibling:", sibling, 'to div.');
 
                             sibling = NodeUtility.SetNodeTag(sibling, "DIV");
                         }

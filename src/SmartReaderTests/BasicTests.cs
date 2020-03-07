@@ -321,6 +321,30 @@ namespace SmartReaderTests
             // check that the src attribute is of the expected length
             Assert.Equal(572400, end - start);
         }
+
+        [Fact]
+        public void TestPlaintextConversion()
+        {
+            // creating element
+            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
+            IHtmlDocument doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p> </p>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>
+                    <p>This is 			a paragraph with different<br> other text.</p>
+               </html>");
+
+            Article article = new Article(new Uri("https://localhost/article"),
+                                            "Great article", "by Ulysses", "", "en", "Nobody",
+                                            doc.Body, new Metadata(), true);
+           
+            // check that the text returned is correct
+            Assert.Equal("This is a paragraph with some text.\r\n" +
+                         "\r\nThis is a paragraph with some other text and lots of whitespace .\r\n" +
+                         "\r\nThis is a paragraph with different\r\nother text.", article.TextContent);           
+        }
     }
 }
 
