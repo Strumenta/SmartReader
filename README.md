@@ -12,7 +12,7 @@ PM> Install-Package SmartReader
 
 ## Why you May Want to Use it
 
- There are already other similar good projects, but they don't support .NET Core and they are based on old version of Readability. The original library is already quite stable, but there are always improvement to be made. So by relying on a original library maintained by such a competent organization we can piggyback on their hard work and user base.
+ There are already other similar good projects, but they don't support .NET Stamdard and they are based on old versions of Readability. The original library is already quite stable, but there are always improvement to be made. So by relying on a original library maintained by a large organization like Mozilla we can piggyback on their hard work and user base.
 
  There are also some improvements: it returns an author and publication date, the language of the article, the featured image, a list of images and an indication of the time needed to read it.
 
@@ -23,7 +23,7 @@ PM> Install-Package SmartReader
 There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
 The advantage of using an object, instead of the static method, is that it gives you the chance to set some options.
 
-There is also the option to parse directly a String or Stream that you have obtained by some other way. This is available either with `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it need the URI to make some checks and modifications on the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
+There is also the option to parse directly a String or Stream that you have obtained by some other way. This is available either with `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
 
 If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
 
@@ -31,8 +31,10 @@ The content of the article is unstyled, but it is wrapped in a `div` with the id
 
 The library tries to detect the correct encoding of the text, if the correct tags are present in the text.
 
-On the `Article` object you can call `GetImagesAsync` to obtain a Task for a list of `Image` objects, representing the images found in the extracted article. The method is async because it makes HEAD Requests, to obtain the size of the images and only returns the ones that are bigger then the specified size. The size by default is 75KB.
-This is to exclude things such as images used in the UI.
+On the `Article` object you can call `GetImagesAsync` to obtain a Task for a list of `Image` objects, representing the images found in the extracted article. The method is async because it makes HEAD Requests, to obtain the size of the images and only returns the ones that are bigger than the specified size. The size by default is 75KB.
+This is done to exclude things such as images used in the UI.
+
+On the `Article` object you can also call `ConvertImagesToDataUriAsync` to inline the images found in the article using the [data URI scheme](https://en.wikipedia.org/wiki/Data_URI_scheme). The method is async. This will insert the images into the `Content` property of the `Article`. This may significantly increase the size of `Content`. This data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI. Notice that this method will not store elements such as embedded videos, so they will still be requested over the network, if present.
 
 ### Options
 
@@ -90,13 +92,13 @@ reader.AddCustomOperationStart(RemoveElement);
 reader.AddCustomOperationEnd(AddInfo);
 ```
 
-As you can see the custom operation operate on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
+As you can see the custom operation works on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
 
 #### Preserve CSS Classes
 
 Normally the library strips all classes of the elements except for `page`. This is done because classes are used to govern the display of the article, but they are irrelevant to the content itself. However, there is an option to preserve other classes. This is mostly useful if you want to perform custom operations on certain elements and you need CSS classes to identify them.
 
-You can preserve classes using the property `ClassesToPreserve` which is an array of class names that will be preserved. Note that this has no effect if an element that contains the class is eliminated from the extracted article. This means that the option **does not maintain the element in any case**, it just maintains the class if the element is kept in the extracted article.
+You can preserve classes using the property `ClassesToPreserve` which is an array of class names that will be preserved. Note that this has no effect if an element that contains the class is eliminated from the extracted article. This means that the option **does not maintain the element itself**, it just maintains the class if the element is kept in the extracted article.
 
 ```
 Reader reader = // ..
@@ -107,9 +109,9 @@ reader.ClassesToPreserve = new string[] { "info" };
 
 The class `page` is always kept, no matter the value you assign to this option.
 
-#### Set Custom User Agent
+#### Set Custom User Agent and Custom HttpClient
 
-By default all web requests made by the library use the User Agent *SmartReader Library*. This can be changed by using the function `SetCustomUserAgent`.
+By default all web requests made by the library use the User Agent *SmartReader Library*. This can be changed by using the function `SetCustomUserAgent(string)`.
 
 ```
 Reader.SetCustomUserAgent("SuperAwesome App - for any issue contact admin@example.com");
@@ -117,12 +119,22 @@ Reader.SetCustomUserAgent("SuperAwesome App - for any issue contact admin@exampl
 
 This function will change the user agent for **all subsequent web requests** with any object of the class.
 
+If you need to use a custom HttpClient, you can replace the default one, with the function `SetCustomHttpClient(HttpClient)`.
+
+```
+HttpClient superC = new HttpClient();
+// ..
+Reader.SetCustomHttpClient(superC);
+```
+
+Notice that, if the custom HttpClient does not set a custom User Agent, *SmartReader Library* will be used.
+
 ## Examples
 
 Using the `GetArticle` method.
 
 ```csharp
-SmartReader.Reader sr = new SmartReader.Reader("https://arstechnica.co.uk/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
+SmartReader.Reader sr = new SmartReader.Reader("https://arstechnica.com/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
 
 sr.Debug = true;
 sr.LoggerDelegate = Console.WriteLine;
@@ -140,7 +152,7 @@ Using the `ParseArticle` static method.
 
 ```csharp
 
-SmartReader.Article article = SmartReader.Reader.ParseArticle("https://arstechnica.co.uk/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
+SmartReader.Article article = SmartReader.Reader.ParseArticle("https://arstechnica.com/information-technology/2017/02/humans-must-become-cyborgs-to-survive-says-elon-musk/");
 
 if(article.IsReadable)
 {
@@ -166,7 +178,7 @@ if(article.IsReadable)
 - `String` **Dir**<br>Direction of the text
 - `String` **FeaturedImage**<br>The main image of the article
 - `String` **Content**<br>Html content of the article
-- `String` **TextContent**<br>The pure text of the article
+- `String` **TextContent**<br>The plain text of the article with basic formatting
 - `String` **Excerpt**<br>A summary of the article, based on metadata or first paragraph
 - `String` **Language**<br>Language string (es. 'en-US')
 - `String` **Author**<br>Author of the article
@@ -181,6 +193,8 @@ It's important to be aware that the fields **Byline**, **Author** and **Publicat
 The **TimeToRead** calculation is based on the research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages in the research, but it is just an educated guess for the others languages.
 
 The **FeaturedImage** property holds the image indicated by the Open Graph or Twitter meta tags. If neither of these is present, and you called the `GetImagesAsync` method, it will be set with the first image found. 
+
+The **TextContent** property is based on the pure text content of the HTML (i.e., the concatenations of [text nodes](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType). Then we apply some basic formatting, like removing double spaces or the newlines left by the formatting of the HTML code. We also add meaningful newlines for P and BR nodes.
 
 ## Demo & Console Projects
 
@@ -232,6 +246,6 @@ The project uses the **Apache License**.
 - [Gábor Gergely](https://github.com/kodfodrasz)
 - [AndySchmitt](https://github.com/AndySchmitt)
 - [Andrew Lombard](https://github.com/alombard)
-- [LatisVlad](https://github.com/latisvlad))
+- [LatisVlad](https://github.com/latisvlad)
 
 Thanks to all the people involved.
