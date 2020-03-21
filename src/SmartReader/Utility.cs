@@ -15,14 +15,7 @@ namespace SmartReader
 {
     internal static class NodeUtility
     {
-        /**
-        * Iterates over a NodeList, and calls _setNodeTag for each node.
-        *
-        * @param NodeList nodeList The nodes to operate on
-        * @param String newTagName the new tag name to use
-        * @return void
-        */
-
+                  
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         private static Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {       
@@ -52,7 +45,7 @@ namespace SmartReader
             "SUP", "TEXTAREA", "TIME", "VAR", "WBR"
         };
 
-        public static void ReplaceNodeTags(IHtmlCollection<IElement> nodeList, string newTagName)
+        internal static void ReplaceNodeTags(IHtmlCollection<IElement> nodeList, string newTagName)
         {
             for (var i = nodeList.Count() - 1; i >= 0; i--)
             {
@@ -61,7 +54,12 @@ namespace SmartReader
             }
         }
 
-        public static IElement SetNodeTag(IElement node, string tag)
+        /// <summary>
+        /// Replaces the node with a new tag
+        /// </summary>
+        /// <param name="node">The node to operate on</param>
+        /// <param name="tag">The new tag name to use</param>
+        internal static IElement SetNodeTag(IElement node, string tag)
         {
             var replacement = node.Owner.CreateElement(tag);
             while (node.FirstChild != null)
@@ -79,7 +77,7 @@ namespace SmartReader
             return replacement;
         }
 
-        public static bool IsVisible(IElement element)
+        internal static bool IsVisible(IElement element)
         {
             if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() == "none")
                 return false;
@@ -87,26 +85,24 @@ namespace SmartReader
                 return true;
         }
 
-        public static bool IsProbablyVisible(IElement node)
+        internal static bool IsProbablyVisible(IElement node)
         {
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
             return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none")
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
-                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));                    
+                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
         }
-
-        /**
-		 * Iterates over a NodeList, calls `filterFn` for each node and removes node
-		 * if function returned `true`.
-		 *
-		 * If function is not passed, removes all the nodes in node list.
-		 *
-		 * @param NodeList nodeList The nodes to operate on
-		 * @param Function filterFn the function to use as a filter
-		 * @return void
-		 */
-        public static void RemoveNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
+    
+        /// <summary>
+        /// <para>Iterates over a NodeList, calls <c>filterFn</c> for each node and removes node
+		/// if function returned<c>true</c>.</para>
+		/// 
+		/// <para>If function is not passed, removes all the nodes in node list.</para>
+        /// </summary>
+        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="filterFn">The filter that dictates which nodes to remove</param>
+        internal static void RemoveNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
         {
             for (var i = nodeList.Count() - 1; i >= 0; i--)
             {
@@ -122,18 +118,16 @@ namespace SmartReader
             }
         }
 
-        /**
-		* Iterate over a NodeList, which doesn't natively fully implement the Array
-		* interface.
-		*
-		* For convenience, the current object context is applied to the provided
-		* iterate function.
-		*
-		* @param  NodeList nodeList The NodeList.
-		* @param  Function fn       The iterate function.
-		* @return void
-		*/
-        public static void ForEachNode(IEnumerable<INode> nodeList, Action<INode> fn)
+        /// <summary>
+        /// <para>Iterate over a NodeList, which doesn't natively fully implement the Array
+		/// interface.</para>		
+		/// <para>For convenience, the current object context is applied to the provided
+		/// iterate function.</para>
+        /// </summary>
+        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="fn">The iterate function</param>
+        /// <return>void</return>
+        internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode> fn)
         {
             if (nodeList != null)
             {
@@ -144,24 +138,22 @@ namespace SmartReader
             }
         }
 
-        public static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
+        internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
         {
             foreach (var node in nodeList)
                 fn(node, level++);
-        }
+        }       
 
-        /**
-		 * Iterate over a NodeList, return true if any of the provided iterate
-		 * function calls returns true, false otherwise.
-		 *
-		 * For convenience, the current object context is applied to the
-		 * provided iterate function.
-		 *
-		 * @param  NodeList nodeList The NodeList.
-		 * @param  Function fn       The iterate function.
-		 * @return Boolean
-		 */
-        public static bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
+        /// <summary>
+        /// <para>Iterate over a list of IElement, return true if any of the provided iterate
+        /// function calls returns true, false otherwise.</para>		
+        /// <para>For convenience, the current object context is applied to the
+        /// provided iterate function.</para>
+        /// </summary>
+        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="fn">The iterate function</param>
+        /// <returns>bool</returns>
+        internal static bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
         {
             if (nodeList != null)
                 return nodeList.Any(fn);
@@ -169,7 +161,16 @@ namespace SmartReader
             return false;
         }
 
-        public static bool SomeNode(INodeList nodeList, Func<INode, bool> fn)
+        /// <summary>
+        /// <para>Iterate over a NodeList, return true if any of the provided iterate
+        /// function calls returns true, false otherwise.</para>		
+        /// <para>For convenience, the current object context is applied to the
+        /// provided iterate function.</para>
+        /// </summary>
+        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="fn">The iterate function</param>
+        /// <returns>bool</returns>
+        internal static bool SomeNode(INodeList nodeList, Func<INode, bool> fn)
         {
             if (nodeList != null)
                 return nodeList.Any(fn);
@@ -177,18 +178,16 @@ namespace SmartReader
             return false;
         }
 
-        /**
-        * Iterate over a NodeList, return true if all of the provided iterate
-        * function calls return true, false otherwise.
-        *
-        * For convenience, the current object context is applied to the
-        * provided iterate function.
-        *
-        * @param  NodeList nodeList The NodeList.
-        * @param  Function fn       The iterate function.
-        * @return Boolean
-        */
-        public static bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
+        /// <summary>
+        /// <para>Iterate over a NodeList, return true if all of the provided iterate
+        ///function calls return true, false otherwise.</para>		
+        /// <para>For convenience, the current object context is applied to the
+        /// provided iterate function.</para>
+        /// </summary>
+        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="fn">The iterate function</param>
+        /// <returns>bool</returns>
+        internal static bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
         {
             if (nodeList != null)
                 return nodeList.All(fn);
@@ -196,13 +195,12 @@ namespace SmartReader
             return false;
         }
 
-        /**
-		 * Concat all nodelists passed as arguments.
-		 *
-		 * @return ...NodeList
-		 * @return Array
-		 */
-        public static IEnumerable<IElement> ConcatNodeLists(params IEnumerable<IElement>[] arguments)
+        /// <summary>        
+        /// Concat all nodelists passed as arguments.
+        /// </summary>
+        /// <param name="arguments">The nodes to operate on</param>        
+        /// <returns>List of concatenated elements</returns>
+        internal static IEnumerable<IElement> ConcatNodeLists(params IEnumerable<IElement>[] arguments)
         {
             List<IElement> result = new List<IElement>();
 
@@ -214,17 +212,16 @@ namespace SmartReader
             return result;
         }
 
-        public static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
+        internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
         {
             return node.QuerySelectorAll(String.Join(",", tagNames));
         }
 
-        /**
-		 * Removes script tags from the document.
-		 *
-		 * @param Element
-		**/
-        public static void RemoveScripts(IElement element)
+        /// <summary>
+        /// Removes script tags from the element
+        /// </summary>
+        /// <param name="element">The element to operate on</param>
+        internal static void RemoveScripts(IElement element)
         {
             NodeUtility.RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
             {
@@ -235,15 +232,15 @@ namespace SmartReader
             NodeUtility.RemoveNodes(element.GetElementsByTagName("noscript"));
         }
 
-        /**
-		 * Check if this node has only whitespace and a single element with given tag
-		 * Returns false if the DIV node contains non-empty text nodes
-		 * or if it contains no element with given tag or more than 1 element.
-		 *
-		 * @param Element
-         * @param string tag of child element
-		**/
-        public static bool HasSingleTagInsideElement(IElement element, string tag)
+        /// <summary>
+        /// Check if this node has only whitespace and a single element with given tag
+	    /// Returns false if the DIV node contains non-empty text nodes
+        /// or if it contains no element with given tag or more than 1 element.
+        /// </summary>
+        /// <param name="element">Element to operate on</param>
+        /// <param name="tag">Tag of the child element</param>
+        /// <returns>bool</returns>
+        internal static bool HasSingleTagInsideElement(IElement element, string tag)
         {
             // There should be exactly 1 element child with given tag:
             if (element.Children.Length != 1 || element.Children[0].TagName != tag)
@@ -259,7 +256,7 @@ namespace SmartReader
             });
         }
 
-        public static bool IsElementWithoutContent(IElement node)
+        internal static bool IsElementWithoutContent(IElement node)
         {
             return node.NodeType == NodeType.Element &&
                        node.TextContent.Trim().Length == 0 &&
@@ -267,12 +264,12 @@ namespace SmartReader
                         node.Children.Length == node.GetElementsByTagName("br").Length + node.GetElementsByTagName("hr").Length);
         }
 
-        /**
-		 * Determine whether element has any children block level elements.
-		 *
-		 * @param Element
-		 */
-        public static bool HasChildBlockElement(IElement element)
+        /// <summary>
+        /// Determine whether element has any children block level elements.
+        /// </summary>
+        /// <param name="element">Element to operate on</param>
+        /// <returns>bool</returns>
+        internal static bool HasChildBlockElement(IElement element)
         {
             var b = NodeUtility.SomeNode(element?.ChildNodes, (node) =>
             {
@@ -284,32 +281,32 @@ namespace SmartReader
             return b;
         }
 
-        /***
-        * Determine if a node qualifies as phrasing content.
-        * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content
-        **/
-        public static bool IsPhrasingContent(INode node)
+        /// <summary>
+        /// Determine if a node qualifies as phrasing content, which is defined at https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#Phrasing_content
+        /// </summary>
+        /// <param name="node">Node to operate on</param>
+        /// <returns>bool</returns>
+        internal static bool IsPhrasingContent(INode node)
         {
             return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
               ((node.NodeName == "A" || node.NodeName == "DEL" || node.NodeName == "INS") &&
                 NodeUtility.EveryNode(node.ChildNodes, IsPhrasingContent));
         }
 
-        public static bool IsWhitespace(INode node)
+        internal static bool IsWhitespace(INode node)
         {
             return (node.NodeType == NodeType.Text && node.TextContent.Trim().Length == 0) ||
                    (node.NodeType == NodeType.Element && node.NodeName == "BR");
         }
 
-        /**
-		 * Get the inner text of a node - cross browser compatibly.
-		 * This also strips out any excess whitespace to be found.
-		 *
-		 * @param Element
-		 * @param Boolean normalizeSpaces (default: true)
-		 * @return string
-		**/
-        public static string GetInnerText(IElement e, bool normalizeSpaces = true)
+        /// <summary>
+        /// <para>Get the inner text of a node - cross browser compatibly.</para>
+        /// <para>This also strips out any excess whitespace to be found.</para>
+        /// </summary>
+        /// <param name="e">Element to operate on</param>
+        /// <param name="normalizeSpaces">Bool to set whether to normalize whitespace</param>
+        /// <returns>String with the text of the node</returns>
+        internal static string GetInnerText(IElement e, bool normalizeSpaces = true)
         {
             var textContent = e.TextContent.Trim();
 
@@ -320,26 +317,23 @@ namespace SmartReader
             return textContent;
         }
 
-        /**
-		 * Get the number of times a string s appears in the node e.
-		 *
-		 * @param Element
-		 * @param string - what to split on. Default is ","
-		 * @return number (integer)
-		**/
-        public static int GetCharCount(IElement e, String s = ",")
+        /// <summary>
+        /// Get the number of times a string s appears in the node e.
+        /// </summary>
+        /// <param name="e">Element to operate on</param>
+        /// <param name="s">The string to check</param>
+        /// <returns>int</returns>
+        internal static int GetCharCount(IElement e, String s = ",")
         {
             return GetInnerText(e).Split(s.ToCharArray()).Length - 1;
         }
 
-        /**
-		 * Remove the style attribute on every e and under.
-		 * TODO: Test if getElementsByTagName(*) is faster.
-		 *
-		 * @param Element
-		 * @return void
-		**/
-        public static void CleanStyles(IElement e = null)
+        /// <summary>
+        /// <para>Remove the style attribute on every e and under.</para>
+        /// <para>TODO: Test if getElementsByTagName(*) is faster.</para>
+        /// </summary>
+        /// <param name="e">Element to operate on</param>
+        internal static void CleanStyles(IElement e = null)
         {            
             if (e == null || e.TagName.ToLower() == "svg")
                 return;
@@ -365,14 +359,12 @@ namespace SmartReader
             }
         }
 
-        /**
-         * Get the density of links as a percentage of the content
-         * This is the amount of text that is inside a link divided by the totaltextinthenode.
-         *
-         * @param Element
-         * @return number (float)
-        **/
-        public static float GetLinkDensity(IElement element)
+        /// <summary>
+        /// <para>Get the density of links as a percentage of the content.</para>
+        /// <para>This is the amount of text that is inside a link divided by the totaltextinthenode.</para>
+        /// </summary>
+        /// <param name="element">Element to operate on</param>        
+        internal static float GetLinkDensity(IElement element)
         {
             var textLength = NodeUtility.GetInnerText(element).Length;
             if (textLength == 0)
@@ -389,21 +381,23 @@ namespace SmartReader
             return linkLength / textLength;
         }
 
-        public static INode RemoveAndGetNext(INode node)
+        internal static INode RemoveAndGetNext(INode node)
         {
             var nextNode = GetNextNode(node as IElement, true);
             node.Parent.RemoveChild(node);
             return nextNode;
         }
 
-        /**
-		 * Traverse the DOM from node to node, starting at the node passed in.
-		 * Pass true for the second parameter to indicate this node itself
-		 * (and its kids) are going away, and we want the next node over.
-		 *
-		 * Calling this in a loop will traverse the DOM depth-first.
-		 */
-        public static IElement GetNextNode(IElement node, bool ignoreSelfAndKids = false)
+        /// <summary>
+        /// <para>Traverse the DOM from node to node, starting at the node passed in.</para>
+        /// <para>Pass true for the second parameter to indicate this node itself
+		/// (and its kids) are going away, and we want the next node over.</para>
+        /// <para>Calling this in a loop will traverse the DOM depth-first.</para>
+        /// </summary>
+        /// <param name="node">Node to operate on</param>  
+        /// <param name="ignoreSelfAndKids">Whether to ignore this node and his kids</param>  
+        /// <returns>The next node</returns>
+        internal static IElement GetNextNode(IElement node, bool ignoreSelfAndKids = false)
         {
             // First check for kids if those aren't being ignored
             if (!ignoreSelfAndKids && node.FirstElementChild != null)
@@ -426,15 +420,12 @@ namespace SmartReader
             return node?.NextElementSibling;
         }
 
-        /**
-		 * Clean out elements that match the specified conditions
-         * 
-		 *
-		 * @param Element
-		 * @param RegExp match id/class combination.
-		 * @return void
-		 **/
-        public static void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter = null)
+        /// <summary>
+        /// Clean out elements that match the specified conditions
+        /// </summary>
+        /// <param name="e">Element to operate on</param>  
+        /// <param name="filter">Filter function on match id/class combination</param> 
+        internal static void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter = null)
         {
             var endOfSearchMarkerNode = NodeUtility.GetNextNode(e, true);
             var next = NodeUtility.GetNextNode(e);
@@ -451,15 +442,17 @@ namespace SmartReader
             }
         }
 
-        public static bool IsDataTable(IElement node)
+        internal static bool IsDataTable(IElement node)
         {
             return !String.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
         }
 
-        /**
-		* Return an object indicating how many rows and columns this table has.
-		*/
-        public static Tuple<int, int> GetRowAndColumnCount(IElement table)
+        /// <summary>
+        /// Return an object indicating how many rows and columns this table has.
+        /// </summary>
+        /// <param name="table">The table element</param>
+        /// <returns>A tuple with the numbers of rows and columns</returns>
+        internal static Tuple<int, int> GetRowAndColumnCount(IElement table)
         {
             var rows = 0;
             var columns = 0;
@@ -491,7 +484,7 @@ namespace SmartReader
             return Tuple.Create(rows, columns);
         }
 
-        public static IEnumerable<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
+        internal static IEnumerable<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
         {
             var i = 0;
             List<IElement> ancestors = new List<IElement>();
@@ -505,7 +498,7 @@ namespace SmartReader
             return ancestors;
         }
 
-        public static IEnumerable<INode> GetNodeAncestors(INode node, int maxDepth = 0)
+        internal static IEnumerable<INode> GetNodeAncestors(INode node, int maxDepth = 0)
         {
             var i = 0;
             List<INode> ancestors = new List<INode>();
@@ -517,6 +510,23 @@ namespace SmartReader
                 node = node.Parent;
             }
             return ancestors;
+        }
+
+        /// <summary>
+        /// Finds the next element, starting from the given node, and ignoring
+        /// whitespace in between. If the given node is an element, the same node is
+        /// returned.
+        /// </summary>  
+        internal static IElement NextElement(INode node, Regex whitespace)
+        {
+            var next = node;
+            while (next != null
+                && (next.NodeType != NodeType.Element)
+                && whitespace.IsMatch(next.TextContent))
+            {
+                next = next.NextSibling;
+            }
+            return next as IElement;
         }
     }    
 }

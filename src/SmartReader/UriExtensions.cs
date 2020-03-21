@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SmartReader
 {
-    public static class UriExtensions
+   internal static class UriExtensions
     {
-        public static string GetBase(this Uri startUri)
+        internal static string GetBase(this Uri startUri)
         {
             StringBuilder sb = new StringBuilder(startUri.Scheme + "://");
 
@@ -21,12 +21,12 @@ namespace SmartReader
             return sb.ToString();
         }
 
-        public static string GetPathBase(this Uri startUri)
+        internal static string GetPathBase(this Uri startUri)
         {
             return GetBase(startUri) + startUri.AbsolutePath.Substring(0, startUri.AbsolutePath.LastIndexOf("/") + 1);
         }
 
-        public static string ToAbsoluteURI(this Uri pageUri, string uriToCheck)
+        internal static string ToAbsoluteURI(this Uri pageUri, string uriToCheck)
         {
             var scheme = pageUri.Scheme;
             var prePath = GetBase(pageUri);

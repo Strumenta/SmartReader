@@ -14,27 +14,46 @@ namespace SmartReader
     /// <summary>
     /// Parsed article
     /// </summary>
+    /// <remarks>
+    /// You should check the property <c>IsReadable</c> to know whether an article was actually found
+    /// </remarks>
     public class Article
     {
+        /// <value>The original URI of the source</value>
         public Uri Uri { get; private set; }
+        /// <value>The clean title</value>
         public String Title { get; private set; }
+        /// <value>The parsed byline</value>
         public String Byline { get; private set; }
+        /// <value>The direction of the writing</value>
         public String Dir { get; private set; }
+        /// <value>The main image</value>
         public String FeaturedImage { get; private set; }
+        /// <value>The HTML content</value>
         public String Content { get; private set; }
+        /// <value>The pure-text content cleaned to be readable</value>
         public String TextContent { get; private set; }
+        /// <value>The excerpt provided by the metadata</value>
         public String Excerpt { get; private set; }
+        /// <value>The language provided by the metadata</value>
         public String Language { get; private set; }
+        /// <value>The author, which can be parsed or read in the metadata</value>
         public String Author { get; private set; }
+        /// <value>The name of the website, which can be parsed or read in the metadata </value>
         public String SiteName { get; private set; }
+        /// <value>The length in bytes of <c>Content</c></value>
         public int Length { get; private set; }
+        /// <value>The average time to read</value>
+        /// <remarks>It is based on http://iovs.arvojournals.org/article.aspx?articleid=2166061</remarks>
         public TimeSpan TimeToRead { get; private set; }
+        /// <value>The publication date, which can be parsed or read in the metadata</value>
         public DateTime? PublicationDate { get; private set; }
+        /// <value>It indicates whether an article was actually found</value>
         public bool IsReadable { get; private set; }        
 
         private IElement article = null;
 
-        public Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable)
+        internal Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable)
         {
             Uri = uri;
             Title = title;
@@ -97,7 +116,10 @@ namespace SmartReader
             return weight;
         }
 
-        public Article(Uri uri, string title, bool readable)
+        /// <summary>
+        /// The constructor used when we fail to find an actual article
+        /// </summary>
+        internal Article(Uri uri, string title, bool readable)
         {
             IsReadable = readable;
             Uri = uri;
@@ -213,7 +235,7 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// Convert the article content from HTML to Text
+        /// Convert the article content from HTML to Text cleaning the results
         /// </summary>      
         /// <returns>
         /// A string representing the text
@@ -268,6 +290,9 @@ namespace SmartReader
             return text;
         }
 
+        /// <summary>
+        /// The main function that converts HTML markup to text
+        /// </summary>
         private static string ConvertToText(IElement doc, StringWriter text)
         {
             if (doc.NodeType == NodeType.Element && doc.NodeName == "P")

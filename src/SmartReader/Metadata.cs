@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
-{
-    public class Metadata
+{    
+    internal class Metadata
     {
-        public string Byline { get; set; } = "";
-        public string Title { get; set; } = "";
-        public string Excerpt { get; set; } = "";
-        public string Language { get; set; } = "";
-        public string FeaturedImage { get; set; } = "";
-        public DateTime? PublicationDate { get; set; } = null;
-        public string Author { get; set; } = "";
-        public string SiteName { get; set; } = "";
+        internal string Byline { get; set; } = "";
+        internal string Title { get; set; } = "";
+        internal string Excerpt { get; set; } = "";
+        internal string Language { get; set; } = "";
+        internal string FeaturedImage { get; set; } = "";
+        internal DateTime? PublicationDate { get; set; } = null;
+        internal string Author { get; set; } = "";
+        internal string SiteName { get; set; } = "";
     }
 }
