@@ -1,0 +1,16 @@
+- name: Quickstart
+  href: quickstart.md
+- name: Tutorial
+  href: tutorial.md
+- name: Advanced Usage
+  href: advanced.md
+- name: Notes
+  href: notes.md
+- name: Security
+  href: SECURITY.md
+- name: Development
+  href: development.md
+- name: Release Notes
+  href: CHANGELOG.md
+- name: License
+  href: LICENSE.md
