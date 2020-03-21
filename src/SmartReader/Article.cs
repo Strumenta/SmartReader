@@ -27,7 +27,7 @@ namespace SmartReader
         public String Byline { get; private set; }
         /// <value>The direction of the writing</value>
         public String Dir { get; private set; }
-        /// <value>The main image</value>
+        /// <value>The URI of the main image</value>
         public String FeaturedImage { get; private set; }
         /// <value>The HTML content</value>
         public String Content { get; private set; }

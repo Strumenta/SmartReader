@@ -1,14 +1,21 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.7.1 - 08/03/2020
+## 0.8.0
+- Improved documentation
+- Fixed visibility of internal methods
+- Moved RegularExpressions enum outside of the Reader class for consistency
+- Updated demo application
+- Updated dependencies of console example application
+
+## 0.7.1 - 2020/03/08
 - Added Readability update to preserve children when removing javascript: links
 - Added Readability update to add exception to probably readable for Wikimedia Math images
 - Added function to download images using the data URI scheme
 - Added function to use a custom HttpClient
 - Improved extraction of text content
 
-## 0.7.0 - 29/10/2019
+## 0.7.0 - 2019/10/29
 - Added Readability update to fix missing Wikipedia content
 - Added Readability update to remove aria-hidden nodes
 - Added Readability update of adding 'content' as an indicator of readable content
@@ -17,18 +24,18 @@ All notable changes to this project will be documented in this file.
 - Merged pull-request #12 for dealing with problems when retrieving content (Thanks to [LatisVlad](https://github.com/latisvlad))
 - Improved testing
 
-## 0.6.3 - 18/08/2019
+## 0.6.3 - 2019/08/18
 - Fixed [issue #11](https://github.com/Strumenta/SmartReader/issues/11)
 
-## 0.6.2 - 25/05/2019
+## 0.6.2 - 2019/05/25
 - Fixed [issue #9](https://github.com/Strumenta/SmartReader/issues/9)
 - Added Readability update to transform lazy images
 - Added Readability update regarding share elements
 
-## 0.6.1 - 20/04/2019
+## 0.6.1 - 2019/04/20
 - Fixed bug in dependency listing for the nuget package
 
-## 0.6.0 - 20/04/2019
+## 0.6.0 - 2019/04/20
 - Updated AngleSharp dependency. Now the minimum version is .NETStandard 2.0 (this is because of AngleSharp.Css)
 - Added improvements from latest updates of Readability
 - Fixed bug for property recognition

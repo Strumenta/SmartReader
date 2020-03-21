@@ -47,9 +47,9 @@ namespace SmartReaderConsole
             reader.AddCustomOperationEnd(AddInfo);
 
             // add an option to a regular expression
-            reader.AddOptionToRegularExpression(Reader.RegularExpressions.Positive, "principale");
+            reader.AddOptionToRegularExpression(RegularExpressions.Positive, "principale");
 
-            reader.ReplaceRegularExpression(Reader.RegularExpressions.Videos, @"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)");
+            reader.ReplaceRegularExpression(RegularExpressions.Videos, @"\/\/(www\.)?(dailymotion\.com|youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)");
 
             // get the article
             Article article = reader.GetArticle();
