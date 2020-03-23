@@ -2,7 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## 0.8.0
-- Improved documentation
+- Improved documentation 
+- Now we pass to the LoggerDelegate also the original body of source during Debug
 - Fixed visibility of internal methods
 - Moved RegularExpressions enum outside of the Reader class for consistency
 - Updated demo application
