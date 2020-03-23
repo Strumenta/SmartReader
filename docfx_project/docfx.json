@@ -70,6 +70,9 @@
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false,
-    "disableGitFeatures": false
-  }
+    "disableGitFeatures": false,
+	"sitemap": {
+	 "baseUrl": "https://smartreader.inre.me"
+	}	
+  }  
 }
