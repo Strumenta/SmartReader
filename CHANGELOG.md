@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Moved RegularExpressions enum outside of the Reader class for consistency
 - Updated demo application
 - Updated dependencies of console example application
+- Updated AngleSharp dependency to 0.13
 
 ## 0.7.1 - 2020/03/08
 - Added Readability update to preserve children when removing javascript: links
