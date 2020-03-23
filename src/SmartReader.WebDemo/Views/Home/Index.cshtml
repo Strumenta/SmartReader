@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="columns">
+    <div class="column">
+        <h3 class="title is-3">Input</h3>
+        <form id="inputForm">
+            <div class="field is-horizontal">
+                <div class="field-label is-normal">
+                    <label for="inputUrl" class="label">Url</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <p class="control control is-expanded">
+                            <input type="url" class="input" id="inputUrl" placeholder="http://">
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <div class="field-label">
+                    <!-- Left empty for spacing -->
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="column">
+        <h3 class="title is-3">Data</h3>
+        <table class="table is-hoverable">
+            <tr>
+                <th>Readerable</th>
+                <td id="readerable"></td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td id="title"></td>
+            </tr>
+            <tr>
+                <th>Featured Image</th>
+                <td id="image"></td>
+            </tr>
+            <tr>
+                <th>Direction</th>
+                <td id="dir"></td>
+            </tr>
+            <tr>
+                <th>Byline</th>
+                <td id="byline"></td>
+            </tr>
+            <tr>
+                <th>Author</th>
+                <td id="author"></td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td id="publicationDate"></td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td id="language"></td>
+            </tr>
+            <tr>
+                <th>Length</th>
+                <td id="length"></td>
+            </tr>
+            <tr>
+                <th>Excerpt</th>
+                <td id="excerpt"></td>
+            </tr>
+            <tr>
+                <th>Time to Read</th>
+                <td id="timeToRead"></td>
+            </tr>
+            <tr>
+                <th>Images Found</th>
+                <td id="images"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="columns">
+    <div class="column is-half">
+        <div class="panel">
+            <div class="panel-heading">
+                <h4 class="title is-4">Article (HTML)</h4>
+            </div>
+            <div class="panel-block" id="articleContentHtml">
+
+            </div>
+        </div>
+    </div>
+    <div class="column is-half">
+        <div class="panel">
+            <div class="panel-heading">
+                <h4 class="title is-4">Article (text)</h4>
+            </div>
+            <div class="panel-block" id="articleContentText">
+
+            </div>
+        </div>
+    </div>
+</div>

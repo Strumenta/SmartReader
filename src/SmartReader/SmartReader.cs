@@ -758,6 +758,11 @@ namespace SmartReader
                 LoggerDelegate("No body found in document. Abort.");                
                 return null;
             }
+            else
+            {
+                LoggerDelegate($"Original Body:");
+                LoggerDelegate(page.OuterHtml);
+            }
 
             var pageCacheHtml = page.InnerHtml;
 

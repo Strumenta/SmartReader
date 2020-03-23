@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SmartReader Demo</title>
+    <link rel="stylesheet" href="~/css/bulma.min.css">
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/fira-mono" type="text/css" />
+    <link rel="stylesheet" href="~/css/site.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+</head>
+<body>    
+    <header class="header">
+        <nav class="container navbar-content" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a href="https://smartreader.inre.me">
+                    <img src="~/img/SmartReader_logo.png"alt ="SmartReader: Open source, .NET Standard library to get clean articles on the web" width="275" height="48" />
+                </a>
+            </div>
+        </nav>
+    </header>
+    <section class="section">
+        <div class="container">
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>SmartReader</strong> demo by <a href="https://inre.me">Gabriele Tomassetti</a>. The source code is licensed
+                <a href="https://opensource.org/licenses/Apache-2.0">Apache</a>.
+            </p>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -14,11 +14,11 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <PackageLicenseUrl>https://github.com/strumenta/SmartReader/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Strumenta</Authors>
     <PackageProjectUrl>https://github.com/strumenta/SmartReader</PackageProjectUrl>
-    <PackageIconUrl>https://raw.github.com/strumenta/SmartReader/master/logo.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
     <Version>0.7.1</Version>
@@ -26,16 +26,30 @@
     <OutputType>Library</OutputType>
     <StartupObject />
     <SignAssembly>false</SignAssembly>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\Gabriele\Progetti\C#\SmartReader\src\SmartReader\SmartReader.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.11.0" />
     <PackageReference Include="AngleSharp.Css" Version="0.10.0" />
     <PackageReference Include="MimeMapping" Version="1.0.1.26" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
