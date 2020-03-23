@@ -264,7 +264,7 @@ namespace SmartReaderTests
             HtmlParser parser = new HtmlParser(new HtmlParserOptions());
             IHtmlDocument doc = parser.ParseDocument(@"<html>
                <head></head>
-               <body><p>Hello. I am talking to you, <time datetime=""01-09-1980"" pubDate=""pubDate"">now</time></p></body>
+               <body><p>Hello. I am talking to you, <time datetime=""1980-09-01"" pubDate=""pubDate"">now</time></p></body>
                </html>");
 
             Assert.Equal(new DateTime(1980, 9, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
@@ -315,7 +315,7 @@ namespace SmartReaderTests
             article.ConvertImagesToDataUriAsync().Wait();
 
             // check that there is one image
-            Assert.Equal(1, Regex.Matches(article.Content, "<img").Count);
+            Assert.Single(Regex.Matches(article.Content, "<img"));
             int start = article.Content.IndexOf("src=") + 4;
             int end = article.Content.IndexOf("\"", start + 1);
             // check that the src attribute is of the expected length

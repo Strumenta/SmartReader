@@ -37,7 +37,7 @@ namespace SmartReaderTests
         private readonly ITestOutputHelper _output;
         public PagesTests(ITestOutputHelper output)
         {
-            _output = output;
+            _output = output;            
         }
 
         public IArticleTest GetTestArticle(JObject metadata, string content)
@@ -77,7 +77,7 @@ namespace SmartReaderTests
                 featuredImage = article.FeaturedImage
             };
 
-            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented));
+            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
 
         private void AssertProperties(IArticleTest expected, Article found)
@@ -110,7 +110,7 @@ namespace SmartReaderTests
         {
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
-            var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
+            var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));            
             var expectedMetadata = JObject.Parse(expectedMetadataString); 
             
             Article found = Reader.ParseArticle("https://localhost/", sourceContent);
