@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Ganss.XSS;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SmartReader.WebDemo.Models;
@@ -32,9 +33,14 @@ namespace SmartReader.WebDemo.Controllers
             var images = article.GetImagesAsync();
             images.Wait();
 
+            // since this demo will be published, it's better to sanitize the content shown
+            var sanitizer = new HtmlSanitizer();
+            string Content = sanitizer.Sanitize(article.Content);                        
+
             return Json(new
             {
                 article = article,
+                content = Content,
                 images = $"{images.Result.Count()} images found",
                 log = sr.LoggerDelegate.ToString()
             });

@@ -139,19 +139,23 @@ The **FeaturedImage** property holds the image indicated by the Open Graph or Tw
 
 The **TextContent** property is based on the pure text content of the HTML (i.e., the concatenations of [text nodes](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType). Then we apply some basic formatting, like removing double spaces or the newlines left by the formatting of the HTML code. We also add meaningful newlines for P and BR nodes.
 
-##  7Project Structure
+##  Project Structure
 
 This project has the following directory structure.
 
 | Folder                  | Description                                                  |
 | ----------------------- | ------------------------------------------------------------ |
-| docfx_project           | Contains the DocFx project that generates the documentation website |
+| docfx_project/          | Contains the DocFx project that generates the documentation website |
 | src/                    | The main source folder                                       |
 | src/SmartReader         | Source for the SmartReader library                           |
 | src/SmartReaderTests    | Source for the Tests                                         |
 | src/SmartReaderConsole  | Source for example console project                           |
 | src/SmartReader.WebDemo | Source for the demo web project                              |
 
+## Demo
+
+You can see the [demo web live](https://smartreader.azurewebsites.net/). So you can see for yourself how effective the library can be for you.
+
 ##  Documentation
 
-This README contains the info to get started in using the library. If you want to know more advanced options, API reference, etc. read the documentation on the [main website]().
+This README contains the info to get started in using the library. If you want to know more advanced options, API reference, etc. read the documentation on the [main website](https://smartreader.inre.me).

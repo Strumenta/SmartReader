@@ -9,7 +9,7 @@ function analyze() {
     $.get("/home/analyze", { url: $("#inputUrl").val() })
         .done(function (data) {
             $("#articleContentHtml").empty();
-            $("#articleContentHtml").html(data.article.content);
+            $("#articleContentHtml").html(data.content);
             $("#articleContentText").empty();
             $("#articleContentText").html(data.article.textContent.replace(/\n/g, "<br>"));
             $("#readerable").text(data.article.isReadable);
