@@ -13,7 +13,7 @@ The console project is a Console program that allows you to see the results of t
 In case you want to build the Nuget package yourself you can use the following command.
 
 ```
- nuget pack .\SmartReader.csproj -OutputDirectory "..\nupkgs\" -Prop Configuration=Release
+dotnet pack .\SmartReader.csproj --configuration Release --output ..\nupkgs\
 ```
 
 The command must be issued inside the `src/SmartReader` folder.
