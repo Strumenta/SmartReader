@@ -25,7 +25,7 @@ documentType: index
       <div class="col-md-8 col-md-offset-2 text-center">        
         <section>
           <h2>Remove the clutter</h2>
-          <p class="lead">SmartReaders gives you a clean article without ads, sidebars, etc. Available both as HTML and lightly formatted text.</p>
+          <p class="lead">SmartReader gives you a clean article without ads, sidebars, etc. Available both as HTML and lightly formatted text.</p>
         </section>
       </div>
     </div>
