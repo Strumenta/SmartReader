@@ -16,12 +16,12 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageLicenseUrl></PackageLicenseUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Authors>Strumenta</Authors>
+    <Authors>Gabriele Tomassetti</Authors>
     <PackageProjectUrl>https://smartreader.inre.me</PackageProjectUrl>
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
-    <Version>0.7.1</Version>
+    <Version>0.7.2</Version>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />

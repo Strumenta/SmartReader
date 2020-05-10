@@ -452,9 +452,7 @@ namespace SmartReader
 
             if (metadata.PublicationDate == null)
             {
-                var times = doc.GetElementsByTagName("time");
-
-                Console.WriteLine($"times: {times.Length}");
+                var times = doc.GetElementsByTagName("time");               
 
                 foreach (var time in times)
                 {

@@ -1,14 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.8.0
+## 0.7.2 - 2020/05/09
 - Improved documentation 
 - Now we pass to the LoggerDelegate also the original body of source during Debug
 - Fixed visibility of internal methods
 - Moved RegularExpressions enum outside of the Reader class for consistency
 - Updated demo application
 - Updated dependencies of console example application
-- Updated AngleSharp dependency to 0.13
+- Updated AngleSharp dependency to 0.13. This should also fix [issue #18](https://github.com/Strumenta/SmartReader/issues/18)
 
 ## 0.7.1 - 2020/03/08
 - Added Readability update to preserve children when removing javascript: links

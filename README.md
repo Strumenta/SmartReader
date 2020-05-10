@@ -154,7 +154,7 @@ This project has the following directory structure.
 
 ## Demo
 
-You can see the [demo web live](https://smartreader.azurewebsites.net/). So you can see for yourself how effective the library can be for you.
+You can see the [demo web live](https://smartreader-demo.herokuapp.com/). So you can test for yourself how effective the library can be for you.
 
 ##  Documentation
 
