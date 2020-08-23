@@ -21,9 +21,9 @@
 
 ## What and Why
 
-This library supports the .NET Standard 2.0. The core algorithm is a port of the [Mozilla Readability library](https://github.com/mozilla/readability). The original library is stable and used in production inside Firefox. By relying on a library maintained by a competent organization like Mozilla we can piggyback on their hard and well-tested work.
+This library supports the .NET Standard 2.0. The core algorithm is a port of the [Mozilla Readability library](https://github.com/mozilla/readability). The original library is stable and used in production inside Firefox. This way we can piggyback on the hard and well-tested work of Mozilla.
 
-SmartReader also add some improvements on the original library, getting get more and better metadata: 
+SmartReader also add some improvements on the original library, getting more and better metadata: 
 
 - site name
 - an author and publication date
@@ -45,10 +45,16 @@ PM> Install-Package SmartReader
 
 ##  Usage
 
-There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
+There are mainly two ways to use the library:
+
+- The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`
+
+- The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`.
+
+Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
 The advantage of using an object, instead of the static method, is that it gives you the chance to set some options.
 
-There is also the option to parse directly a String or Stream that you have obtained by some other way. This is available either with `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
+There is also the option to parse directly a `String` or `Stream` that you have obtained by some other way. This is available either with one of the `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
 
 If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
 
@@ -63,9 +69,9 @@ This is done to exclude things such as images used in the UI.
 
 On the `Article` object you can also call `ConvertImagesToDataUriAsync` to inline the images found in the article using the [data URI scheme](https://en.wikipedia.org/wiki/Data_URI_scheme). The method is async. This will insert the images into the `Content` property of the `Article`. This may significantly increase the size of `Content`.
 
-This data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI.
+The data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI.
 
-Notice that this method will not store other external elements that are not images,such as embedded videos.
+Notice that this method will not store other external elements that are not images, such as embedded videos.
 
 ##  Examples
 
@@ -154,7 +160,9 @@ This project has the following directory structure.
 
 ## Demo
 
-You can see the [demo web live](https://smartreader-demo.herokuapp.com/). So you can test for yourself how effective the library can be for you.
+You can see the [demo web live](https://smartreader-demo.herokuapp.com/). So you can test for yourself how effective the library can be for you. 
+
+There is also a Docker project for the web demo.
 
 ##  Documentation
 
