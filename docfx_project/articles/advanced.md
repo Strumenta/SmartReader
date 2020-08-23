@@ -56,7 +56,7 @@ reader.AddCustomOperationStart(RemoveElement);
 reader.AddCustomOperationEnd(AddInfo);
 ```
 
-As you can see the custom operation works on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
+As you can see, the custom operation works on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can also see in JavaScript, so it feels intuitive and natural. If you need any help to work with it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
 
 ## Preserving CSS Classes
 

@@ -68,9 +68,13 @@ We also retrieve some information about the images.
 
 ## AddInfo Method
 
-A custom operation takes in input an element. This element is the extracted article, if it is a custom operation at the end, or the whole content retrieved, if it is a custom operation at the start. To manipulate the element we use the [AngleSharp library](https://anglesharp.github.io/) which is used by StmartReader to parse HTML.
+A custom operation takes in input an element. This element:
+- contains the **whole content retrieved**, when it is a custom operation at the start of the process
+- or **the extracted article**, when it is a custom operation at the end
 
-In our example custom operation, we add a notice at the end of the article extracted at the end of the last `<div>` found.
+To manipulate the element we use the [AngleSharp library](https://anglesharp.github.io/) which is used by SmartReader to parse HTML.
+
+In our example custom operation, we append a notice at the end of the last `<div>` found, in the final part of the article extracted.
 
 ```
         static void AddInfo(AngleSharp.Dom.IElement element)
@@ -83,4 +87,4 @@ In our example custom operation, we add a notice at the end of the article extra
 
 ## Summary
 
-As you can see basic usage of SmartReader is very simple. However, there are a few advanced options and setting you may be interested in, that you can discover reading the rest of the documentation.
+As you can see, basic usage of SmartReader is very simple. However, there are a few advanced options and setting you may be interested in, that you can discover reading the rest of the documentation.
