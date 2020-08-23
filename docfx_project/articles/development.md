@@ -4,7 +4,7 @@ This page contain information useful to develop or modify the project for your o
 
 ## Demo & Console Projects
 
-The [GitHub repository](https://github.com/strumenta/SmartReader) contains both a console and web demo projects. The web demo is a simple ASP.NET Core webpage that allows you to input an address and see what the library returns.
+The [GitHub repository](https://github.com/strumenta/SmartReader) contains both a console and web demo projects. The web demo is a simple ASP.NET Core webpage that allows you to input an address and see what the library returns. You can also use the Docker project to see the web demo in action.
 
 The console project is a Console program that allows you to see the results of the library on a random test page.
 
@@ -46,5 +46,6 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 - [AndySchmitt](https://github.com/AndySchmitt)
 - [Andrew Lombard](https://github.com/alombard)
 - [LatisVlad](https://github.com/latisvlad)
+- [Rohit Patil](https://github.com/RohitPatilRRP)
 
 Thanks to all the people involved.
