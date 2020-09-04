@@ -16,16 +16,16 @@ namespace SmartReaderTests
     public interface IArticleTest
     {
         Uri Uri { get; set; }
-        String Title { get; set; }
-        String Byline { get; set; }
-        String Dir { get; set; }
-        String Content { get; set; }
-        String TextContent { get; set; }
-        String Excerpt { get; set; }
-        String Language { get; set; }
-        String Author { get; set; }
-        String SiteName { get; set; }
-        String FeaturedImage { get; set; }
+        string Title { get; set; }
+        string Byline { get; set; }
+        string Dir { get; set; }
+        string Content { get; set; }
+        string TextContent { get; set; }
+        string Excerpt { get; set; }
+        string Language { get; set; }
+        string Author { get; set; }
+        string SiteName { get; set; }
+        string FeaturedImage { get; set; }
         int Length { get; set; }
         TimeSpan TimeToRead { get; set; }
         DateTime? PublicationDate { get; set; }
@@ -44,13 +44,13 @@ namespace SmartReaderTests
         {
             var mockArticle = new Mock<IArticleTest>();
             mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
-            mockArticle.Setup(x => x.IsReadable).Returns(Boolean.Parse(metadata["readerable"].ToString()));
+            mockArticle.Setup(x => x.IsReadable).Returns(bool.Parse(metadata["readerable"].ToString()));
             mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
             mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
             mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.Author).Returns(String.IsNullOrEmpty(metadata["author"]?.ToString()) ? null : metadata["author"].ToString());
-            mockArticle.Setup(x => x.PublicationDate).Returns(String.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
-            mockArticle.Setup(x => x.Language).Returns(String.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
+            mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata["author"]?.ToString()) ? null : metadata["author"].ToString());
+            mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
+            mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
             mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
             mockArticle.Setup(x => x.SiteName).Returns(metadata["siteName"]?.ToString() ?? "");
             mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));

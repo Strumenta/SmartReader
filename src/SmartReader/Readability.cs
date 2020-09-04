@@ -21,9 +21,7 @@ namespace SmartReader
     /// </summary>
     internal static class Readability
     {
-        private static Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {        
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) }
-        };
+        private static readonly Regex RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Removes the class attribute from every element in the given
@@ -35,11 +33,11 @@ namespace SmartReader
         {
             var className = "";
 
-            if (!String.IsNullOrEmpty(node.GetAttribute("class")))
-                className = String.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+            if (!string.IsNullOrEmpty(node.GetAttribute("class")))
+                className = string.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(x => classesToPreserve.Contains(x)));
 
-            if (!String.IsNullOrEmpty(className))
+            if (!string.IsNullOrEmpty(className))
             {
                 node.SetAttribute("class", className);
             }
@@ -72,7 +70,7 @@ namespace SmartReader
             NodeUtility.ForEachNode(links, (link) =>
             {
                 var href = (link as IElement).GetAttribute("href");
-                if (!String.IsNullOrWhiteSpace(href))
+                if (!string.IsNullOrWhiteSpace(href))
                 {
                     // Remove links with javascript: URIs, since
                     // they won't work after scripts have been removed from the page.
@@ -106,7 +104,7 @@ namespace SmartReader
             NodeUtility.ForEachNode(imgs, (img) =>
             {
                 var src = (img as IElement).GetAttribute("src");
-                if (!String.IsNullOrWhiteSpace(src))
+                if (!string.IsNullOrWhiteSpace(src))
                 {
                     (img as IElement).SetAttribute("src", uri.ToAbsoluteURI(src));
                 }
@@ -124,14 +122,14 @@ namespace SmartReader
         internal static string CleanTitle(string title, string siteName)
         {
             // eliminate any text after a separator
-            if (!String.IsNullOrEmpty(siteName) && title.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
+            if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
             {
 
                 // we eliminate the text after the separator only if it is the site name
                 title = Regex.Replace(title, $"(.*) [\\|\\-\\\\/>»] {siteName}.*", "$1", RegexOptions.IgnoreCase);
             }
 
-            title = regExps["normalize"].Replace(title, " ");
+            title = RE_Normalize.Replace(title, " ");
 
             return title;
         }
@@ -159,7 +157,7 @@ namespace SmartReader
             catch (Exception e) {/* ignore exceptions setting the title. */}
 
             var titleHadHierarchicalSeparators = false;
-            int wordCount(String str)
+            int wordCount(string str)
             {
                 return Regex.Split(str, @"\s+").Length;
             }
@@ -233,7 +231,7 @@ namespace SmartReader
         /// <returns>Whether the input string is a byline</returns>
         internal static bool IsValidByline(string byline)
         {
-            if (!String.IsNullOrEmpty(byline))
+            if (!string.IsNullOrEmpty(byline))
             {
                 byline = byline.Trim();
                 return (byline.Length > 0) && (byline.Length < 100);
@@ -274,12 +272,12 @@ namespace SmartReader
                 var content = (element as IElement).GetAttribute("content");
 
                 // avoid issues with no meta tags
-                if (String.IsNullOrEmpty(content))
+                if (string.IsNullOrEmpty(content))
                 {
                     return;
                 }
                 MatchCollection matches = null;
-                String name = "";
+                string name = "";
 
                 if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
                 {
@@ -288,7 +286,7 @@ namespace SmartReader
                     return;
                 }
 
-                if (!String.IsNullOrEmpty(elementProperty))
+                if (!string.IsNullOrEmpty(elementProperty))
                 {
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
@@ -306,10 +304,10 @@ namespace SmartReader
                 }
 
                 if ((matches == null || matches.Count == 0)
-                  && !String.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
+                  && !string.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
-                    if (!String.IsNullOrEmpty(content))
+                    if (!string.IsNullOrEmpty(content))
                     {
                         // Convert to lowercase, remove any whitespace, and convert dots
                         // to colons so we can match below.
@@ -327,10 +325,10 @@ namespace SmartReader
                     name = itemProp;
                 }
 
-                if (!String.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(name))
                 {
                     content = (element as IElement).GetAttribute("content");
-                    if (!String.IsNullOrEmpty(content))
+                    if (!string.IsNullOrEmpty(content))
                     {
                         // Convert to lowercase and remove any whitespace
                         // so we can match below.
@@ -353,7 +351,7 @@ namespace SmartReader
                 yield return values.ContainsKey("twitter:description") ? values["twitter:description"] : null;
             }
 
-            metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             // Get the name of the site
             if (values.ContainsKey("og:site_name"))
@@ -371,15 +369,15 @@ namespace SmartReader
                 yield return values.ContainsKey("title") ? values["title"] : null;
             }
 
-            metadata.Title = TitleKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            metadata.Title = TitleKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             // Let's try to eliminate the site name from the title
-            metadata.Title = Readability.CleanTitle(metadata.Title, metadata.SiteName);
+            metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
 
             // We did not find any title,
             // we try to get it from the title tag
-            if (String.IsNullOrEmpty(metadata.Title))
-                metadata.Title = Readability.GetArticleTitle(doc);
+            if (string.IsNullOrEmpty(metadata.Title))
+                metadata.Title = GetArticleTitle(doc);
 
             // added language extraction            
             IEnumerable<string> LanguageHeuristics()
@@ -392,7 +390,7 @@ namespace SmartReader
                 yield return doc.QuerySelector("meta[name=\"lang\"]")?.GetAttribute("value");
             }
 
-            metadata.Language = LanguageHeuristics().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            metadata.Language = LanguageHeuristics().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             // Find the featured image of the article
             IEnumerable<string> FeaturedImageKeys()
@@ -403,9 +401,9 @@ namespace SmartReader
                 yield return values.ContainsKey("weibo:webpage:image") ? values["weibo:webpage:image"] : null;
             }
 
-            metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+            metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
-            if (String.IsNullOrEmpty(metadata.Author))
+            if (string.IsNullOrEmpty(metadata.Author))
             {
                 // We try to find a meta tag for the author.
                 // Note that there is Open Grapg tag for an author,
@@ -418,7 +416,7 @@ namespace SmartReader
                     yield return values.ContainsKey("author") ? values["author"] : null;
                 }
 
-                metadata.Author = AuthorKeys().FirstOrDefault(l => !String.IsNullOrEmpty(l)) ?? "";
+                metadata.Author = AuthorKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
             }
 
             // added date extraction
@@ -456,7 +454,7 @@ namespace SmartReader
 
                 foreach (var time in times)
                 {
-                    if (!String.IsNullOrEmpty(time.GetAttribute("pubDate"))
+                    if (!string.IsNullOrEmpty(time.GetAttribute("pubDate"))
                         && DateTime.TryParse(time.GetAttribute("datetime"), out date))
                     {
                         metadata.PublicationDate = date;
@@ -472,7 +470,7 @@ namespace SmartReader
                 {
                     metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value),
                         int.Parse(maybeDate.Groups["month"].Value),
-                        !String.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
+                        !string.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
                 }
             }
 

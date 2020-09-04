@@ -10,7 +10,7 @@ namespace SmartReader
         {
             StringBuilder sb = new StringBuilder(startUri.Scheme + "://");
 
-            if (!String.IsNullOrEmpty(startUri.UserInfo))
+            if (!string.IsNullOrEmpty(startUri.UserInfo))
                 sb.Append(startUri.UserInfo + "@");
 
             sb.Append(startUri.Host);
