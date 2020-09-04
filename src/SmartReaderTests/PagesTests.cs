@@ -111,10 +111,10 @@ namespace SmartReaderTests
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));            
-            var expectedMetadata = JObject.Parse(expectedMetadataString); 
-            
-            Article found = Reader.ParseArticle("https://localhost/", sourceContent);
-            
+            var expectedMetadata = JObject.Parse(expectedMetadataString);
+
+            Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
+
             IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);            
 
             AssertProperties(expected, found);
