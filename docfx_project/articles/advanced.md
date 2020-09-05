@@ -73,7 +73,7 @@ reader.ClassesToPreserve = new string[] { "info" };
 
 The class `page` is always kept, no matter the value you assign to this option.
 
-## Setting Custom User Agent and Custom HttpClient
+## Setting Custom User Agent and Custom HttpMessageHandler
 
 By default all web requests made by the library use the User Agent *SmartReader Library*. This can be changed by using the function `SetCustomUserAgent(string)`.
 
@@ -83,12 +83,10 @@ Reader.SetCustomUserAgent("SuperAwesome App - for any issue contact admin@exampl
 
 This function will change the user agent for **all subsequent web requests** with any object of the class.
 
-If you need to use a custom HttpClient, you can replace the default one, with the function `SetCustomHttpClient(HttpClient)`.
+If you need to use a custom `HttpMessageHandler`, you can replace the default one, with the function `SetBaseHttpClientHandler(HttpMessageHandler)`.
 
 ```
-HttpClient superC = new HttpClient();
+HttpMessageHandler majesticHandler = GetMyTailorMadeHttpMessageHandler();
 // ..
-Reader.SetCustomHttpClient(superC);
+Reader.`SetBaseHttpClientHandler(majesticHandler);
 ```
-
-Notice that, if the custom HttpClient does not set a custom User Agent, *SmartReader Library* will be used.

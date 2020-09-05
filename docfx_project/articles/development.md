@@ -38,7 +38,7 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 
 ## Contributors
 
-- [Unosviluppatore](https://github.com/unosviluppatore)
+- [Gabriele Tomassetti](https://github.com/gabriele-tomassetti)
 - [Dan Rigby](https://github.com/DanRigby)
 - [Yasindn](https://github.com/yasindn)
 - [Jamie Lord](https://github.com/jamie-lord)
@@ -47,5 +47,6 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 - [Andrew Lombard](https://github.com/alombard)
 - [LatisVlad](https://github.com/latisvlad)
 - [Rohit Patil](https://github.com/RohitPatilRRP)
+- [theolivenbaum](https://github.com/theolivenbaum)
 
 Thanks to all the people involved.

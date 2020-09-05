@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.7.3 - 2020/09/05
+- Fixes [issue #20](https://github.com/Strumenta/SmartReader/issues/20), bug regarding multi-thread use (Thanks to [theolivenbaum](https://github.com/theolivenbaum))
+- Improved efficiency of Regex use (Thanks to [theolivenbaum](https://github.com/theolivenbaum))
+
 ## 0.7.2 - 2020/05/09
 - Improved documentation 
 - Now we pass to the LoggerDelegate also the original body of source during Debug
