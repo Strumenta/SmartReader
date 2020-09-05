@@ -18,25 +18,24 @@ namespace SmartReader
                   
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
-        private static Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {       
-        { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
-        { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
-        { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
-        { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
-        { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },
-        { "hasContent", new Regex(@"\S$", RegexOptions.IgnoreCase) }
-        };
+           
+        private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_Normalize    = new Regex(@"\s{2,}", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase);
 
-        private static String[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
+        private static readonly string[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
         
-        private static String[] presentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
+        private static readonly string[] presentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
 
-        private static String[] deprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
+        private static readonly string[] deprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
 
         // The commented out elements qualify as phrasing content but tend to be
         // removed by readability when put into paragraphs, so we ignore them here.
-        private static String[] phrasingElems = {
+        private static readonly string[] phrasingElems = {
           // "CANVAS", "IFRAME", "SVG", "VIDEO",
             "ABBR", "AUDIO", "B", "BDO", "BR", "BUTTON", "CITE", "CODE", "DATA",
             "DATALIST", "DFN", "EM", "EMBED", "I", "IMG", "INPUT", "KBD", "LABEL",
@@ -214,7 +213,7 @@ namespace SmartReader
 
         internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
         {
-            return node.QuerySelectorAll(String.Join(",", tagNames));
+            return node.QuerySelectorAll(string.Join(",", tagNames));
         }
 
         /// <summary>
@@ -223,13 +222,13 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveScripts(IElement element)
         {
-            NodeUtility.RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
+            RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
             {
                 scriptNode.NodeValue = "";
                 scriptNode.RemoveAttribute("src");
                 return true;
             });
-            NodeUtility.RemoveNodes(element.GetElementsByTagName("noscript"));
+            RemoveNodes(element.GetElementsByTagName("noscript"));
         }
 
         /// <summary>
@@ -249,10 +248,10 @@ namespace SmartReader
             }
 
             // And there should be no text nodes with real content
-            return !NodeUtility.SomeNode(element.ChildNodes, (node) =>
+            return !SomeNode(element.ChildNodes, (node) =>
             {
                 return node.NodeType == NodeType.Text &&
-                       regExps["hasContent"].IsMatch(node.TextContent);
+                       RE_HasContent.IsMatch(node.TextContent);
             });
         }
 
@@ -271,7 +270,7 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool HasChildBlockElement(IElement element)
         {
-            var b = NodeUtility.SomeNode(element?.ChildNodes, (node) =>
+            var b = SomeNode(element?.ChildNodes, (node) =>
             {
                 return divToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1
                 || HasChildBlockElement(node as IElement);
@@ -290,7 +289,7 @@ namespace SmartReader
         {
             return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
               ((node.NodeName == "A" || node.NodeName == "DEL" || node.NodeName == "INS") &&
-                NodeUtility.EveryNode(node.ChildNodes, IsPhrasingContent));
+                EveryNode(node.ChildNodes, IsPhrasingContent));
         }
 
         internal static bool IsWhitespace(INode node)
@@ -312,7 +311,7 @@ namespace SmartReader
 
             if (normalizeSpaces)
             {
-                return regExps["normalize"].Replace(textContent, " ");
+                return RE_Normalize.Replace(textContent, " ");
             }
             return textContent;
         }
@@ -323,7 +322,7 @@ namespace SmartReader
         /// <param name="e">Element to operate on</param>
         /// <param name="s">The string to check</param>
         /// <returns>int</returns>
-        internal static int GetCharCount(IElement e, String s = ",")
+        internal static int GetCharCount(IElement e, string s = ",")
         {
             return GetInnerText(e).Split(s.ToCharArray()).Length - 1;
         }
@@ -366,16 +365,16 @@ namespace SmartReader
         /// <param name="element">Element to operate on</param>        
         internal static float GetLinkDensity(IElement element)
         {
-            var textLength = NodeUtility.GetInnerText(element).Length;
+            var textLength = GetInnerText(element).Length;
             if (textLength == 0)
                 return 0;
 
             float linkLength = 0;
 
             // XXX implement _reduceNodeList?
-            NodeUtility.ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
+            ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
             {
-                linkLength += NodeUtility.GetInnerText(linkNode as IElement).Length;
+                linkLength += GetInnerText(linkNode as IElement).Length;
             });
 
             return linkLength / textLength;
@@ -427,24 +426,24 @@ namespace SmartReader
         /// <param name="filter">Filter function on match id/class combination</param> 
         internal static void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter = null)
         {
-            var endOfSearchMarkerNode = NodeUtility.GetNextNode(e, true);
-            var next = NodeUtility.GetNextNode(e);
+            var endOfSearchMarkerNode = GetNextNode(e, true);
+            var next = GetNextNode(e);
             while (next != null && next != endOfSearchMarkerNode)
             {
                 if (filter(next, next.ClassName + " " + next.Id))
                 {
-                    next = NodeUtility.RemoveAndGetNext(next as INode) as IElement;
+                    next = RemoveAndGetNext(next as INode) as IElement;
                 }
                 else
                 {
-                    next = NodeUtility.GetNextNode(next);
+                    next = GetNextNode(next);
                 }
             }
         }
 
         internal static bool IsDataTable(IElement node)
         {
-            return !String.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
+            return !string.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
         }
 
         /// <summary>
@@ -461,7 +460,7 @@ namespace SmartReader
             {
                 string rowspan = trs[i].GetAttribute("rowspan") ?? "";
                 int rowSpanInt = 0;
-                if (!String.IsNullOrEmpty(rowspan))
+                if (!string.IsNullOrEmpty(rowspan))
                 {
                     int.TryParse(rowspan, out rowSpanInt);
                 }
@@ -473,7 +472,7 @@ namespace SmartReader
                 {
                     string colspan = cells[j].GetAttribute("colspan");
                     int colSpanInt = 0;
-                    if (!String.IsNullOrEmpty(colspan))
+                    if (!string.IsNullOrEmpty(colspan))
                     {
                         int.TryParse(colspan, out colSpanInt);
                     }

@@ -25,10 +25,7 @@ namespace SmartReader
         /// <param name="bytes">The actual binary content of the image</param>
         internal static string ConvertImageToDataUri(string path, byte[] bytes)
         {
-            return "data:"
-                        + MimeMapping.MimeUtility.GetMimeMapping(path)
-                        + ";base64,"
-                        + Convert.ToBase64String(bytes);
+            return $"data:{MimeMapping.MimeUtility.GetMimeMapping(path)};base64,{Convert.ToBase64String(bytes)}";
         }
     }
 }

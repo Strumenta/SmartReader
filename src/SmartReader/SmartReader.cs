@@ -63,8 +63,10 @@ namespace SmartReader
     /// available at: https://github.com/mozilla/readability. Which is heavily based on Arc90's readability.js (1.7f.1) script available at: http://code.google.com/p/arc90labs-readability </para>
     /// </remarks>
     public class Reader
-    {        
-        private static HttpClient httpClient = new HttpClient();
+    {
+        private static Lazy<HttpMessageHandler> _httpClientHandler = new Lazy<HttpMessageHandler>(() => new HttpClientHandler());
+        private string _userAgent = "SmartReader Library";
+
         private Uri uri;
         private IHtmlDocument doc = null;
         private string articleTitle;
@@ -77,7 +79,7 @@ namespace SmartReader
         private List<Attempt> attempts = new List<Attempt>();
 
         // Start with all flags set        
-        Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
+        private Flags flags = Flags.StripUnlikelys | Flags.WeightClasses | Flags.CleanConditionally;
 
         /// <summary>Max number of nodes supported by this parser</summary>
         /// <value>Default: 0 (no limit)</value>        
@@ -93,12 +95,12 @@ namespace SmartReader
         /// <value>Default: 500</value>
         public int CharThreshold { get; set; } = 500;
         
-        private String[] classesToPreserve = { "page" };        
+        private string[] classesToPreserve = { "page" };        
         /// <summary>
         /// The classes that must be preserved
         /// </summary>
         /// <value>Default: "page"</value>
-        public String[] ClassesToPreserve
+        public string[] ClassesToPreserve
         {
             get
             {
@@ -136,38 +138,47 @@ namespace SmartReader
 
         /// <summary>Element tags to score by default.</summary>
         /// <value>Default: false</value>
-        public String[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');        
+        public string[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
-        Dictionary<string, Regex> regExps = new Dictionary<string, Regex>() {
-        { "unlikelyCandidates", new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase) },
-        { "okMaybeItsACandidate", new Regex(@"and|article|body|column|content|main|shadow", RegexOptions.IgnoreCase) },
-        { "positive", new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase) },
-        { "negative", new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase) },
-        { "extraneous", new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase) },
-        { "byline", new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase) },
-        { "replaceFonts", new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase) },
-        { "normalize", new Regex(@"\s{2,}", RegexOptions.IgnoreCase) },
-        { "videos", new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase) },
-        { "nextLink", new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase) },
-        { "prevLink", new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase) },
-        { "whitespace", new Regex(@"^\s*$", RegexOptions.IgnoreCase) },       
-        { "shareElements", new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase) }           
-        };
 
-        private String[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
+        private Regex RE_UnlikelyCandidates   = G_RE_UnlikelyCandidates;
+        private Regex RE_OkMaybeItsACandidate = G_RE_OkMaybeItsACandidate;
+        private Regex RE_Positive             = G_RE_Positive;
+        private Regex RE_Negative             = G_RE_Negative;
+        private Regex RE_Extraneous           = G_RE_Extraneous;
+        private Regex RE_Byline               = G_RE_Byline;
+        private Regex RE_ReplaceFonts         = G_RE_ReplaceFonts;
+        private Regex RE_Normalize            = G_RE_Normalize;
+        private Regex RE_Videos               = G_RE_Videos;
+        private Regex RE_NextLink             = G_RE_NextLink;
+        private Regex RE_PrevLink             = G_RE_PrevLink;
+        private Regex RE_Whitespace           = G_RE_Whitespace;
+        private Regex RE_ShareElements        = G_RE_ShareElements;
+
+
+        //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
+        private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_OkMaybeItsACandidate = new Regex(@"and|article|body|column|content|main|shadow", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Positive = new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Negative = new Regex(@"hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Extraneous = new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Byline = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_NextLink = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+
+        private string[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
 
         private List<Action<IElement>> CustomOperationsStart = new List<Action<IElement>>();
 
         private List<Action<IElement>> CustomOperationsEnd = new List<Action<IElement>>();
-
-        private Reader()
-        {
-            // setting the default user agent
-            if (httpClient.DefaultRequestHeaders.UserAgent.Count == 0)                       
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("SmartReader Library");
-        }
 
         /// <summary>
         /// Reads content from the given URI.
@@ -176,7 +187,7 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri) : this()
+        public Reader(string uri)
         {
             this.uri = new Uri(uri);
             
@@ -193,7 +204,7 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri, string text) : this()
+        public Reader(string uri, string text)
         {
             this.uri = new Uri(uri);
                         
@@ -214,7 +225,7 @@ namespace SmartReader
         /// <returns>
         /// An initialized SmartReader object
         /// </returns>        
-        public Reader(string uri, Stream source) : this()
+        public Reader(string uri, Stream source)
         {
             this.uri = new Uri(uri);
             
@@ -231,61 +242,68 @@ namespace SmartReader
         /// Add a custom operation to be performed before the article is parsed
         /// </summary>
         /// <param name="operation">The operation that will receive the HTML content before any operation</param>
-        public void AddCustomOperationStart(Action<IElement> operation)
+        public Reader AddCustomOperationStart(Action<IElement> operation)
         {
             CustomOperationsStart.Add(operation);
+            return this;
         }
 
         /// <summary>
         /// Remove a custom operation to be performed before the article is parsed
         /// </summary>
         /// <param name="operation">The operation to remove</param>
-        public void RemoveCustomOperationStart(Action<IElement> operation)
+        public Reader RemoveCustomOperationStart(Action<IElement> operation)
         {
             CustomOperationsStart.Remove(operation);
+            return this;
         }
 
         /// <summary>
         /// Remove all custom operation to be performed before the article is parsed
         /// </summary>
-        public void RemoveAllCustomOperationsStart()
+        public Reader RemoveAllCustomOperationsStart()
         {
             CustomOperationsStart.Clear();
+            return this;
         }
 
         /// <summary>
         /// Add a custom operation to be performed after the article is parsed
         /// </summary>
         /// <param name="operation">The operation that will receive the final article</param>
-        public void AddCustomOperationEnd(Action<IElement> operation)
+        public Reader AddCustomOperationEnd(Action<IElement> operation)
         {
             CustomOperationsEnd.Add(operation);
+            return this;
         }
 
         /// <summary>
         /// Remove a custom operation to be performed after the article is parsed
         /// </summary>    
         /// <param name="operation">The operation to remove</param>
-        public void RemoveCustomOperationEnd(Action<IElement> operation)
+        public Reader RemoveCustomOperationEnd(Action<IElement> operation)
         {
             CustomOperationsEnd.Remove(operation);
+            return this;
         }
 
         /// <summary>
         /// Remove all custom operation to be performed after the article is parsed
         /// </summary>    
-        public void RemoveAllCustomOperationsEnd()
+        public Reader RemoveAllCustomOperationsEnd()
         {
             CustomOperationsEnd.Clear();
+            return this;
         }
 
         /// <summary>
         /// Remove all custom operations
         /// </summary>    
-        public void RemoveAllCustomOperations()
+        public Reader RemoveAllCustomOperations()
         {
             CustomOperationsStart.Clear();
             CustomOperationsEnd.Clear();
+            return this;
         }
 
         /// <summary>
@@ -299,8 +317,10 @@ namespace SmartReader
             var context = BrowsingContext.New(Configuration.Default.WithCss());
             HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
             
-            if (doc == null)
-                doc = parser.ParseDocument(await GetStreamAsync(uri));
+            if (doc is null)
+            {
+                doc = parser.ParseDocument(await GetStreamAsync(uri).ConfigureAwait(false));
+            }
 
             return Parse();
         }
@@ -311,6 +331,8 @@ namespace SmartReader
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
+        
+        [Obsolete("Prefer to use the GetArticleAsync method, as this method uses sync over async.")]
         public Article GetArticle()
         {
             var context = BrowsingContext.New(Configuration.Default.WithCss());
@@ -318,9 +340,7 @@ namespace SmartReader
 
             if (doc == null)
             {
-                Task<Stream> result = GetStreamAsync(uri);
-                result.Wait();
-                Stream stream = result.Result;
+                var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
 
                 doc = parser.ParseDocument(stream);
             }
@@ -335,11 +355,9 @@ namespace SmartReader
         /// <returns>
         /// An async Task Article object with all the data extracted
         /// </returns>    
-        public static async Task<Article> ParseArticleAsync(string uri)
+        public static async Task<Article> ParseArticleAsync(string uri, string userAgent = null)
         {
-            Reader smartReader = new Reader(uri);            
-
-            return await smartReader.GetArticleAsync();
+            return await new Reader(uri).SetCustomUserAgent(userAgent).GetArticleAsync();
         }
 
         /// <summary>
@@ -349,16 +367,15 @@ namespace SmartReader
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
-        public static Article ParseArticle(string uri)
+        
+        [Obsolete("Prefer to use the ParseArticleAsync method, as this method uses sync over async.")]
+        public static Article ParseArticle(string uri, string userAgent = null)
         {
-            Reader smartReader = new Reader(uri);
+            var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
-            Task<Stream> result = smartReader.GetStreamAsync(new Uri(uri));
-            result.Wait();
-            Stream stream = result.Result;
-
+            var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
             var context = BrowsingContext.New(Configuration.Default.WithCss());
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             smartReader.doc = parser.ParseDocument(stream);
 
@@ -373,11 +390,9 @@ namespace SmartReader
         /// <returns>
         /// An article object with all the data extracted
         /// </returns>    
-        public static Article ParseArticle(string uri, string text)
+        public static Article ParseArticle(string uri, string text, string userAgent = null)
         {
-            Reader smartReader = new Reader(uri, text);
-
-            return smartReader.Parse();
+            return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse();
         }
 
         /// <summary>
@@ -390,9 +405,7 @@ namespace SmartReader
         /// </returns>    
         public static Article ParseArticle(string uri, Stream source)
         {
-            Reader smartReader = new Reader(uri, source);
-
-            return smartReader.Parse();
+            return new Reader(uri, source).Parse();
         }
 
 
@@ -460,7 +473,7 @@ namespace SmartReader
                 // If we find a <br> chain, remove the <br>s until we hit another element
                 // or non-whitespace. This leaves behind the first <br> in the chain
                 // (which will be replaced with a <p> later).
-                while ((next = NodeUtility.NextElement(next, regExps["whitespace"])) != null && ((next as IElement).TagName == "BR"))
+                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) != null && ((next as IElement).TagName == "BR"))
                 {
                     replaced = true;
                     var brSibling = next.NextSibling;
@@ -482,7 +495,7 @@ namespace SmartReader
                         // If we've hit another <br><br>, we're done adding children to this <p>.
                         if ((next as IElement)?.TagName == "BR")
                         {
-                            var nextElem = NodeUtility.NextElement(next.NextSibling, regExps["whitespace"]);
+                            var nextElem = NodeUtility.NextElement(next.NextSibling, RE_Whitespace);
                             if (nextElem != null && (nextElem as IElement).TagName == "BR")
                                 break;
                         }
@@ -511,7 +524,7 @@ namespace SmartReader
         /// </summary>
         private void CleanReaderAttributes(IElement node, string attribute)
         {            
-            if (!String.IsNullOrEmpty(node.GetAttribute(attribute)))
+            if (!string.IsNullOrEmpty(node.GetAttribute(attribute)))
             {
                 node.RemoveAttribute(attribute);
             }
@@ -553,7 +566,7 @@ namespace SmartReader
 
             NodeUtility.ForEachNode(articleContent.Children, (topCandidate) => {
                 NodeUtility.CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
-                    return regExps["shareElements"].IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
+                    return RE_ShareElements.IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
                 });
 
@@ -606,12 +619,12 @@ namespace SmartReader
                 var iframeCount = paragraph.GetElementsByTagName("iframe").Length;
                 var totalCount = imgCount + embedCount + objectCount + iframeCount;
 
-                return totalCount == 0 && String.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
+                return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
             NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "br" }), (br) =>
             {
-                var next = NodeUtility.NextElement(br.NextSibling, regExps["whitespace"]);
+                var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next != null && (next as IElement).TagName == "P")
                     br.Parent.RemoveChild(br);
             });
@@ -697,7 +710,7 @@ namespace SmartReader
 
         private double GetReadabilityScore(IElement node)
         {            
-            if (!String.IsNullOrEmpty(node.GetAttribute("readability-score")))
+            if (!string.IsNullOrEmpty(node.GetAttribute("readability-score")))
                 return double.Parse(node.GetAttribute("readability-score"), System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
             else
                 return 0.0;
@@ -705,22 +718,22 @@ namespace SmartReader
 
         private bool CheckByline(IElement node, string matchString)
         {
-            if (!String.IsNullOrEmpty(articleByline))
+            if (!string.IsNullOrEmpty(articleByline))
             {
                 return false;
             }
 
 
-            String rel = "";
-            String itemprop = "";
+            string rel = "";
+            string itemprop = "";
 
-            if (node is IElement && !String.IsNullOrEmpty(node.GetAttribute("rel")))
+            if (node is IElement && !string.IsNullOrEmpty(node.GetAttribute("rel")))
             {
                 rel = node.GetAttribute("rel");
                 itemprop = node.GetAttribute("itemprop");
             }
 
-            if ((rel == "author" || (!String.IsNullOrEmpty(itemprop) && itemprop.IndexOf("author") != -1) || regExps["byline"].IsMatch(matchString)) && Readability.IsValidByline(node.TextContent))
+            if ((rel == "author" || (!string.IsNullOrEmpty(itemprop) && itemprop.IndexOf("author") != -1) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent))
             {
                 if (rel == "author")
                     author = node.TextContent.Trim();
@@ -750,7 +763,7 @@ namespace SmartReader
 
             var doc = this.doc;
             var isPaging = (page != null ? true : false);
-            page = page != null ? page : this.doc.Body;
+            page = page ?? this.doc.Body;
 
             // We can't grab an article if we don't have a page!
             if (page == null)
@@ -798,8 +811,8 @@ namespace SmartReader
                     // Remove unlikely candidates
                     if (stripUnlikelyCandidates)
                     {
-                        if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
-                            !regExps["okMaybeItsACandidate"].IsMatch(matchString) &&
+                        if (RE_UnlikelyCandidates.IsMatch(matchString) &&
+                            !RE_OkMaybeItsACandidate.IsMatch(matchString) &&
                             !HasAncestorTag(node, "table") &&
                             node.TagName != "BODY" &&
                             node.TagName != "A")
@@ -851,7 +864,10 @@ namespace SmartReader
                             }
                             else if (p != null)
                             {
-                                while (p.LastChild != null && NodeUtility.IsWhitespace(p.LastChild))                p.RemoveChild(p.LastChild);
+                                while (p.LastChild != null && NodeUtility.IsWhitespace(p.LastChild))
+                                {
+                                    p.RemoveChild(p.LastChild);
+                                }
 
                                 p = null;
                             }
@@ -916,9 +932,9 @@ namespace SmartReader
                     // Initialize and score ancestors.                    
                     NodeUtility.ForEachNode(ancestors, (ancestor, level) =>
                     {                               
-                        if (String.IsNullOrEmpty((ancestor as IElement)?.TagName) ||
+                        if (string.IsNullOrEmpty((ancestor as IElement)?.TagName) ||
                             (ancestor as IElement)?.ParentElement == null ||
-                            String.IsNullOrEmpty((ancestor as IElement)?.ParentElement?.TagName))                            
+                            string.IsNullOrEmpty((ancestor as IElement)?.ParentElement?.TagName))                            
                             return;
                         
                         if (GetReadabilityScore(ancestor as IElement).CompareTo(0.0) == 0)
@@ -1004,9 +1020,8 @@ namespace SmartReader
                     for (var i = 1; i < topCandidates.Count; i++)
                     {                        
                         if (GetReadabilityScore(topCandidates[i]) / GetReadabilityScore(topCandidate) >= 0.75)
-                        {                            
-                            var possibleAncestor = NodeUtility.GetNodeAncestors(topCandidates[i]) as IElement;
-                            if (possibleAncestor != null)
+                        {
+                            if (NodeUtility.GetNodeAncestors(topCandidates[i]) is IElement possibleAncestor)
                                 alternativeCandidateAncestors.Add(possibleAncestor);
                         }
                     }
@@ -1241,10 +1256,10 @@ namespace SmartReader
                     IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(NodeUtility.GetElementAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;                        
                     NodeUtility.SomeNode(ancestors, (ancestor) =>
                     {
-                        if (String.IsNullOrEmpty(ancestor.TagName))
+                        if (string.IsNullOrEmpty(ancestor.TagName))
                             return false;
                         var _articleDir = ancestor.GetAttribute("dir");
-                        if (!String.IsNullOrEmpty(_articleDir))
+                        if (!string.IsNullOrEmpty(_articleDir))
                         {
                             this.articleDir = _articleDir;
                             return true;
@@ -1271,20 +1286,20 @@ namespace SmartReader
             // Look for a special classname
             if (e.ClassName != null && e.ClassName != "")
             {
-                if (regExps["negative"].IsMatch(e.ClassName))
+                if (RE_Negative.IsMatch(e.ClassName))
                     weight -= 25;
 
-                if (regExps["positive"].IsMatch(e.ClassName))
+                if (RE_Positive.IsMatch(e.ClassName))
                     weight += 25;
             }
 
             // Look for a special ID
             if (e.Id != null && e.Id != "")
             {
-                if (regExps["negative"].IsMatch(e.Id))
+                if (RE_Negative.IsMatch(e.Id))
                     weight -= 25;
 
-                if (regExps["positive"].IsMatch(e.Id))
+                if (RE_Positive.IsMatch(e.Id))
                     weight += 25;
             }
 
@@ -1309,14 +1324,14 @@ namespace SmartReader
                     // First, check the elements attributes to see if any of them contain youtube or vimeo
                     for (var i = 0; i < element.Attributes.Length; i++)
                     {
-                        if (regExps["videos"].IsMatch(element.Attributes[i].Value))
+                        if (RE_Videos.IsMatch(element.Attributes[i].Value))
                         {
                             return false;
                         }
                     }
 
                     // For embed with <object> tag, check inner HTML as well.
-                    if (element.TagName == "OBJECT" && regExps["videos"].IsMatch(element.InnerHtml))
+                    if (element.TagName == "OBJECT" && RE_Videos.IsMatch(element.InnerHtml))
                     {
                         return false;
                     }
@@ -1354,7 +1369,7 @@ namespace SmartReader
 
         private bool IsDataTable(IElement node)
         {
-            return !String.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
+            return !string.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
         }
 
         /// <summary>
@@ -1369,7 +1384,7 @@ namespace SmartReader
             {
                 string rowspan = trs[i].GetAttribute("rowspan") ?? "";
                 int rowSpanInt = 0;
-                if (!String.IsNullOrEmpty(rowspan))
+                if (!string.IsNullOrEmpty(rowspan))
                 {
                     int.TryParse(rowspan, out rowSpanInt);
                 }
@@ -1381,7 +1396,7 @@ namespace SmartReader
                 {
                     string colspan = cells[j].GetAttribute("colspan");
                     int colSpanInt = 0;
-                    if (!String.IsNullOrEmpty(colspan))
+                    if (!string.IsNullOrEmpty(colspan))
                     {
                         int.TryParse(colspan, out colSpanInt);
                     }
@@ -1416,7 +1431,7 @@ namespace SmartReader
                     continue;
                 }
                 var summary = table.GetAttribute("summary");
-                if (!String.IsNullOrEmpty(summary))
+                if (!string.IsNullOrEmpty(summary))
                 {
                     table.SetAttribute("dataTable", "true");                    
                     continue;
@@ -1473,8 +1488,8 @@ namespace SmartReader
                 var src = elem.GetAttribute("src");
                 var srcset = elem.GetAttribute("srcset");                
 
-                if ((String.IsNullOrEmpty(src) && String.IsNullOrEmpty(srcset))
-                || (!String.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") != -1))
+                if ((string.IsNullOrEmpty(src) && string.IsNullOrEmpty(srcset))
+                || (!string.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") != -1))
                 {
                     for (var i = 0; i < elem.Attributes.Length; i++)
                     {
@@ -1494,7 +1509,7 @@ namespace SmartReader
                             copyTo = "src";
                         }
 
-                        if (!String.IsNullOrEmpty(copyTo))
+                        if (!string.IsNullOrEmpty(copyTo))
                         {
                             //if this is an img or picture, set the attribute directly
                             if (elem.TagName == "IMG" || elem.TagName == "PICTURE")
@@ -1576,14 +1591,14 @@ namespace SmartReader
                         // If this embed has attribute that matches video regex, don't delete it.
                         for (var j = 0; j < embeds.ElementAt(i).Attributes.Length; j++)
                         {
-                            if (regExps["videos"].IsMatch(embeds.ElementAt(i).Attributes[j].Value))
+                            if (RE_Videos.IsMatch(embeds.ElementAt(i).Attributes[j].Value))
                             {
                                 return false;
                             }
                         }
 
                         // For embed with <object> tag, check inner HTML as well.
-                        if (embeds.ElementAt(i).TagName == "OBJECT" && regExps["videos"].IsMatch(embeds.ElementAt(i).InnerHtml))
+                        if (embeds.ElementAt(i).TagName == "OBJECT" && RE_Videos.IsMatch(embeds.ElementAt(i).InnerHtml))
                         {
                             return false;
                         }
@@ -1677,8 +1692,8 @@ namespace SmartReader
                 
                 var matchString = node.ClassName + " " + node.Id;
 
-                if (regExps["unlikelyCandidates"].IsMatch(matchString) &&
-                    !regExps["okMaybeItsACandidate"].IsMatch(matchString))
+                if (RE_UnlikelyCandidates.IsMatch(matchString) &&
+                    !RE_OkMaybeItsACandidate.IsMatch(matchString))
                 {
                     return false;
                 }
@@ -1768,7 +1783,7 @@ namespace SmartReader
             // If we haven't found an excerpt in the article's metadata, use the article's
             // first paragraph as the excerpt. This is used for displaying a preview of
             // the article's content.
-            if (String.IsNullOrEmpty(metadata.Excerpt))
+            if (string.IsNullOrEmpty(metadata.Excerpt))
             {
                 var paragraphs = articleContent.GetElementsByTagName("p");
                 if (paragraphs.Length > 0)
@@ -1777,67 +1792,74 @@ namespace SmartReader
                 }
             }
 
-            Article article;
-
-            article = new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata, isReadable);
-
-            return article;
+            return new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata, isReadable, this);
         }       
 
         private async Task<Stream> GetStreamAsync(Uri resource)
-        {            
-            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
+        {
+            using (var httpClient = new HttpClient(_httpClientHandler.Value))
             {
-                throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
+
+                var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
+                }
+
+                var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
+                if (headLan.Value != null && headLan.Value.Any())
+                    language = headLan.Value.ElementAt(0);
+
+                var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
+                if (headCont.Value != null && headCont.Value.Any())
+                {
+                    int index = headCont.Value.ElementAt(0).IndexOf("charset=");
+                    if (index != -1)
+                        charset = headCont.Value.ElementAt(0).Substring(index + 8);
+                }
+
+                return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
             }
-
-            var headLan = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-language");
-            if (headLan.Value != null && headLan.Value.Any())
-                language = headLan.Value.ElementAt(0);
-
-            var headCont = response.Headers.FirstOrDefault(x => x.Key.ToLower() == "content-type");
-            if (headCont.Value != null && headCont.Value.Any())
-            {
-                int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-                if (index != -1)
-                    charset = headCont.Value.ElementAt(0).Substring(index + 8);
-            }
-
-            return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         }
 
-        private static async Task<HttpResponseMessage> RequestPageAsync(Uri resource)
+        internal async Task<long> GetImageSizeAsync(Uri imageSrc)
         {
-            return await httpClient.GetAsync(resource).ConfigureAwait(false);
-        }
-
-        internal static async Task<long> GetImageSizeAsync(Uri imageSrc)
-        {
-            HttpRequestMessage headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
-            var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
-            long size = 0;
-
-            if (response.IsSuccessStatusCode)
-            {               
-                if(response.Content.Headers.ContentLength != null)
-                    size = response.Content.Headers.ContentLength.Value;
-            }
-
-            return size;
-        }
-
-        internal static async Task<Byte[]> GetImageBytesAsync(Uri resource)
-        {
-            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
+            using (var httpClient = new HttpClient(_httpClientHandler.Value))
             {
-                throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
-            }
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
-            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                HttpRequestMessage headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
+                var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
+
+                long size = 0;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    if (response.Content.Headers.ContentLength != null)
+                        size = response.Content.Headers.ContentLength.Value;
+                }
+
+                return size;
+            }
+        }
+
+        internal async Task<byte[]> GetImageBytesAsync(Uri resource)
+        {
+            using (var httpClient = new HttpClient(_httpClientHandler.Value))
+            {
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
+
+                var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
+                }
+
+                return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            }
         }
 
         /// <summary>Allow to replace the default regular expressions</summary>
@@ -1848,28 +1870,28 @@ namespace SmartReader
             switch (expression)
             {
                 case RegularExpressions.UnlikelyCandidates:
-                    regExps["unlikelyCandidates"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_UnlikelyCandidates = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.PossibleCandidates:
-                    regExps["okMaybeItsACandidate"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_OkMaybeItsACandidate = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Positive:
-                    regExps["positive"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_Positive = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Negative:
-                    regExps["negative"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_Negative = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Extraneous:
-                    regExps["extraneous"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_Extraneous = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Byline:
-                    regExps["byline"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_Byline = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Videos:
-                    regExps["videos"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_Videos = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.ShareElements:
-                    regExps["shareElements"] = new Regex(newExpression, RegexOptions.IgnoreCase);
+                    RE_ShareElements = new Regex(newExpression, RegexOptions.IgnoreCase);
                     break;
                 default:
                     break;
@@ -1884,29 +1906,29 @@ namespace SmartReader
             switch (expression)
             {
                 case RegularExpressions.UnlikelyCandidates:
-                    regExps["unlikelyCandidates"] = new Regex($"{regExps["unlikelyCandidates"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_UnlikelyCandidates = new Regex($"{RE_UnlikelyCandidates}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.PossibleCandidates:
-                    regExps["okMaybeItsACandidate"] = new Regex($"{regExps["okMaybeItsACandidate"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_OkMaybeItsACandidate = new Regex($"{RE_OkMaybeItsACandidate}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Positive:
-                    regExps["positive"] = new Regex($"{regExps["positive"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_Positive = new Regex($"{RE_Positive}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Negative:
-                    regExps["negative"] = new Regex($"{regExps["negative"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_Negative = new Regex($"{RE_Negative}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Extraneous:
-                    regExps["extraneous"] = new Regex($"{regExps["extraneous"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_Extraneous = new Regex($"{RE_Extraneous}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Byline:
-                    regExps["byline"] = new Regex($"{regExps["byline"].ToString()}|{option}", RegexOptions.IgnoreCase);
+                    RE_Byline = new Regex($"{RE_Byline}|{option}", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.Videos:
-                    string original = regExps["videos"].ToString().Substring(0, regExps["videos"].ToString().Length - 1);
-                    regExps["videos"] = new Regex($"{original}|{option})", RegexOptions.IgnoreCase);
+                    string original = RE_Videos.ToString().Substring(0, RE_Videos.ToString().Length - 1);
+                    RE_Videos = new Regex($"{original}|{option})", RegexOptions.IgnoreCase);
                     break;
                 case RegularExpressions.ShareElements:                    
-                    regExps["shareElements"] = new Regex($"(\b|_)(share|sharedaddy|{option})(\b|_)", RegexOptions.IgnoreCase);
+                    RE_ShareElements = new Regex($"(\b|_)(share|sharedaddy|{option})(\b|_)", RegexOptions.IgnoreCase);
                     break;
                 default:
                     break;
@@ -1914,17 +1936,20 @@ namespace SmartReader
         }
         /// <summary>Allow to set an user agent</summary>
         /// <param name="userAgent">A string indicating the User Agent used for web requests made by this library</param>
-        public static void SetCustomUserAgent(string userAgent)
+        public Reader SetCustomUserAgent(string userAgent)
         {
-            httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+            if (!string.IsNullOrWhiteSpace(userAgent))
+            {
+                _userAgent = userAgent;
+            }
+            return this;
         }
 
         /// <summary>Allow to set a custom HttpClient</summary>
-        /// <param name="client">The new HttpClient for all web requests made by this library</param>
-        public static void SetCustomHttpClient(HttpClient client)
+        /// <param name="clientHandler">The new HttpClientHandler for all web requests made by this library</param>
+        public static void SetBaseHttpClientHandler(HttpMessageHandler clientHandler)
         {
-            httpClient = client;
+            _httpClientHandler = new Lazy<HttpMessageHandler>(() => clientHandler);
         }
     }
 }
