@@ -59,98 +59,6 @@ This is done to exclude things such as images used in the UI.
 
 On the `Article` object you can also call `ConvertImagesToDataUriAsync` to inline the images found in the article using the [data URI scheme](https://en.wikipedia.org/wiki/Data_URI_scheme). The method is async. This will insert the images into the `Content` property of the `Article`. This may significantly increase the size of `Content`. This data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI. Notice that this method will not store elements such as embedded videos, so they will still be requested over the network, if present.
 
-### Options
-
-#### Customize Regular Expressions
-
-You can customize the regular expressions that are used to determine whether a part of the document will be inside the article. There are two methods to do this:
-
-- `void` **AddOptionToRegularExpression(RegularExpressions expression, string option)**<br>Add an option (i.e., usually a CSS class name) to the regular expression. <br>
-- `void` **ReplaceRegularExpression(RegularExpressions expression, string newExpression)**<br>Replace the selected regular expression. <br>
-
-The type `RegularExpression` is an `enum` that can have one of the following values, corresponding to a regular expression:
-- UnlikelyCandidates
-- PossibleCandidates
-  - Positive (increases chances to keep the element)
-  - Negative (decreases chances to keep the element)
-  - Extraneous (note: this regular expression is not used anywhere at the moment)
-  - Byline
-  - Videos
-  - ShareElements
-
-Except for the *Videos* regular expression, they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
-
-The *Videos* regular expression represents a domain of origin of an embedded video. Since this is a string representing a regular expression, you have to remember to escape any dot present. This option is used to determine if an embed should be maintained in the article, because people generally want to see videos. If an embed matches one of the domains of this option is maintained, otherwise it is not.
-
-```
-// how to add the domain example.com
-AddOptionToRegularExpression(RegularExpressions.Videos, "example\.com");
-```
-
-#### Add Custom Operations
-
-The library allows the user to add custom operations. I.e., to perform arbitrary modifications to the article before is processed or it is returned to the user. A custom operation receives as argument the article (an `IElement`). For custom operations at the beginning, the element is the entire document; for custom operations executed after the processing is complete, the element is the article extracted.
-
-```csharp
-// example of custom operation
-void AddInfo(AngleSharp.Dom.IElement element)
-{       
-    // we add a paragraph to the first div we find
-	element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
-}
-
-static void RemoveElement(AngleSharp.Dom.IElement element)
-{
-    // we remove the first element with class removeable
-    element.QuerySelector(".removeable")?.Remove();
-}
-
-[..]
-Reader reader = // ..
-
-// add a custom operation at the start
-reader.AddCustomOperationStart(RemoveElement);
-
-// add a custom operation at the end
-reader.AddCustomOperationEnd(AddInfo);
-```
-
-As you can see the custom operation works on an `IElement` and it would normally rely on the AngleSharp API. AngleSharp is the library that SmartReader uses to parse and manipulate HTML. The API of the library follows the standard structure that you can use in JavaScript, so it is intuitive to use. If you need any help to use it, consult [their documentation](https://github.com/AngleSharp/AngleSharp).
-
-#### Preserve CSS Classes
-
-Normally the library strips all classes of the elements except for `page`. This is done because classes are used to govern the display of the article, but they are irrelevant to the content itself. However, there is an option to preserve other classes. This is mostly useful if you want to perform custom operations on certain elements and you need CSS classes to identify them.
-
-You can preserve classes using the property `ClassesToPreserve` which is an array of class names that will be preserved. Note that this has no effect if an element that contains the class is eliminated from the extracted article. This means that the option **does not maintain the element itself**, it just maintains the class if the element is kept in the extracted article.
-
-```
-Reader reader = // ..
-
-// preserve the class info
-reader.ClassesToPreserve = new string[] { "info" };
-```
-
-The class `page` is always kept, no matter the value you assign to this option.
-
-#### Set Custom User Agent and Custom HttpClient
-
-By default all web requests made by the library use the User Agent *SmartReader Library*. This can be changed by using the function `SetCustomUserAgent(string)`.
-
-```
-Reader.SetCustomUserAgent("SuperAwesome App - for any issue contact admin@example.com");
-```
-
-This function will change the user agent for **all subsequent web requests** with any object of the class.
-
-If you need to use a custom HttpClient, you can replace the default one, with the function `SetCustomHttpClient(HttpClient)`.
-
-```
-HttpClient superC = new HttpClient();
-// ..
-Reader.SetCustomHttpClient(superC);
-```
-
-Notice that, if the custom HttpClient does not set a custom User Agent, *SmartReader Library* will be used.
 
 ## Examples
 
@@ -225,16 +133,6 @@ The demo project is a simple ASP.NET Core webpage that allows you to input an ad
 
 The console project is a Console program that allows you to see the results of the library on a random test page.
 
-## Creating The Nuget Package
-
-In case you want to build the Nuget package yourself you can use the following command.
-
-```
- nuget pack .\SmartReader.csproj -OutputDirectory "..\nupkgs\" -Prop Configuration=Release
-```
-
-The command must be issued inside the `src/SmartReader` folder.
-
 ## Notes
 
 ### Requesting Web Pages Using .NET HTTP APIs
@@ -256,19 +154,15 @@ SmartReader does not perform any security check on the input. If you are using S
 The Readability team suggests using a sanitizer library. On .NET you could the [HTML Sanitizer](https://github.com/mganss/HtmlSanitizer) library. They also recommend using
 [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to add further defense-in-depth restrictions to what you allow the resulting content to do.
 
+### Potential Thread Issues when Using Synchronous Methods
+
+There are potential issues in using synchronous methods. That is because the underlying methods to request HTTP content provided by .NET are all asynchronous. So when you call a synchronous method of SmartReader, behind the scene we actually have still to call an asynchronous method to download the content and wait for the call to finish. 
+
+As [pointed out by theolivenbaum](https://github.com/Strumenta/SmartReader/pull/21#issuecomment-687591716), this can lead to issues:
+
+> you can easily get on thread starvation issues when using synchronous methods over asynchronous.
+>
+
 ## License
 
 The project uses the **Apache License**.
-
-## Contributors
-
-- [Unosviluppatore](https://github.com/unosviluppatore)
-- [Dan Rigby](https://github.com/DanRigby)
-- [Yasindn](https://github.com/yasindn)
-- [Jamie Lord](https://github.com/jamie-lord)
-- [Gábor Gergely](https://github.com/kodfodrasz)
-- [AndySchmitt](https://github.com/AndySchmitt)
-- [Andrew Lombard](https://github.com/alombard)
-- [LatisVlad](https://github.com/latisvlad)
-
-Thanks to all the people involved.

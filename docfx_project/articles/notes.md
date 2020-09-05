@@ -13,3 +13,12 @@ ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProto
 ```
 
 Alternatively, you can retrieve the content yourself in some other way and just use SmartReader to extract the article from the text.
+
+### Potential Thread Issues when Using Synchronous Methods
+
+There are potential issues in using synchronous methods. That is because the underlying methods to request HTTP content provided by .NET are all asynchronous. So when you call a synchronous method of SmartReader, behind the scene we actually have still to call an asynchronous method to download the content and wait for the call to finish. 
+
+As [pointed out by theolivenbaum](https://github.com/Strumenta/SmartReader/pull/21#issuecomment-687591716), this can lead to issues:
+
+> you can easily get on thread starvation issues when using synchronous methods over asynchronous.
+>
