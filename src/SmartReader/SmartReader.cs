@@ -351,6 +351,7 @@ namespace SmartReader
         /// Read and parse asynchronously the article from the given URI.
         /// </summary>
         /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <param name="userAgent">A string representing a custom user agent.</param>
         /// <returns>
         /// An async Task Article object with all the data extracted
         /// </returns>    
@@ -363,6 +364,7 @@ namespace SmartReader
         /// Read and parse the article from the given URI.
         /// </summary>
         /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <param name="userAgent">A string representing a custom user agent.</param>
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
@@ -385,6 +387,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="uri">A string representing the original URI of the article.</param>
         /// <param name="text">A string from which to extract the article.</param>
+        /// <param name="userAgent">A string representing a custom user agent.</param>
         /// <returns>
         /// An article object with all the data extracted
         /// </returns>    
