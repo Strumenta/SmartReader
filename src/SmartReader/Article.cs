@@ -22,25 +22,25 @@ namespace SmartReader
         /// <value>The original URI of the source</value>
         public Uri Uri { get; private set; }
         /// <value>The clean title</value>
-        public String Title { get; private set; }
+        public string Title { get; private set; }
         /// <value>The parsed byline</value>
-        public String Byline { get; private set; }
+        public string Byline { get; private set; }
         /// <value>The direction of the writing</value>
-        public String Dir { get; private set; }
+        public string Dir { get; private set; }
         /// <value>The URI of the main image</value>
-        public String FeaturedImage { get; private set; }
+        public string FeaturedImage { get; private set; }
         /// <value>The HTML content</value>
-        public String Content { get; private set; }
+        public string Content { get; private set; }
         /// <value>The pure-text content cleaned to be readable</value>
-        public String TextContent { get; private set; }
+        public string TextContent { get; private set; }
         /// <value>The excerpt provided by the metadata</value>
-        public String Excerpt { get; private set; }
+        public string Excerpt { get; private set; }
         /// <value>The language provided by the metadata</value>
-        public String Language { get; private set; }
+        public string Language { get; private set; }
         /// <value>The author, which can be parsed or read in the metadata</value>
-        public String Author { get; private set; }
+        public string Author { get; private set; }
         /// <value>The name of the website, which can be parsed or read in the metadata </value>
-        public String SiteName { get; private set; }
+        public string SiteName { get; private set; }
         /// <value>The length in bytes of <c>Content</c></value>
         public int Length { get; private set; }
         /// <value>The average time to read</value>
@@ -51,28 +51,30 @@ namespace SmartReader
         /// <value>It indicates whether an article was actually found</value>
         public bool IsReadable { get; private set; }        
 
-        private IElement article = null;
+        private IElement _article = null;
+        private readonly  Reader _reader;
 
-        internal Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable)
+        internal Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable, Reader reader)
         {
             Uri = uri;
             Title = title;
-            Byline = String.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
+            Byline = string.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
             Dir = dir;
             Content = article.InnerHtml;
             TextContent = ConvertToPlaintext(article);
             Excerpt = metadata.Excerpt;
             Length = article.TextContent.Length;
-            Language = String.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
+            Language = string.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
             PublicationDate = metadata.PublicationDate;
-            Author = String.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;
+            Author = string.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
             IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
-            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead()) > TimeSpan.Zero ? TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !Char.IsPunctuation(x)) / GetWeightTimeToRead()) : TimeSpan.FromMinutes(1);
+            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !char.IsPunctuation(x)) / GetWeightTimeToRead()) > TimeSpan.Zero ? TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !char.IsPunctuation(x)) / GetWeightTimeToRead()) : TimeSpan.FromMinutes(1);
             FeaturedImage = metadata.FeaturedImage;
 
-            this.article = article;
+            _article = article;
+            _reader = reader;
         }
 
         private int GetWeightTimeToRead()
@@ -81,13 +83,13 @@ namespace SmartReader
 
             try
             {
-                if (!String.IsNullOrWhiteSpace(Language))
+                if (!string.IsNullOrWhiteSpace(Language))
                     culture = new CultureInfo(Language);
             }
             catch(CultureNotFoundException)
             { }
 
-            Dictionary<String, int> CharactersMinute = new Dictionary<string, int>()
+            Dictionary<string, int> CharactersMinute = new Dictionary<string, int>()
             {
                 { "Arabic", 612 },
                 { "Chinese", 255 },
@@ -148,13 +150,13 @@ namespace SmartReader
         {
             List<Image> images = new List<Image>();
 
-            var imgs = article != null ? article.QuerySelectorAll("img") : null;
+            var imgs = _article?.QuerySelectorAll("img");
 
             if (imgs != null)
             {
                 foreach (var img in imgs)
                 {
-                    if (!String.IsNullOrEmpty(img.GetAttribute("src")))
+                    if (!string.IsNullOrEmpty(img.GetAttribute("src")))
                     {
                         long size = 0;
 
@@ -163,7 +165,7 @@ namespace SmartReader
                         try
                         {
                             imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
-                            size = await Reader.GetImageSizeAsync(imageUri);
+                            size = await _reader.GetImageSizeAsync(imageUri);
                         }
                         catch (Exception e) { }
 
@@ -184,7 +186,7 @@ namespace SmartReader
                 }
 
                 // if there is no featured image, let's set the first one we found
-                if (String.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
+                if (string.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
                     FeaturedImage = images[0].Source.ToString();
             }
 
@@ -200,20 +202,20 @@ namespace SmartReader
         /// </returns>  
         public async Task ConvertImagesToDataUriAsync(long minSize = 75000)
         {
-            var imgs = article != null ? article.QuerySelectorAll("img") : null;            
+            var imgs = _article?.QuerySelectorAll("img");            
 
             if (imgs != null)
             {
                 foreach (var img in imgs)
                 {
-                    if (!String.IsNullOrEmpty(img.GetAttribute("src")))
+                    if (!string.IsNullOrEmpty(img.GetAttribute("src")))
                     {
                         Uri imageUri = new Uri(img.GetAttribute("src"));
 
                         try
                         {
                             // download image
-                            byte[] bytes = await Reader.GetImageBytesAsync(imageUri);
+                            byte[] bytes = await _reader.GetImageBytesAsync(imageUri);
 
                             if (bytes.LongLength > minSize)
                             {
@@ -230,7 +232,7 @@ namespace SmartReader
                 }
 
                 // we update the affected properties
-                Content = article.InnerHtml;
+                Content = _article.InnerHtml;
             }
         }
 
@@ -244,7 +246,7 @@ namespace SmartReader
         {
             StringWriter writer = new StringWriter();
 
-            String text = ConvertToText(doc, writer);
+            string text = ConvertToText(doc, writer);
 
             bool previousSpace = false;            
             bool previousNewline = false;
@@ -262,7 +264,7 @@ namespace SmartReader
             while (index < stringBuilder.Length)
             {
                 // carriage return and line feed are not separator characters
-                bool isSpace = Char.IsSeparator(stringBuilder[index]);              
+                bool isSpace = char.IsSeparator(stringBuilder[index]);              
                 bool isNewline = stringBuilder[index] == '\r' || stringBuilder[index] == '\n';
 
                 // we remove a space before a newline

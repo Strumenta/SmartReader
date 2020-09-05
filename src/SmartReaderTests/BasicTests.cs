@@ -2,22 +2,13 @@
 using Xunit;
 using SmartReader;
 using System.IO;
-using Moq;
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Text;
-using System.Linq;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 using AngleSharp.Html.Parser;
-using AngleSharp.Html.Dom;
 using RichardSzalay.MockHttp;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 
 namespace SmartReaderTests
-{   
+{
     public class BasicTests
     {
         private readonly ITestOutputHelper _output;
@@ -65,8 +56,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleIdTitle()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>An article with a complex idea</title></head>
                <body></body>
                </html>");
@@ -77,8 +68,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleSeparator()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>An article with a complex idea » By SomeSite</title></head>
                <body></body>
                </html>");
@@ -89,8 +80,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleSeparatorNoSpace()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>An article with a complex idea-error</title></head>
                <body></body>
                </html>");
@@ -101,8 +92,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleSeparatorFewWords()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>SomeSite - An  incredibly  smart title</title></head>
                <body></body>
                </html>");
@@ -113,8 +104,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleSeparatorTooMuchWordsRemoved()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>By SomeSite - An  incredibly  smart title</title></head>
                <body></body>
                </html>");
@@ -125,8 +116,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleColon()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>SomeSite: An  incredibly  smart true title</title></head>
                <body></body>
                </html>");
@@ -137,8 +128,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetArticleTitleH1()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head><title>SomeSite</title></head>
                <body><h1>The right idea for you</h1></body>
                </html>");
@@ -149,8 +140,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataDescription()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>                   
                     <meta name=""og:description"" content=""The best article there is. Right here""/>
                </head>
@@ -163,8 +154,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataSiteName()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>                    
                     <meta name=""og:site_name"" content=""Some Good Site""/>
                </head>
@@ -177,8 +168,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataTitle()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>
                     <title>Some title</title>
                     <meta property=""twitter:title"" content=""Some Good Idea""/>
@@ -192,8 +183,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataLanguage()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>
                     <title>Some title</title>
                     <meta http-equiv=""Content-Language"" content=""it"">
@@ -207,8 +198,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataFeaturedImage()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>
                     <meta name=""weibo:article:image"" content=""https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png"">
                </head>
@@ -221,8 +212,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataAuthor()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>                    
                     <meta name=""author"" content=""Secret Man"">
                </head>
@@ -235,8 +226,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataDateNoDate()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head></head>
                <body></body>
                </html>");
@@ -247,8 +238,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataDateMeta()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head>                    
                     <meta itemprop=""datePublished"" content=""2110-10-21"" />
                </head>
@@ -261,8 +252,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataDateTimeTag()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head></head>
                <body><p>Hello. I am talking to you, <time datetime=""1980-09-01"" pubDate=""pubDate"">now</time></p></body>
                </html>");
@@ -273,8 +264,8 @@ namespace SmartReaderTests
         [Fact]
         public void TestGetMetadataDateUrl()
         {
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head></head>
                <body></body>
                </html>");
@@ -286,8 +277,8 @@ namespace SmartReaderTests
         public void TestConvertImagesAsDataURI()
         {
             // creating element
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head></head>
                <body>
                     <p>This is a paragraph with some text.</p>
@@ -306,11 +297,11 @@ namespace SmartReaderTests
             mockHttp.When("https://localhost/big_image.jpg")
                     .Respond("image/jpeg", File.OpenRead(@"..\..\..\test-images\big_image.jpg"));
 
-            Reader.SetCustomHttpClient(mockHttp.ToHttpClient());
+            var reader = new Reader("https://localhost/article");
 
-            Article article = new Article(new Uri("https://localhost/article"),
-                                            "Great article", "by Ulysses", "", "en", "Nobody",
-                                            doc.Body, new Metadata(), true);
+            Reader.SetBaseHttpClientHandler(mockHttp);
+
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
             
             article.ConvertImagesToDataUriAsync().Wait();
 
@@ -326,8 +317,8 @@ namespace SmartReaderTests
         public void TestPlaintextConversion()
         {
             // creating element
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions());
-            IHtmlDocument doc = parser.ParseDocument(@"<html>
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
                <head></head>
                <body>
                     <p> </p>
@@ -336,9 +327,9 @@ namespace SmartReaderTests
                     <p>This is 			a paragraph with different<br> other text.</p>
                </html>");
 
-            Article article = new Article(new Uri("https://localhost/article"),
-                                            "Great article", "by Ulysses", "", "en", "Nobody",
-                                            doc.Body, new Metadata(), true);
+            var reader = new Reader("https://localhost/article");
+
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
            
             // check that the text returned is correct
             Assert.Equal("This is a paragraph with some text.\r\n" +

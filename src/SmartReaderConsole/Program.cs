@@ -29,7 +29,7 @@ namespace SmartReaderConsole
             if (num != -1)
                 index = num;
 
-            String sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
+            string sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
             Reader reader = new Reader("https://localhost/", sourceContent);
 
@@ -83,8 +83,8 @@ namespace SmartReaderConsole
         {
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
             foreach(var p in pages)
-            {                
-                String sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));                
+            {
+                string sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));                
 
                 Reader reader = new Reader("https://localhost/", sourceContent);               
 
