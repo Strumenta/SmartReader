@@ -331,8 +331,7 @@ namespace SmartReader
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
-        
-        [Obsolete("Prefer to use the GetArticleAsync method, as this method uses sync over async.")]
+                
         public Article GetArticle()
         {
             var context = BrowsingContext.New(Configuration.Default.WithCss());
@@ -367,8 +366,7 @@ namespace SmartReader
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
-        
-        [Obsolete("Prefer to use the ParseArticleAsync method, as this method uses sync over async.")]
+
         public static Article ParseArticle(string uri, string userAgent = null)
         {
             var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
