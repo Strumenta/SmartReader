@@ -1798,7 +1798,7 @@ namespace SmartReader
 
         private async Task<Stream> GetStreamAsync(Uri resource)
         {
-            using (var httpClient = new HttpClient(_httpClientHandler.Value))
+            using (var httpClient = new HttpClient(_httpClientHandler.Value, false))
             {
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
@@ -1827,7 +1827,7 @@ namespace SmartReader
 
         internal async Task<long> GetImageSizeAsync(Uri imageSrc)
         {
-            using (var httpClient = new HttpClient(_httpClientHandler.Value))
+            using (var httpClient = new HttpClient(_httpClientHandler.Value, false))
             {
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
@@ -1848,7 +1848,7 @@ namespace SmartReader
 
         internal async Task<byte[]> GetImageBytesAsync(Uri resource)
         {
-            using (var httpClient = new HttpClient(_httpClientHandler.Value))
+            using (var httpClient = new HttpClient(_httpClientHandler.Value, false))
             {
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
