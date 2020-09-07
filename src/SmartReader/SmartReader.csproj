@@ -21,7 +21,7 @@
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
-    <Version>0.7.3</Version>
+    <Version>0.7.4</Version>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
