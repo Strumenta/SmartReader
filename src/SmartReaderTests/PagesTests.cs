@@ -80,6 +80,11 @@ namespace SmartReaderTests
             File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
 
+        private void UpdateExpectedHtml(string html, string directory)
+        {           
+            File.WriteAllText(Path.Combine(directory, @"expected.html"), html);
+        }
+
         private void AssertProperties(IArticleTest expected, Article found)
         {
             Assert.Equal(expected.IsReadable, found.IsReadable);
