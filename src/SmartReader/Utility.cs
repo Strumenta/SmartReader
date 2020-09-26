@@ -217,11 +217,11 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// Find all &lt;noscript&gt; that located after &lt;img&gt; node, and contains exactly
-        /// single&lt;img&gt; element. Once it found, this method will replace the previous&lt;img&gt;
-        /// with &lt;img&gt; inside&lt;noscript&gt;, then finally remove the &lt;noscript&gt; tag. Thi 
-        /// is done because in some website (e.g.Medium), they use lazy load method like this.
-        /// </summary>
+        /// Find all &lt;noscript&gt; that are located after &lt;img&gt; nodes, and which contain
+        /// only one single&lt;img&gt; element. Replkace the first image from inside the
+        /// &lt;noscript&gt; tag and remove the &lt;noscript&gt; tag. This improves the quality of 
+        /// images we use on some sites (e.g.Medium)
+        /// </summary>        
         /// <param name="doc">The document to operate on</param>        
         internal static void UnwrapNoscriptImages(IHtmlDocument doc)
         {            
@@ -257,18 +257,19 @@ namespace SmartReader
             ForEachNode(noscripts, (noscript) => {
                 if (noscript is IElement)
                 {
-                    // Make sure prev sibling is exist and it's image
+                    // Make sure prev sibling exists and it's image
                     var prevElement = (noscript as IElement).PreviousElementSibling;
                     if (prevElement == null || prevElement.TagName != "IMG")
                     {
                         return;
                     }
 
-                    // In jsdom content of noscript is treated as string, so here we parse it.
+                    // In spec-compliant browser, content of noscript is treated as
+                    // string so here we parse it.                    
                     var tmp = doc.CreateElement("div");
                     tmp.InnerHtml = (noscript as IElement).InnerHtml;
 
-                    // Make sure noscript only has one children, and it's <img> element
+                    // Make sure noscript only has one child, and it's <img> element
                     var children = tmp.Children;
                     if (children.Length != 1 || children[0].TagName != "IMG")
                     {
