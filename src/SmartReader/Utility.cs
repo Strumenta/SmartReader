@@ -26,7 +26,6 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_Images = new Regex(@"\.(jpg|jpeg|png|webp)$", RegexOptions.IgnoreCase);
 
         private static readonly string[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
         
@@ -257,7 +256,7 @@ namespace SmartReader
                         }
 
 
-                        if (RE_Images.IsMatch(attr.Value))
+                        if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             return; 
                     }
 
@@ -298,7 +297,7 @@ namespace SmartReader
                             }
 
                             if (attr.Name == "src" || attr.Name == "srcset"
-                            || RE_Images.IsMatch(attr.Value))
+                            || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             {
                                 if (newImg.GetAttribute(attr.Name) == attr.Value)
                                 {

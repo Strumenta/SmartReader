@@ -172,7 +172,7 @@ namespace SmartReader
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
+        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase);
 
         private string[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
 
@@ -1493,47 +1493,92 @@ namespace SmartReader
         {
             NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(root, new string[] { "img", "picture", "figure" }), (node) =>
             {
-                var elem = node as IElement;
+                // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
+                // So, here we check if the data uri is too short, just might as well remove it.
+                var elem = node as IElement;          
                 var src = elem.GetAttribute("src");
-                var srcset = elem.GetAttribute("srcset");                
-
-                if ((string.IsNullOrEmpty(src) && string.IsNullOrEmpty(srcset))
-                || (!string.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") != -1))
+                
+                if(src != null && G_RE_B64DataUrl.IsMatch(src))
                 {
+                    // Make sure it's not SVG, because SVG can have a meaningful image in under 133 bytes.
+                    var parts = G_RE_B64DataUrl.Match(src);
+                    if (parts.Groups[1].Value == "image/svg+xml")
+                    {
+                        return;
+                    }
+
+                    // Make sure this element has other attributes which contains image.
+                    // If it doesn't, then this src is important and shouldn't be removed.
+                    var srcCouldBeRemoved = false;
                     for (var i = 0; i < elem.Attributes.Length; i++)
                     {
                         var attr = elem.Attributes[i];
-                        
-                        if (attr.Name == "src" || attr.Name == "srcset")
+                        if (attr.Name == "src")
                         {
-                            continue;
-                        }
-                        string copyTo = "";                        
-                        if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)\s+\d", RegexOptions.IgnoreCase))
-                        {                            
-                            copyTo = "srcset";
-                        }
-                        else if (Regex.IsMatch(attr.Value, @"^\s*\S+\.(jpg|jpeg|png|webp)\S*\s*$", RegexOptions.IgnoreCase))
-                        {                            
-                            copyTo = "src";
+                             continue;
                         }
 
-                        if (!string.IsNullOrEmpty(copyTo))
+                        if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                         {
-                            //if this is an img or picture, set the attribute directly
-                            if (elem.TagName == "IMG" || elem.TagName == "PICTURE")
-                            {
-                                elem.SetAttribute(copyTo, attr.Value);
-                            }
-                            else if (elem.TagName == "FIGURE"
-                            && NodeUtility.GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
-                            {
-                                //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
-                                //see the nytimes-3 testcase for an example
-                                var img = doc.CreateElement("img");
-                                img.SetAttribute(copyTo, attr.Value);
-                                elem.AppendChild(img);
-                            }
+                            srcCouldBeRemoved = true;
+                            break;
+                        }
+                    }
+
+                    // Here we assume if image is less than 100 bytes (or 133B after encoded to base64)
+                    // it will be too small, therefore it might be placeholder image.
+                    if (srcCouldBeRemoved)
+                    {
+                        var b64starts = Regex.Match(src, @"base64\s*").Index + 7;
+                        var b64length = src.Length - b64starts;
+                        if (b64length < 133)
+                        {
+                            elem.RemoveAttribute("src");
+                        }
+                    }  
+                }
+
+                var srcset = elem.GetAttribute("srcset");                
+
+                if ((!String.IsNullOrEmpty(src) || (!String.IsNullOrEmpty(srcset) && srcset != null))
+                && (!string.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") == -1))
+                {
+                    return;
+                }
+
+                for (var i = 0; i < elem.Attributes.Length; i++)
+                {
+                    var attr = elem.Attributes[i];
+
+                    if (attr.Name == "src" || attr.Name == "srcset")
+                    {
+                        continue;
+                    }
+                    string copyTo = "";
+                    if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)\s+\d", RegexOptions.IgnoreCase))
+                    {
+                        copyTo = "srcset";
+                    }
+                    else if (Regex.IsMatch(attr.Value, @"^\s*\S+\.(jpg|jpeg|png|webp)\S*\s*$", RegexOptions.IgnoreCase))
+                    {
+                        copyTo = "src";
+                    }
+
+                    if (!string.IsNullOrEmpty(copyTo))
+                    {
+                        //if this is an img or picture, set the attribute directly
+                        if (elem.TagName == "IMG" || elem.TagName == "PICTURE")
+                        {
+                            elem.SetAttribute(copyTo, attr.Value);
+                        }
+                        else if (elem.TagName == "FIGURE"
+                        && NodeUtility.GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
+                        {
+                            //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
+                            //see the nytimes-3 testcase for an example
+                            var img = doc.CreateElement("img");
+                            img.SetAttribute(copyTo, attr.Value);
+                            elem.AppendChild(img);
                         }
                     }
                 }

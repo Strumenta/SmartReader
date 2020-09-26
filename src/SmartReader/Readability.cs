@@ -22,6 +22,15 @@ namespace SmartReader
     internal static class Readability
     {
         private static readonly Regex RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_SrcSetUrl = new Regex(@"(\S+)(\s+[\d.]+[xw])?(\s*(?:,|$))", RegexOptions.IgnoreCase);
+        // These are the list of HTML entities that need to be escaped.
+        private static Dictionary<string, string> htmlEscapeMap = new Dictionary<string, string>() {
+            { "lt", "<" },
+            { "gt", ">" },
+            { "amp", "&"},
+            { "quot", "\""},
+            { "apos", "'"}
+        };
 
         /// <summary>
         /// Removes the class attribute from every element in the given
@@ -100,16 +109,38 @@ namespace SmartReader
                 }
             });
 
-            var imgs = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "img" });
-            NodeUtility.ForEachNode(imgs, (img) =>
-            {
-                var src = (img as IElement).GetAttribute("src");
-                if (!string.IsNullOrWhiteSpace(src))
+            var medias = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "img", "picture", "figure", "video", "audio", "source" });
+
+            NodeUtility.ForEachNode(medias, (media_node) => {
+                if (media_node is IElement)
                 {
-                    (img as IElement).SetAttribute("src", uri.ToAbsoluteURI(src));
-                }
+                    var media = media_node as IElement;
+                    var src = media.GetAttribute("src");
+                    var poster = media.GetAttribute("poster");
+                    var srcset = media.GetAttribute("srcset");
+
+                    if (src != null)
+                    {
+                        media.SetAttribute("src", uri.ToAbsoluteURI(src));
+                    }
+
+                    if (poster != null)
+                    {
+                        media.SetAttribute("poster", uri.ToAbsoluteURI(poster));
+                    }
+
+                    if (srcset != null)
+                    {                        
+                        var newSrcset = RE_SrcSetUrl.Replace(srcset, (input) =>
+                        {
+                            return uri.ToAbsoluteURI(input.Groups[1].Value) + (input.Groups[2]?.Value ?? "") + input.Groups[3].Value;
+                        });                                 
+
+                        media.SetAttribute("srcset", newSrcset);
+                    }
+                }            
             });
-        }
+        }               
 
         /// <summary>
         /// Clean the article title found in a tag
@@ -237,6 +268,29 @@ namespace SmartReader
                 return (byline.Length > 0) && (byline.Length < 100);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Converts some of the common HTML entities in string to their corresponding characters.
+        /// <para>This verifies that the input is a string, and that the length
+		/// is less than 100 chars.</para> 
+        /// </summary>
+        /// <param name="str">a string to unescape</param>
+        /// <returns>String without HTML entity</returns>
+        internal static string UnescapeHtmlEntities(string str)
+        {
+            if (String.IsNullOrEmpty(str))
+            {
+                return str;
+            }
+
+            return Regex.Replace(Regex.Replace(str, @"&(quot|amp|apos|lt|gt);", (tag) => {
+                return htmlEscapeMap[tag.Groups[1].Value];
+            }), @"&#(?:x([0-9a-z]{1,4})|([0-9]{1,4}));", (entity) =>
+            {
+                var num = Convert.ToUInt32(!String.IsNullOrEmpty(entity.Groups[1]?.Value) ? entity.Groups[1]?.Value : entity.Groups[2]?.Value, !String.IsNullOrEmpty(entity.Groups[1]?.Value) ? 16 : 10);
+                return Convert.ToChar(num).ToString();
+            });                   
         }
 
         /// <summary>
@@ -369,7 +423,7 @@ namespace SmartReader
                 yield return values.ContainsKey("title") ? values["title"] : null;
             }
 
-            metadata.Title = TitleKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.Title = TitleKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? ""; 
 
             // Let's try to eliminate the site name from the title
             metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
@@ -473,6 +527,13 @@ namespace SmartReader
                         !string.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
                 }
             }
+
+            // in many sites the meta value is escaped with HTML entities,
+            // so here we need to unescape it    
+            metadata.Title = UnescapeHtmlEntities(metadata.Title);
+            metadata.Byline = UnescapeHtmlEntities(metadata.Byline);
+            metadata.Excerpt = UnescapeHtmlEntities(metadata.Excerpt);
+            metadata.SiteName = UnescapeHtmlEntities(metadata.SiteName);
 
             return metadata;
         }
