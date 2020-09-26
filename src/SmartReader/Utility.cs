@@ -217,6 +217,71 @@ namespace SmartReader
         }
 
         /// <summary>
+        /// Find all &lt;noscript&gt; that located after &lt;img&gt; node, and contains exactly
+        /// single&lt;img&gt; element. Once it found, this method will replace the previous&lt;img&gt;
+        /// with &lt;img&gt; inside&lt;noscript&gt;, then finally remove the &lt;noscript&gt; tag. Thi 
+        /// is done because in some website (e.g.Medium), they use lazy load method like this.
+        /// </summary>
+        /// <param name="doc">The document to operate on</param>        
+        internal static void UnwrapNoscriptImages(IHtmlDocument doc)
+        {            
+            // First, find div which only contains single img element, then put it out.
+            var divs = doc.GetElementsByTagName("div");            
+            ForEachNode(divs, (div) => {
+                if ((div is IElement)
+                && (div as IElement).Children.Length == 1 && ((div as IElement).Children[0].TagName == "IMG"))
+                {
+                    div.Parent.ReplaceChild((div as IElement).Children[0], div);
+                }
+            });
+
+            // Next find img without source, and remove it. This is done to
+            // prevent a placeholder img is replaced by img from noscript in next step.
+            var imgs = doc.GetElementsByTagName("img");
+            ForEachNode(imgs, (img) => {
+                if (img is IElement) {
+                    var src = (img as IElement).GetAttribute("src") ?? "";
+                    var srcset = (img as IElement).GetAttribute("srcset") ?? "";
+                    var dataSrc = (img as IElement).GetAttribute("data-src") ?? "";
+                    var dataSrcset = (img as IElement).GetAttribute("data-srcset") ?? "";
+
+                    if (src == "" && srcset == "" && dataSrc == "" && dataSrcset == "")
+                    {
+                        img.Parent.RemoveChild(img);
+                    }
+                }
+            });
+
+            // Next find noscript and try to extract its image
+            var noscripts = doc.GetElementsByTagName("noscript");
+            ForEachNode(noscripts, (noscript) => {
+                if (noscript is IElement)
+                {
+                    // Make sure prev sibling is exist and it's image
+                    var prevElement = (noscript as IElement).PreviousElementSibling;
+                    if (prevElement == null || prevElement.TagName != "IMG")
+                    {
+                        return;
+                    }
+
+                    // In jsdom content of noscript is treated as string, so here we parse it.
+                    var tmp = doc.CreateElement("div");
+                    tmp.InnerHtml = (noscript as IElement).InnerHtml;
+
+                    // Make sure noscript only has one children, and it's <img> element
+                    var children = tmp.Children;
+                    if (children.Length != 1 || children[0].TagName != "IMG")
+                    {
+                        return;
+                    }
+
+                    // At this point, just replace the previous img with img from noscript.
+                    noscript.Parent.ReplaceChild(children[0], prevElement);
+                }               
+            });
+        }
+
+        /// <summary>
         /// Removes script tags from the element
         /// </summary>
         /// <param name="element">The element to operate on</param>

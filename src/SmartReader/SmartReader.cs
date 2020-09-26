@@ -1753,6 +1753,9 @@ namespace SmartReader
             // perform custom operations at the start
             foreach (var operation in CustomOperationsStart)
                 operation(doc.DocumentElement);
+            
+            // Unwrap image from noscript            
+            NodeUtility.UnwrapNoscriptImages(doc);
 
             // Remove script tags from the document.            
             NodeUtility.RemoveScripts(doc.DocumentElement);
