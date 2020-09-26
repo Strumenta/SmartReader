@@ -825,6 +825,14 @@ namespace SmartReader
                         }
                     }
 
+                    // Remove nodes with role=complementary
+                    if (node.GetAttribute("role") == "complementary")
+                    {
+                        LoggerDelegate("Removing complementary content - " + matchString);
+                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        continue;
+                    }
+
                     // Remove DIV, SECTION, and HEADER nodes without any content(e.g. text, image, video, or iframe).
 
                     if ((node.TagName == "DIV" || node.TagName == "SECTION" || node.TagName == "HEADER" ||
