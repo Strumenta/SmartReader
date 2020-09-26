@@ -26,6 +26,7 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_Images = new Regex(@"\.(jpg|jpeg|png|webp)$", RegexOptions.IgnoreCase);
 
         private static readonly string[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
         
@@ -215,70 +216,108 @@ namespace SmartReader
         {
             return node.QuerySelectorAll(string.Join(",", tagNames));
         }
+        
+        /// <summary>
+        /// Check if node is image, or if node contains exactly only one image
+        /// whether as a direct child or as its descendants.
+        /// </summary>        
+        /// <param name="element">The element to operate on</param>  
+        internal static bool IsSingleImage(IElement element)
+        {
+            if (element.TagName == "IMG") return true;
+            if (element.Children.Length != 1 || element.TextContent.Trim() != "") return false;
+            return IsSingleImage(element.Children[0]);
+        }
 
         /// <summary>
         /// Find all &lt;noscript&gt; that are located after &lt;img&gt; nodes, and which contain
-        /// only one single&lt;img&gt; element. Replkace the first image from inside the
-        /// &lt;noscript&gt; tag and remove the &lt;noscript&gt; tag. This improves the quality of 
+        /// only one single&lt;img&gt; element. Replace the first image from inside the
+        /// &lt;noscript&gt; tag and remove the &lt;noscript&gt; tag. This improves the quality of the
         /// images we use on some sites (e.g.Medium)
         /// </summary>        
         /// <param name="doc">The document to operate on</param>        
         internal static void UnwrapNoscriptImages(IHtmlDocument doc)
-        {            
-            // First, find div which only contains single img element, then put it out.
-            var divs = doc.GetElementsByTagName("div");            
-            ForEachNode(divs, (div) => {
-                if ((div is IElement)
-                && (div as IElement).Children.Length == 1 && ((div as IElement).Children[0].TagName == "IMG"))
-                {
-                    div.Parent.ReplaceChild((div as IElement).Children[0], div);
-                }
-            });
-
-            // Next find img without source, and remove it. This is done to
-            // prevent a placeholder img is replaced by img from noscript in next step.
+        {
+            // Find img without source or attributes that might contains image, and remove it.
+            // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
             ForEachNode(imgs, (img) => {
-                if (img is IElement) {
-                    var src = (img as IElement).GetAttribute("src") ?? "";
-                    var srcset = (img as IElement).GetAttribute("srcset") ?? "";
-                    var dataSrc = (img as IElement).GetAttribute("data-src") ?? "";
-                    var dataSrcset = (img as IElement).GetAttribute("data-srcset") ?? "";
-
-                    if (src == "" && srcset == "" && dataSrc == "" && dataSrcset == "")
+                if (img is IElement)
+                {
+                    for (var i = 0; i < (img as IElement).Attributes.Length; i++)
                     {
-                        img.Parent.RemoveChild(img);
+                        var attr = (img as IElement).Attributes[i];
+                        switch(attr.Name)
+                        {
+                            case "src":
+                            case "srcset":
+                            case "data-src":
+                            case "data-srcset":
+                                return;
+                        }
+
+
+                        if (RE_Images.IsMatch(attr.Value))
+                            return; 
                     }
+
+                    img.Parent.RemoveChild(img);
                 }
             });
-
+           
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
             ForEachNode(noscripts, (noscript) => {
                 if (noscript is IElement)
                 {
-                    // Make sure prev sibling exists and it's image
-                    var prevElement = (noscript as IElement).PreviousElementSibling;
-                    if (prevElement == null || prevElement.TagName != "IMG")
-                    {
-                        return;
-                    }
-
-                    // In spec-compliant browser, content of noscript is treated as
-                    // string so here we parse it.                    
+                    // Parse content of noscript and make sure it only contains image
                     var tmp = doc.CreateElement("div");
                     tmp.InnerHtml = (noscript as IElement).InnerHtml;
-
-                    // Make sure noscript only has one child, and it's <img> element
-                    var children = tmp.Children;
-                    if (children.Length != 1 || children[0].TagName != "IMG")
-                    {
+                    if (!IsSingleImage(tmp))
                         return;
-                    }
 
-                    // At this point, just replace the previous img with img from noscript.
-                    noscript.Parent.ReplaceChild(children[0], prevElement);
-                }               
+                    // If noscript has previous sibling and it only contains image,
+                    // replace it with noscript content. However we also keep old
+                    // attributes that might contains image.
+                    var prevElement = (noscript as IElement).PreviousElementSibling;
+                    if (prevElement != null && IsSingleImage(prevElement))
+                    {
+                        var prevImg = prevElement;
+                        if (prevImg.TagName != "IMG")
+                        {
+                            prevImg = prevElement.GetElementsByTagName("img")[0];
+                        }
+
+                        var newImg = tmp.GetElementsByTagName("img")[0];
+                        for (var i = 0; i < prevImg.Attributes.Length; i++)
+                        {
+                            var attr = prevImg.Attributes[i];
+                            if (attr.Value == "")
+                            {
+                                continue;
+                            }
+
+                            if (attr.Name == "src" || attr.Name == "srcset"
+                            || RE_Images.IsMatch(attr.Value))
+                            {
+                                if (newImg.GetAttribute(attr.Name) == attr.Value)
+                                {
+                                    continue;
+                                }
+
+                                var attrName = attr.Name;
+                                if (newImg.HasAttribute(attrName))
+                                {
+                                    attrName = "data-old-" + attrName;
+                                }
+
+                                newImg.SetAttribute(attrName, attr.Value);
+                            }
+                        }
+
+                        noscript.Parent.ReplaceChild(tmp.FirstElementChild, prevElement);
+                    }
+                }
             });
         }
 
