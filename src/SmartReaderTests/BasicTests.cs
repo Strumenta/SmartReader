@@ -7,6 +7,7 @@ using AngleSharp.Html.Parser;
 using RichardSzalay.MockHttp;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
+using System.Collections.Generic;
 
 namespace SmartReaderTests
 {
@@ -149,7 +150,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("The best article there is. Right here", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").Excerpt);
+            Assert.Equal("The best article there is. Right here", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).Excerpt);
         }
 
         [Fact]
@@ -163,7 +164,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Some Good Site", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").SiteName);
+            Assert.Equal("Some Good Site", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).SiteName);
         }
 
         [Fact]
@@ -178,7 +179,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Some Good Idea", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en").Title);
+            Assert.Equal("Some Good Idea", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).Title);
         }
 
         [Fact]
@@ -193,7 +194,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("it", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").Language);
+            Assert.Equal("it", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).Language);
         }
 
         [Fact]
@@ -207,7 +208,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").FeaturedImage);
+            Assert.Equal("https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).FeaturedImage);
         }
 
         [Fact]
@@ -221,7 +222,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").Author);
+            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).Author);
         }
 
         [Fact]
@@ -233,7 +234,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Null(Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+            Assert.Null(Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]
@@ -247,7 +248,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]
@@ -259,7 +260,7 @@ namespace SmartReaderTests
                <body><p>Hello. I am talking to you, <time datetime=""1980-09-01"" pubDate=""pubDate"">now</time></p></body>
                </html>");
 
-            Assert.Equal(new DateTime(1980, 9, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "").PublicationDate);
+            Assert.Equal(new DateTime(1980, 9, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]
@@ -271,7 +272,7 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21"), "").PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21"), "", new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]
@@ -406,6 +407,57 @@ namespace SmartReaderTests
 
             // check that the text returned is correct
             Assert.Equal(@"********** is a great language for system programming.", article.TextContent);
+        }
+
+        [Fact]
+        public void TestGetMetadataAuthorFromJsonLD()
+        {
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta name=""author"" content=""Secret Man"">
+					<script type=""application/ld+json"">
+					{
+						""@context"": ""http://schema.org""
+						,""@type"": ""Article""						
+						,""author"": {
+                            ""@type"": ""Person"",
+                            ""name"": ""Real Author""
+                        }
+					}
+					</script>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Real Author", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+        }
+
+        [Fact]
+        public void TestGetMetadataAuthorsFromJsonLD()
+        {
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta name=""author"" content=""Secret Man"">
+					<script type=""application/ld+json"">
+					{
+						""@context"": ""http://schema.org""
+						,""@type"": ""Article""						
+						,""author"": [{
+                            ""@type"": ""Person"",
+                            ""name"": ""Real Author""
+                        },{
+                            ""@type"": ""Person"",
+                            ""name"": ""Secret Man""
+                        }]
+					}
+					</script>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Real Author, Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
         }
     }
 }

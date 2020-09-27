@@ -138,7 +138,12 @@ namespace SmartReader
 
         /// <summary>Element tags to score by default.</summary>
         /// <value>Default: false</value>
-        public string[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');        
+        public string[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');
+
+        /// <summary>The library look first at JSON-LD to determine metadata.
+        /// This setting gives you the option of disabling it</summary>
+        /// <value>Default: false</value>          
+        public bool DisableJSONLD { get; set; } = false;
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -156,7 +161,7 @@ namespace SmartReader
         private Regex RE_PrevLink             = G_RE_PrevLink;
         private Regex RE_Whitespace           = G_RE_Whitespace;
         private Regex RE_ShareElements        = G_RE_ShareElements;
-
+        //private Regex RE_JsonLdArticleTypes   = G_RE_JsonLdArticleTypes;
 
         //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -172,7 +177,7 @@ namespace SmartReader
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase);
+        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
 
         private string[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
 
@@ -1810,6 +1815,9 @@ namespace SmartReader
             // Unwrap image from noscript            
             NodeUtility.UnwrapNoscriptImages(doc);
 
+            // Extract JSON-LD metadata before removing scripts
+            var jsonLd = DisableJSONLD ? new Dictionary<string, string>() : Readability.GetJSONLD(this.doc);
+
             // Remove script tags from the document.            
             NodeUtility.RemoveScripts(doc.DocumentElement);
 
@@ -1818,7 +1826,7 @@ namespace SmartReader
             if (Debug || Logging == ReportLevel.Info)
                 LoggerDelegate("<h2>Pre-GrabArticle:</h2>" + doc.DocumentElement.InnerHtml);
 
-            var metadata = Readability.GetArticleMetadata(this.doc, this.uri, this.language);
+            var metadata = Readability.GetArticleMetadata(this.doc, this.uri, this.language, jsonLd);
             articleTitle = metadata.Title;
 
             var articleContent = GrabArticle();

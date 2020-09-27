@@ -176,6 +176,25 @@ namespace SmartReader
 
             return false;
         }
+        /// <summary>
+        /// <para>Iterate over a NodeList, and return the first node that passes
+        /// the supplied test function.</para>		
+        /// <para>For convenience, the current object context is applied to the
+        /// provided test function.</para>
+        /// </summary>
+        /// <param name="elementList">The nodes to operate on</param>
+        /// <param name="fn">The test function</param>
+        /// <returns>INode</returns>
+        internal static IElement FindNode(IHtmlCollection<IElement> elementList, Func<IElement, bool> fn)
+        {
+            foreach (var node in elementList)
+            {
+                if (fn(node))
+                    return node;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// <para>Iterate over a NodeList, return true if all of the provided iterate
@@ -630,6 +649,6 @@ namespace SmartReader
                 next = next.NextSibling;
             }
             return next as IElement;
-        }
+        }       
     }    
 }

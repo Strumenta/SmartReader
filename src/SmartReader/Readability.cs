@@ -11,6 +11,8 @@ using AngleSharp.Css.Parser;
 using AngleSharp;
 using AngleSharp.Html.Dom;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Json;
+using System.Text.Json;
 
 [assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
@@ -23,6 +25,8 @@ namespace SmartReader
     {
         private static readonly Regex RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase);
         private static readonly Regex RE_SrcSetUrl = new Regex(@"(\S+)(\s+[\d.]+[xw])?(\s*(?:,|$))", RegexOptions.IgnoreCase);
+        // See: https://schema.org/Article
+        private static readonly Regex RE_JsonLdArticleTypes = new Regex(@"^Article|AdvertiserContentArticle|NewsArticle|AnalysisNewsArticle|AskPublicNewsArticle|BackgroundNewsArticle|OpinionNewsArticle|ReportageNewsArticle|ReviewNewsArticle|Report|SatiricalArticle|ScholarlyArticle|MedicalScholarlyArticle|SocialMediaPosting|BlogPosting|LiveBlogPosting|DiscussionForumPosting|TechArticle|APIReference$");
         // These are the list of HTML entities that need to be escaped.
         private static Dictionary<string, string> htmlEscapeMap = new Dictionary<string, string>() {
             { "lt", "<" },
@@ -292,6 +296,123 @@ namespace SmartReader
                 return Convert.ToChar(num).ToString();
             });                   
         }
+   
+        /// <summary>
+        /// Try to extract metadata from JSON-LD object.
+        /// For now, only Schema.org objects of type Article or its subtypes are supported.
+        /// </summary>
+        /// <param name="doc">The document</param>
+        /// <returns>Dictionary with any metadata that could be extracted (possibly none)</returns>
+        internal static Dictionary<string, string> GetJSONLD(IHtmlDocument doc)
+        {
+            var jsonLDMetadata = new Dictionary<string, string>();
+            
+            var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "script" });
+
+            var jsonLdElement = NodeUtility.FindNode(scripts, (el) => {
+                return el?.GetAttribute("type") == "application/ld+json";
+            });
+
+            if (jsonLdElement != null)
+            {              
+                // Strip CDATA markers if present
+                var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\$","");
+                try
+                {
+                    using (JsonDocument document = JsonDocument.Parse(content))
+                    {
+                        var root = document.RootElement;
+                        JsonElement value;
+
+                        // JsonLD can contain an array of elements inside property @graph
+                        if (!root.TryGetProperty("@type", out value)
+                            && root.TryGetProperty("@graph", out value))
+                        {
+                            var graph = value.EnumerateArray();
+                            foreach(var obj in graph)
+                            {
+                                if (obj.TryGetProperty("@type", out value)
+                                    && RE_JsonLdArticleTypes.IsMatch(value.GetString()))
+                                {
+                                    root = obj;
+                                    break;
+                                }
+                            }                            
+                        }
+
+                        if (!root.TryGetProperty("@context", out value)
+                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))                     
+                        {
+                            return jsonLDMetadata;
+                        }
+                       
+                        if (!root.TryGetProperty("@type", out value)
+                            || !RE_JsonLdArticleTypes.IsMatch(value.GetString()))
+                        {
+                            return jsonLDMetadata;
+                        }
+
+                        if (root.TryGetProperty("name", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                        }
+                        if (root.TryGetProperty("headline", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                        }
+                        if (root.TryGetProperty("author", out value))
+                        {
+                            if (value.ValueKind == JsonValueKind.Object)
+                            {
+                                jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString().Trim();
+                            }
+                            else if(value.ValueKind == JsonValueKind.Array
+                                && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
+                            {
+                                 var authors = root.GetProperty("author").EnumerateArray();
+                                 List<string> byline = new List<string>();
+                                 foreach(var author in authors)
+                                 {
+                                    if (author.TryGetProperty("name", out value)
+                                    && value.ValueKind == JsonValueKind.String)
+                                        byline.Add(value.GetString().Trim());
+                                 }
+
+                                jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
+                            }
+                        }
+
+                        if (root.TryGetProperty("description", out value)
+                            && value.ValueKind == JsonValueKind.String)                           
+                        {
+                            jsonLDMetadata["jsonld:description"] = value.GetString().Trim();
+                        }
+                        if (root.TryGetProperty("publisher", out value)
+                            && value.ValueKind == JsonValueKind.Object)
+                        {
+                            jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString().Trim();
+                        }
+                        if (root.TryGetProperty("datePublished", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString();
+                        }
+                        if (root.TryGetProperty("image", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    
+                }
+            }
+            return jsonLDMetadata;
+        }
 
         /// <summary>
         /// Attempts to get metadata for the article.
@@ -300,10 +421,10 @@ namespace SmartReader
         /// <param name="uri">The uri, possibly used to check for a date</param>
         /// <param name="language">The language that was possibly found in the headers of the response</param>
         /// <returns>The metadata object with all the info found</returns>
-        internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string language)
+        internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string language, Dictionary<string, string> jsonLD)
         {
             Metadata metadata = new Metadata();
-            Dictionary<string, string> values = new Dictionary<string, string>();
+            Dictionary<string, string> values = jsonLD;            
             var metaElements = doc.GetElementsByTagName("meta");
 
             // Match "description", or Twitter's "twitter:description" (Cards)
@@ -337,7 +458,6 @@ namespace SmartReader
                 {
                     metadata.Byline = (element as IElement).GetAttribute("content");
                     metadata.Author = (element as IElement).GetAttribute("content");
-                    return;
                 }
 
                 if (!string.IsNullOrEmpty(elementProperty))
@@ -396,6 +516,7 @@ namespace SmartReader
             // Find the the description of the article
             IEnumerable<string> DescriptionKeys()
             {
+                yield return values.ContainsKey("jsonld:description") ? values["jsonld:description"] : null;
                 yield return values.ContainsKey("description") ? values["description"] : null;
                 yield return values.ContainsKey("dc:description") ? values["dc:description"] : null;
                 yield return values.ContainsKey("dcterm:description") ? values["dcterm:description"] : null;
@@ -407,13 +528,19 @@ namespace SmartReader
 
             metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
+            IEnumerable<string> SiteNameKeys()
+            {
+                yield return values.ContainsKey("jsonld:siteName") ? values["jsonld:siteName"] : null;
+                yield return values.ContainsKey("og:site_name") ? values["og:site_name"] : null;
+            }
+
             // Get the name of the site
-            if (values.ContainsKey("og:site_name"))
-                metadata.SiteName = values["og:site_name"];
+            metadata.SiteName = SiteNameKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             // Find the title of the article
             IEnumerable<string> TitleKeys()
             {
+                yield return values.ContainsKey("jsonld:title") ? values["jsonld:title"] : null;
                 yield return values.ContainsKey("dc:title") ? values["dc:title"] : null;
                 yield return values.ContainsKey("dcterm:title") ? values["dcterm:title"] : null;
                 yield return values.ContainsKey("og:title") ? values["og:title"] : null;
@@ -449,6 +576,7 @@ namespace SmartReader
             // Find the featured image of the article
             IEnumerable<string> FeaturedImageKeys()
             {
+                yield return values.ContainsKey("jsonld:image") ? values["jsonld:image"] : null;
                 yield return values.ContainsKey("og:image") ? values["og:image"] : null;
                 yield return values.ContainsKey("twitter:image") ? values["twitter:image"] : null;
                 yield return values.ContainsKey("weibo:article:image") ? values["weibo:article:image"] : null;
@@ -456,22 +584,20 @@ namespace SmartReader
             }
 
             metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
-
-            if (string.IsNullOrEmpty(metadata.Author))
+            
+            // We try to find a meta tag for the author.
+            // Note that there is Open Grapg tag for an author,
+            // but it usually contains a profile URL of the author.
+            // So we do not use it
+            IEnumerable<string> AuthorKeys()
             {
-                // We try to find a meta tag for the author.
-                // Note that there is Open Grapg tag for an author,
-                // but it usually contains a profile URL of the author.
-                // So we do not use it
-                IEnumerable<string> AuthorKeys()
-                {
-                    yield return values.ContainsKey("dc:creator") ? values["dc:creator"] : null;
-                    yield return values.ContainsKey("dcterm:creator") ? values["dcterm:creator"] : null;
-                    yield return values.ContainsKey("author") ? values["author"] : null;
-                }
-
-                metadata.Author = AuthorKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+                yield return values.ContainsKey("jsonld:author") ? values["jsonld:author"] : null;
+                yield return values.ContainsKey("dc:creator") ? values["dc:creator"] : null;
+                yield return values.ContainsKey("dcterm:creator") ? values["dcterm:creator"] :null;
+                yield return values.ContainsKey("author") ? values["author"] : null;
             }
+
+            metadata.Author = AuthorKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             // added date extraction
             DateTime date;
@@ -479,6 +605,10 @@ namespace SmartReader
             // added language extraction            
             IEnumerable<DateTime?> DateHeuristics()
             {
+                yield return values.ContainsKey("jsonld:datePublished")
+                    && DateTime.TryParse(values["jsonld:datePublished"], out date) ?
+                    date : DateTime.MinValue;
+
                 yield return values.ContainsKey("article:published_time")
                     && DateTime.TryParse(values["article:published_time"], out date) ?
                     date : DateTime.MinValue;
