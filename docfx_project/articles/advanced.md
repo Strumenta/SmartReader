@@ -90,3 +90,43 @@ HttpMessageHandler majesticHandler = GetMyTailorMadeHttpMessageHandler();
 // ..
 Reader.`SetBaseHttpClientHandler(majesticHandler);
 ```
+
+## Manipulating Content Returned by Article 
+
+By default the HTML content returned in the `Article` object it is just the property InnerHTML of the extracted HTML. You can change that by changing the static property `Serializer` of the `Article` class. This property is a `Func<IElement, string>` method, that is is a method that accepts as an argument an `IElement` and returns a `string`.
+
+Since you have access to the AngleSharp library, this can be quite useful. For instance, in case you want to ensure that the HTML is well-formed or to transform the content in a way that is useful to your application. This is also the ideal place where to make changes to the content, such as formatting text or removing content.
+
+What follows is a terrible example.
+
+```
+// example of an alternative serializer that remove spaces outside and inside (unless they are pre) tags
+string RemoveSpace(AngleSharp.Dom.IElement element)
+{
+	return Regex.Replace(
+		Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"),
+		@"(?<endBefore><((?!pre).)*?>)\s+",
+		"${endBefore}").Trim();
+}
+
+[..]
+
+Article.Serializer = RemoveSpace;
+```
+
+You can also replace the standard function used to convert HTML content in plain text, that is the function called to calculate the `TextContent` property of an `Article` object. You can do that by changing the property `Converter` which is also of type `Func<IElement, string>`, that is is a method that accepts as an argument an `IElement` and returns a `string`. 
+
+
+Since you have access to the AngleSharp library, this can be quite useful. For example, the standard converter function convert <p> and <br> tags in corresponding line breaks in text.
+
+```
+// example of an alternative converter
+string MagicConverter(AngleSharp.Dom.IElement element)
+{
+	[..]
+}
+
+[..]
+
+Article.Converter = MagicConverter;
+```

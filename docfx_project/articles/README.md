@@ -31,7 +31,9 @@ SmartReader also add some improvements on the original library, mainly to get mo
 - a list of images found (it can optionally also download them and store as data URI)
 - an estimate of the time needed to read the article
 
- Feel free to suggest new features. 
+It also allows to perform custom operations before and after extracting the article.
+
+Feel free to suggest new features. 
 
 ## Installation
 
@@ -100,6 +102,7 @@ if(article.IsReadable)
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article. <br>*Default: ["page"]*
+- `bool` **DisableJSONLD** <br> The library look first at JSON-LD to determine metadata. This setting gives you the option of disabling it<br> *Default: false*
 
 ## Article Model
 

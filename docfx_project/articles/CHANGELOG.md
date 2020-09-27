@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.7.5
+- Added improvements from latest updates of Readability
+- Added functionality to unwrap images that are meant to be lazy loaded
+- Remove nodes with role complementary
+- Fix lazy-loaded images not visibile in Kinja sites
+- Added function to serialize HTML content in article
+Added support to look up metadata in JSON-LD object
+- Improved byline parsing
+
+## 0.7.4 - 2020/09/07
+- Fixes [issue #22](https://github.com/Strumenta/SmartReader/issues/22), bug regarding disposal of HttpClient (Thanks to [MaratPavlov](https://github.com/MaratPavlov))
+
 ## 0.7.3 - 2020/09/05
 - Fixes [issue #20](https://github.com/Strumenta/SmartReader/issues/20), bug regarding multi-thread use (Thanks to [theolivenbaum](https://github.com/theolivenbaum))
 - Improved efficiency of Regex use (Thanks to [theolivenbaum](https://github.com/theolivenbaum))

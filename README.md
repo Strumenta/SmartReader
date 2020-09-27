@@ -33,7 +33,9 @@ SmartReader also add some improvements on the original library, getting more and
 - a list of images found (it can optionally also download them and store as data URI)
 - an estimate of the time needed to read the article
 
- Feel free to suggest new features. 
+It also allows to perform custom operations before and after extracting the article.
+
+Feel free to suggest new features. 
 
 ##  Installation
 
@@ -116,6 +118,7 @@ The following settings on the `Reader` class can be modified.
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
 - `bool` **KeepClasses** <br>Whether to preserve or clean CSS classes.<br>*Default: false*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article, if we opt to not keep all of them.<br>*Default: ["page"]*
+- `bool` **DisableJSONLD** <br> The library look first at JSON-LD to determine metadata. This setting gives you the option of disabling it<br> *Default: false*
 
 ##  Article Model
 
