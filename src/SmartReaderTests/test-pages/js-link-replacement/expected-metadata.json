@@ -1,13 +1,13 @@
 {
   "title": "Replace javascript: links",
-  "byline": null,
+  "byline": "",
+  "dir": "",
   "excerpt": "abc",
-  "siteName": null,
-  "readerable": false,  
-  "featuredImage": "",
+  "readerable": false,
+  "language": null,
   "timeToRead": "00:01:00",
   "publicationDate": null,
-  "dir": "",
-  "language": null,
-  "author": "",
+  "author": null,
+  "siteName": "",
+  "featuredImage": ""
 }
