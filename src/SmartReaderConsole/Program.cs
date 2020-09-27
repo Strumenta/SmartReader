@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
-using SmartReader;
+﻿using SmartReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SmartReaderConsole
 {
@@ -19,8 +19,15 @@ namespace SmartReaderConsole
             element.QuerySelector(".removeable")?.Remove();
         }
 
+        static string RemoveSpace(AngleSharp.Dom.IElement element)
+        {
+            return Regex.Replace(Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><((?!pre).)*?>)\s+", "${endBefore}");
+        }
+
         static void RunRandomExample(int num = -1)
         {
+            Article.Serializer = Program.RemoveSpace;
+
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
 
             Random random = new Random();
@@ -84,7 +91,7 @@ namespace SmartReaderConsole
             var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
             foreach(var p in pages)
             {
-                string sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));                
+                string sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));               
 
                 Reader reader = new Reader("https://localhost/", sourceContent);               
 
