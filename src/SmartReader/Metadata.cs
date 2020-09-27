@@ -5,8 +5,7 @@ using System.Runtime.CompilerServices;
 namespace SmartReader
 {    
     internal class Metadata
-    {
-        internal string Byline { get; set; } = "";
+    {        
         internal string Title { get; set; } = "";
         internal string Excerpt { get; set; } = "";
         internal string Language { get; set; } = "";

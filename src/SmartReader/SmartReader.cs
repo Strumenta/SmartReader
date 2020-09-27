@@ -751,11 +751,13 @@ namespace SmartReader
                 }
 
                 articleByline = node.TextContent.Trim();
+                // we remove residual mustache (or similar templating) references
+                articleByline = Regex.Replace(articleByline.StartsWith("by") ? articleByline.Substring(2) : articleByline, @"{{.*?}}", "").Trim();
                 return true;
             }
 
             return false;
-        }
+        }        
 
         /// <summary>
         /// grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is

@@ -65,7 +65,7 @@ namespace SmartReader
         {
             Uri = uri;
             Title = title;
-            Byline = string.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
+            Byline = string.IsNullOrEmpty(byline) ? metadata.Author : byline;
             Dir = dir;
             Content = Serializer(article);
             TextContent = Converter(article);

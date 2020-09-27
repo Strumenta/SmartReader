@@ -420,6 +420,7 @@ namespace SmartReader
         /// <param name="doc">The document</param>
         /// <param name="uri">The uri, possibly used to check for a date</param>
         /// <param name="language">The language that was possibly found in the headers of the response</param>
+        /// <param name="jsonLD">The dictionary containing metadata found in JSON LD</param>
         /// <returns>The metadata object with all the info found</returns>
         internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string language, Dictionary<string, string> jsonLD)
         {
@@ -455,9 +456,8 @@ namespace SmartReader
                 string name = "";
 
                 if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
-                {
-                    metadata.Byline = (element as IElement).GetAttribute("content");
-                    metadata.Author = (element as IElement).GetAttribute("content");
+                {                    
+                    values["author"] = (element as IElement).GetAttribute("content");
                 }
 
                 if (!string.IsNullOrEmpty(elementProperty))
@@ -660,8 +660,7 @@ namespace SmartReader
 
             // in many sites the meta value is escaped with HTML entities,
             // so here we need to unescape it    
-            metadata.Title = UnescapeHtmlEntities(metadata.Title);
-            metadata.Byline = UnescapeHtmlEntities(metadata.Byline);
+            metadata.Title = UnescapeHtmlEntities(metadata.Title);            
             metadata.Excerpt = UnescapeHtmlEntities(metadata.Excerpt);
             metadata.SiteName = UnescapeHtmlEntities(metadata.SiteName);
 
