@@ -160,8 +160,7 @@ namespace SmartReader
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
         private Regex RE_Whitespace           = G_RE_Whitespace;
-        private Regex RE_ShareElements        = G_RE_ShareElements;
-        //private Regex RE_JsonLdArticleTypes   = G_RE_JsonLdArticleTypes;
+        private Regex RE_ShareElements        = G_RE_ShareElements;        
 
         //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -180,6 +179,8 @@ namespace SmartReader
         private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
 
         private string[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
+        
+        private static readonly string[] unlikelyRoles = { "menu", "menubar", "complementary", "navigation", "alert", "alertdialog", "dialog" };
 
         private List<Action<IElement>> CustomOperationsStart = new List<Action<IElement>>();
 
@@ -834,10 +835,10 @@ namespace SmartReader
                         }
                     }
 
-                    // Remove nodes with role=complementary
-                    if (node.GetAttribute("role") == "complementary")
+                    // Remove nodes with unlikely roles
+                    if (unlikelyRoles.Contains(node.GetAttribute("role")))
                     {
-                        LoggerDelegate("Removing complementary content - " + matchString);
+                        LoggerDelegate($"Removing content with role {node.GetAttribute("role")} -  {matchString}");
                         node = NodeUtility.RemoveAndGetNext(node) as IElement;
                         continue;
                     }
