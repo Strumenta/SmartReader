@@ -170,6 +170,43 @@ namespace SmartReader
         }
 
         /// <summary>
+        /// Simplify nested elements
+        /// </summary>
+        /// <param name="articleContent">The document</param>        
+        /// <returns>
+        /// The clean title
+        /// </returns>
+        internal static void SimplifyNestedElements(IElement articleContent)
+        {
+            var node = articleContent;
+
+            while (node != null)
+            {
+                if (node.Parent != null && (new string[] { "DIV", "SECTION"}).Contains(node.TagName) && !(!String.IsNullOrWhiteSpace(node.Id) && node.Id.StartsWith("readability")))
+                {
+                    if (NodeUtility.IsElementWithoutContent(node))
+                    {
+                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        continue;
+                    }
+                    else if (NodeUtility.HasSingleTagInsideElement(node, "DIV") || NodeUtility.HasSingleTagInsideElement(node, "SECTION"))
+                    {
+                        var child = node.Children[0];
+                        for (var i = 0; i < node.Attributes.Length; i++)
+                        {
+                            child.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
+                        }
+                        node.Parent.ReplaceChild(child, node);
+                        node = child;
+                        continue;
+                    }
+                }
+
+                node = NodeUtility.GetNextNode(node);
+            }
+        }
+
+        /// <summary>
         /// Get the article title
         /// </summary>
         /// <param name="doc">The document</param>        

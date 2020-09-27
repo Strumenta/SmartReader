@@ -427,8 +427,10 @@ namespace SmartReader
             // Readability cannot open relative uris so we convert them to absolute uris.
             Readability.FixRelativeUris(articleContent, this.uri, this.doc);
 
+            Readability.SimplifyNestedElements(articleContent);
+
             // Remove classes
-            if(!KeepClasses)
+            if (!KeepClasses)
                 Readability.CleanClasses(articleContent, this.ClassesToPreserve);
 
             // Remove attributes we set
@@ -930,7 +932,7 @@ namespace SmartReader
                         return;
 
                     // Exclude nodes with no ancestor.
-                    var ancestors = NodeUtility.GetNodeAncestors(elementToScore, 3);
+                    var ancestors = NodeUtility.GetNodeAncestors(elementToScore, 5);
                     if (ancestors.Count() == 0)
                         return;
 
