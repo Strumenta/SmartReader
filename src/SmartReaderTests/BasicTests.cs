@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 using AngleSharp.Html.Parser;
 using RichardSzalay.MockHttp;
 using System.Text.RegularExpressions;
+using AngleSharp.Dom;
 
 namespace SmartReaderTests
 {
@@ -325,6 +326,7 @@ namespace SmartReaderTests
                     <p>This is a paragraph with some text.</p>
                     <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>
                     <p>This is 			a paragraph with different<br> other text.</p>
+               </body>
                </html>");
 
             var reader = new Reader("https://localhost/article");
@@ -335,6 +337,75 @@ namespace SmartReaderTests
             Assert.Equal("This is a paragraph with some text.\r\n" +
                          "\r\nThis is a paragraph with some other text and lots of whitespace .\r\n" +
                          "\r\nThis is a paragraph with different\r\nother text.", article.TextContent);           
+        }
+
+        [Fact]
+        public void TestCustomSerializer()
+        {
+            // creating element
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p> </p>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>
+                    <p>This is 			a paragraph with different<br> other text.</p>
+                    <pre>   Space inside here is       magic</pre>
+               </body> 
+               </html>");
+
+            var reader = new Reader("https://localhost/article");
+
+            Func<IElement, string> serializer = (AngleSharp.Dom.IElement element) =>
+            {
+                return Regex.Replace(Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><(?!pre).*?>)\s+", "${endBefore}").Trim();
+            };
+
+            Article.Serializer = serializer;
+
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+            
+            // restore standard serializer
+            Article.Serializer = (AngleSharp.Dom.IElement element) =>
+            {
+                return element.InnerHtml;
+            };
+
+            // check that the text returned is correct
+            Assert.Equal(@"<p></p><p>This is a paragraph with some text.</p><p>This  	 is a paragraph   with some other text and lots of whitespace  .</p><p>This is 			a paragraph with different<br>other text.</p><pre>   Space inside here is       magic</pre>", article.Content);            
+        }
+
+        [Fact]
+        public void TestCustomConverter()
+        {
+            // creating element
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p>JavaScript is a great language for system programming.</p>                   
+               </body> 
+               </html>");
+
+            var reader = new Reader("https://localhost/article");
+
+            Func<IElement, string> converter = (AngleSharp.Dom.IElement element) =>
+            {
+                return element.TextContent.Replace("JavaScript", "**********").Trim();
+            };
+
+            var oldConverter = Article.Converter;
+
+            Article.Converter = converter;
+
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+
+            // restore standard converter
+            Article.Converter = oldConverter;
+
+            // check that the text returned is correct
+            Assert.Equal(@"********** is a great language for system programming.", article.TextContent);
         }
     }
 }
