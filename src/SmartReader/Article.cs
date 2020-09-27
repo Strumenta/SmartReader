@@ -49,7 +49,14 @@ namespace SmartReader
         /// <value>The publication date, which can be parsed or read in the metadata</value>
         public DateTime? PublicationDate { get; private set; }
         /// <value>It indicates whether an article was actually found</value>
-        public bool IsReadable { get; private set; }        
+        public bool IsReadable { get; private set; }
+        /// <summary>The function that will serialize the HTML content of the article</summary>
+        /// <value>Default: return InnerHTML property</value>       
+        public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>((el) => { return el.InnerHtml; });
+
+        /// <summary>The function that will extract the text from the HTML content</summary>
+        /// <value>Default: return InnerHTML property</value>       
+        public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
         private IElement _article = null;
         private readonly  Reader _reader;
@@ -60,8 +67,8 @@ namespace SmartReader
             Title = title;
             Byline = string.IsNullOrEmpty(metadata.Byline) ? byline : metadata.Byline;
             Dir = dir;
-            Content = article.InnerHtml;
-            TextContent = ConvertToPlaintext(article);
+            Content = Serializer(article);
+            TextContent = Converter(article);
             Excerpt = metadata.Excerpt;
             Length = article.TextContent.Length;
             Language = string.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
@@ -293,7 +300,7 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// The main function that converts HTML markup to text
+        /// The function that converts HTML markup to text
         /// </summary>
         private static string ConvertToText(IElement doc, StringWriter text)
         {

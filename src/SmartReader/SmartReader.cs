@@ -138,7 +138,7 @@ namespace SmartReader
 
         /// <summary>Element tags to score by default.</summary>
         /// <value>Default: false</value>
-        public string[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');
+        public string[] TagsToScore = "section,h2,h3,h4,h5,h6,p,td,pre".ToUpper().Split(',');        
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
