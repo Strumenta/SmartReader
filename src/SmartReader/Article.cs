@@ -65,15 +65,15 @@ namespace SmartReader
         {
             Uri = uri;
             Title = title;
-            Byline = string.IsNullOrEmpty(byline) ? metadata.Author : byline;
+            Byline = string.IsNullOrWhiteSpace(byline) ? metadata.Author : byline;
             Dir = dir;
             Content = Serializer(article);
             TextContent = Converter(article);
             Excerpt = metadata.Excerpt;
             Length = article.TextContent.Length;
-            Language = string.IsNullOrEmpty(metadata.Language) ? language : metadata.Language;
+            Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
             PublicationDate = metadata.PublicationDate;
-            Author = string.IsNullOrEmpty(metadata.Author) ? author : metadata.Author;
+            Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
             IsReadable = readable;
             // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
