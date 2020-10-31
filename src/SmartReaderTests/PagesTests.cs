@@ -97,7 +97,7 @@ namespace SmartReaderTests
             Assert.Equal(expected.Excerpt, found.Excerpt);
             Assert.Equal(expected.SiteName, found.SiteName);
             Assert.Equal(expected.TimeToRead, found.TimeToRead);
-            Assert.Equal(expected.Content, found.Content);
+            Assert.Equal(expected.Content, found.Content, ignoreLineEndingDifferences: true);
             Assert.Equal(expected.FeaturedImage, found.FeaturedImage);
         }
 
