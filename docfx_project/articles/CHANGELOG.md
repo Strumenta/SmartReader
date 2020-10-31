@@ -1,13 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.7.5
+## 0.7.5 - 2020/10/31
+- Fix bug Reader throws DivideByZeroException when articleTitle is empty (Thanks to [DanielEgbers](https://github.com/DanielEgbers))
 - Added improvements from latest updates of Readability
 - Added functionality to unwrap images that are meant to be lazy loaded
 - Remove nodes with role complementary
 - Fix lazy-loaded images not visibile in Kinja sites
 - Added function to serialize HTML content in article
-Added support to look up metadata in JSON-LD object
+- Added support to look up metadata in JSON-LD object
 - Improved byline parsing
 
 ## 0.7.4 - 2020/09/07

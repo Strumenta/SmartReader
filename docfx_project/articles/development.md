@@ -48,5 +48,6 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 - [LatisVlad](https://github.com/latisvlad)
 - [Rohit Patil](https://github.com/RohitPatilRRP)
 - [theolivenbaum](https://github.com/theolivenbaum)
+- [DanielEgbers](https://github.com/DanielEgbers)
 
 Thanks to all the people involved.
