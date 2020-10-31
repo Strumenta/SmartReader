@@ -582,25 +582,28 @@ namespace SmartReader
             // If there is only one h2 and its text content substantially equals article title,
             // they are probably using it as a header and not a subheader,
             // so remove it since we already extract the title separately.
-            var h2 = articleContent.GetElementsByTagName("h2");
-            if (h2.Length == 1)
+            if (articleTitle.Length > 0)
             {
-                var lengthSimilarRate = (h2[0].TextContent.Length - articleTitle.Length) / articleTitle.Length;
-
-                if (Math.Abs(lengthSimilarRate) < 0.5)
+                var h2 = articleContent.GetElementsByTagName("h2");
+                if (h2.Length == 1)
                 {
-                    var titlesMatch = false;
-                    if (lengthSimilarRate > 0)
+                    var lengthSimilarRate = (h2[0].TextContent.Length - articleTitle.Length) / articleTitle.Length;
+
+                    if (Math.Abs(lengthSimilarRate) < 0.5)
                     {
-                        titlesMatch = h2[0].TextContent.Contains(articleTitle);
-                    }
-                    else
-                    {
-                        titlesMatch = articleTitle.Contains(h2[0].TextContent);
-                    }
-                    if (titlesMatch)
-                    {
-                        Clean(articleContent, "h2");
+                        var titlesMatch = false;
+                        if (lengthSimilarRate > 0)
+                        {
+                            titlesMatch = h2[0].TextContent.Contains(articleTitle);
+                        }
+                        else
+                        {
+                            titlesMatch = articleTitle.Contains(h2[0].TextContent);
+                        }
+                        if (titlesMatch)
+                        {
+                            Clean(articleContent, "h2");
+                        }
                     }
                 }
             }
