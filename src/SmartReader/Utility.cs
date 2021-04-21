@@ -2,30 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AngleSharp.Html;
-using AngleSharp.Dom;
-using AngleSharp.Html.Parser;
+
 using AngleSharp.Css.Dom;
-using AngleSharp.Css.Parser;
-using AngleSharp;
+using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using System.Text;
 
 namespace SmartReader
 {
     internal static class NodeUtility
-    {
-                  
+    {                  
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
            
-        private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_Normalize    = new Regex(@"\s{2,}", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase);
-        private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase);
+        private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_Normalize    = new Regex(@"\s{2,}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly string[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
         
@@ -78,7 +73,7 @@ namespace SmartReader
 
         internal static bool IsVisible(IElement element)
         {
-            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() == "none")
+            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() is "none")
                 return false;
             else
                 return true;
@@ -87,10 +82,10 @@ namespace SmartReader
         internal static bool IsProbablyVisible(IElement node)
         {
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
-            return (node.GetStyle() == null || node?.GetStyle()?.GetDisplay() != "none")
+            return (node.GetStyle() is null || node?.GetStyle()?.GetDisplay() is not "none")
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
-                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") != "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
+                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
         }
     
         /// <summary>
@@ -109,7 +104,7 @@ namespace SmartReader
                 var parentNode = node.Parent;
                 if (parentNode != null)
                 {
-                    if (filterFn == null || filterFn(node))
+                    if (filterFn is null || filterFn(node))
                     {
                         parentNode.RemoveChild(node);
                     }
@@ -220,7 +215,7 @@ namespace SmartReader
         /// <returns>List of concatenated elements</returns>
         internal static IEnumerable<IElement> ConcatNodeLists(params IEnumerable<IElement>[] arguments)
         {
-            List<IElement> result = new List<IElement>();
+            var result = new List<IElement>();
 
             foreach (var arg in arguments)
             {
@@ -242,8 +237,8 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>  
         internal static bool IsSingleImage(IElement element)
         {
-            if (element.TagName == "IMG") return true;
-            if (element.Children.Length != 1 || element.TextContent.Trim() != "") return false;
+            if (element.TagName is "IMG") return true;
+            if (element.Children.Length != 1 || element.TextContent.Trim() is not "") return false;
             return IsSingleImage(element.Children[0]);
         }
 
@@ -259,12 +254,12 @@ namespace SmartReader
             // Find img without source or attributes that might contains image, and remove it.
             // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
-            ForEachNode(imgs, (img) => {
-                if (img is IElement)
+            ForEachNode(imgs, (imgNode) => {
+                if (imgNode is IElement img)
                 {
-                    for (var i = 0; i < (img as IElement).Attributes.Length; i++)
+                    for (var i = 0; i < img.Attributes.Length; i++)
                     {
-                        var attr = (img as IElement).Attributes[i];
+                        var attr = img.Attributes[i];
                         switch(attr.Name)
                         {
                             case "src":
@@ -285,23 +280,23 @@ namespace SmartReader
            
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
-            ForEachNode(noscripts, (noscript) => {
-                if (noscript is IElement)
+            ForEachNode(noscripts, (noscriptNode) => {
+                if (noscriptNode is IElement noscript)
                 {
                     // Parse content of noscript and make sure it only contains image
                     var tmp = doc.CreateElement("div");
-                    tmp.InnerHtml = (noscript as IElement).InnerHtml;
+                    tmp.InnerHtml = noscript.InnerHtml;
                     if (!IsSingleImage(tmp))
                         return;
 
                     // If noscript has previous sibling and it only contains image,
                     // replace it with noscript content. However we also keep old
                     // attributes that might contains image.
-                    var prevElement = (noscript as IElement).PreviousElementSibling;
+                    var prevElement = noscript.PreviousElementSibling;
                     if (prevElement != null && IsSingleImage(prevElement))
                     {
                         var prevImg = prevElement;
-                        if (prevImg.TagName != "IMG")
+                        if (prevImg.TagName is not "IMG")
                         {
                             prevImg = prevElement.GetElementsByTagName("img")[0];
                         }
@@ -310,12 +305,12 @@ namespace SmartReader
                         for (var i = 0; i < prevImg.Attributes.Length; i++)
                         {
                             var attr = prevImg.Attributes[i];
-                            if (attr.Value == "")
+                            if (attr.Value is "")
                             {
                                 continue;
                             }
 
-                            if (attr.Name == "src" || attr.Name == "srcset"
+                            if (attr.Name is "src" or "srcset"
                             || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             {
                                 if (newImg.GetAttribute(attr.Name) == attr.Value)
@@ -345,7 +340,7 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveScripts(IElement element)
         {
-            RemoveNodes(element.GetElementsByTagName("script"), (scriptNode) =>
+            RemoveNodes(element.GetElementsByTagName("script"), scriptNode =>
             {
                 scriptNode.NodeValue = "";
                 scriptNode.RemoveAttribute("src");
@@ -411,14 +406,14 @@ namespace SmartReader
         internal static bool IsPhrasingContent(INode node)
         {
             return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
-              ((node.NodeName == "A" || node.NodeName == "DEL" || node.NodeName == "INS") &&
+              ((node.NodeName is "A" or "DEL" or "INS") &&
                 EveryNode(node.ChildNodes, IsPhrasingContent));
         }
 
         internal static bool IsWhitespace(INode node)
         {
-            return (node.NodeType == NodeType.Text && node.TextContent.Trim().Length == 0) ||
-                   (node.NodeType == NodeType.Element && node.NodeName == "BR");
+            return (node.NodeType == NodeType.Text && node.TextContent.AsSpan().Trim().Length == 0) ||
+                   (node.NodeType == NodeType.Element && node.NodeName is "BR");
         }
 
         /// <summary>
@@ -445,9 +440,9 @@ namespace SmartReader
         /// <param name="e">Element to operate on</param>
         /// <param name="s">The string to check</param>
         /// <returns>int</returns>
-        internal static int GetCharCount(IElement e, string s = ",")
+        internal static int GetCharCount(IElement e, char s = ',')
         {
-            return GetInnerText(e).Split(s.ToCharArray()).Length - 1;
+            return GetInnerText(e).Split(s).Length - 1;
         }
 
         /// <summary>
@@ -457,7 +452,7 @@ namespace SmartReader
         /// <param name="e">Element to operate on</param>
         internal static void CleanStyles(IElement e = null)
         {            
-            if (e == null || e.TagName.ToLower() == "svg")
+            if (e is null || e.TagName.Equals("svg", StringComparison.OrdinalIgnoreCase))
                 return;
 
             // Remove `style` and deprecated presentational attributes
@@ -466,7 +461,7 @@ namespace SmartReader
                 e.RemoveAttribute(presentationalAttributes[i]);
             }
 
-            if (deprecatedSizeAttributeElems.FirstOrDefault(x => x == e.TagName) != null)
+            if (deprecatedSizeAttributeElems.FirstOrDefault(x => x.Equals(e.TagName, StringComparison.Ordinal)) != null)
             {
                 e.RemoveAttribute("width");
                 e.RemoveAttribute("height");
@@ -475,7 +470,7 @@ namespace SmartReader
             var cur = e.FirstElementChild;
             while (cur != null)
             {
-                CleanStyles(cur as IElement);
+                CleanStyles(cur);
                 cur = cur.NextElementSibling;
 
             }
@@ -537,7 +532,7 @@ namespace SmartReader
             do
             {
                 node = node.ParentElement;
-            } while (node != null && node.NextElementSibling == null);
+            } while (node != null && node.NextElementSibling is null);
 
             return node?.NextElementSibling;
         }
@@ -566,7 +561,7 @@ namespace SmartReader
 
         internal static bool IsDataTable(IElement node)
         {
-            return !string.IsNullOrEmpty(node.GetAttribute("datatable")) ? node.GetAttribute("datatable").Contains("true") : false;
+            return node.GetAttribute("datatable") is { Length: > 0 } datatable && datatable.Contains("true");
         }
 
         /// <summary>
@@ -609,7 +604,7 @@ namespace SmartReader
         internal static IEnumerable<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
         {
             var i = 0;
-            List<IElement> ancestors = new List<IElement>();
+            var ancestors = new List<IElement>();
             while (node.ParentElement != null)
             {
                 ancestors.Add(node.ParentElement);
@@ -623,7 +618,7 @@ namespace SmartReader
         internal static IEnumerable<INode> GetNodeAncestors(INode node, int maxDepth = 0)
         {
             var i = 0;
-            List<INode> ancestors = new List<INode>();
+            var ancestors = new List<INode>();
             while (node.Parent != null)
             {
                 ancestors.Add(node.Parent);

@@ -358,10 +358,10 @@ namespace SmartReaderTests
 
             var reader = new Reader("https://localhost/article");
 
-            Func<IElement, string> serializer = (AngleSharp.Dom.IElement element) =>
+            static string serializer(IElement element)
             {
                 return Regex.Replace(Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><(?!pre).*?>)\s+", "${endBefore}").Trim();
-            };
+            }
 
             Article.Serializer = serializer;
 
@@ -391,10 +391,10 @@ namespace SmartReaderTests
 
             var reader = new Reader("https://localhost/article");
 
-            Func<IElement, string> converter = (AngleSharp.Dom.IElement element) =>
+            static string converter(IElement element)
             {
                 return element.TextContent.Replace("JavaScript", "**********").Trim();
-            };
+            }
 
             var oldConverter = Article.Converter;
 
