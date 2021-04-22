@@ -21,6 +21,8 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_HashUrl = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
         
@@ -480,18 +482,20 @@ namespace SmartReader
         /// <para>This is the amount of text that is inside a link divided by the totaltextinthenode.</para>
         /// </summary>
         /// <param name="element">Element to operate on</param>        
-        internal static float GetLinkDensity(IElement element)
+        internal static double GetLinkDensity(IElement element)
         {
             var textLength = GetInnerText(element).Length;
             if (textLength == 0)
                 return 0;
 
-            float linkLength = 0;
+            double linkLength = 0;
 
             // XXX implement _reduceNodeList?
             ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
-            {
-                linkLength += GetInnerText(linkNode as IElement).Length;
+            {                
+                var href = (linkNode as IElement).GetAttribute("href");
+                var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
+                linkLength += GetInnerText(linkNode as IElement).Length * coefficient;
             });
 
             return linkLength / textLength;
