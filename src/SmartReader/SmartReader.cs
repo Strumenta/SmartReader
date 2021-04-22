@@ -145,7 +145,19 @@ namespace SmartReader
         /// <summary>The library look first at JSON-LD to determine metadata.
         /// This setting gives you the option of disabling it</summary>
         /// <value>Default: false</value>          
-        public bool DisableJSONLD { get; set; } = false;
+        public bool DisableJSONLD { get; set; } = false;        
+
+        /// <summary>The minimum node content length used to decide if the document is readerable.</summary>
+        /// <value>Default: 140</value>        
+        public int MinContentLengthReadearable { get; set; } = 140;
+
+        /// <summary>The minumum cumulated 'score' used to determine if the document is readerable.</summary>
+        /// <value>Default: 20</value>        
+        public int MinScoreReaderable { get; set; } = 20;
+
+        /// <summary>The function used to determine if a node is visible. Used in the process of determinting if the document is readerable.</summary>
+        /// <value>Default: NodeUtility.IsProbablyVisible</value>        
+        public Func<IElement, bool> IsNodeVisible { get; set; } = NodeUtility.IsProbablyVisible;
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -1725,7 +1737,7 @@ namespace SmartReader
         /// Decides whether or not the document is reader-able without parsing the whole thing.
         /// </summary>
         /// <returns>Whether or not we suspect parse method will suceeed at returning an article object.</returns>
-        private bool IsProbablyReaderable(Func<IElement, bool> helperIsVisible = null)
+        private bool IsProbablyReaderable()
         {            
             var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "p", "pre" });
 
@@ -1750,17 +1762,12 @@ namespace SmartReader
                 totalNodes = nodes.Concat(set.ToArray());
             }
 
-            if (helperIsVisible is null)
-            {
-                helperIsVisible = NodeUtility.IsProbablyVisible;
-            }
-
             double score = 0;
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
             // this callback:			
             return NodeUtility.SomeNode(totalNodes, (node) =>
             {                
-                if (helperIsVisible != null && !helperIsVisible(node))
+                if (!IsNodeVisible(node))
                     return false;
                 
                 var matchString = node.ClassName + " " + node.Id;
@@ -1777,14 +1784,14 @@ namespace SmartReader
                 }
 
                 var textContentLength = node.TextContent.Trim().Length;
-                if (textContentLength < 140)
+                if (textContentLength < MinContentLengthReadearable)
                 {
                     return false;
                 }
 
-                score += Math.Sqrt(textContentLength - 140);
+                score += Math.Sqrt(textContentLength - MinContentLengthReadearable);
 
-                if (score > 20)
+                if (score > MinScoreReaderable)
                 {                    
                     return true;
                 }
@@ -1811,7 +1818,7 @@ namespace SmartReader
                 }
             }
 
-            var isReadable = IsProbablyReaderable(NodeUtility.IsVisible);
+            var isReadable = IsProbablyReaderable();
 
             // we stop only if it's not readable and we are not debugging
             if (isReadable == false)
