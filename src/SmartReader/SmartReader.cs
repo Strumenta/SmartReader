@@ -842,6 +842,7 @@ namespace SmartReader
                         if (RE_UnlikelyCandidates.IsMatch(matchString) &&
                             !RE_OkMaybeItsACandidate.IsMatch(matchString) &&
                             !HasAncestorTag(node, "table") &&
+                            !HasAncestorTag(node, "code") &&
                             node.TagName is not "BODY" &&
                             node.TagName is not "A")
                         {
@@ -1656,7 +1657,16 @@ namespace SmartReader
                     return false;
                 }
 
+                if (HasAncestorTag(node, "code"))
+                {
+                    return false;
+                }
+
                 var weight = GetClassWeight(node);
+
+                if (Debug || Logging == ReportLevel.Info)
+                    LoggerDelegate($"Cleaning Conditionally {node}");
+
                 var contentScore = 0;
 
                 if (weight + contentScore < 0)
