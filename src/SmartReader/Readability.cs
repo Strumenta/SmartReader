@@ -493,16 +493,13 @@ namespace SmartReader
                 {
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
-                    {
-                        for (int i = matches.Count - 1; i >= 0; i--)
-                        {
-                            // Convert to lowercase, and remove any whitespace
-                            // so we can match below.
-                            name = Regex.Replace(matches[i].Value.ToLower(), @"\s+", "");
+                    {                        
+                        // Convert to lowercase, and remove any whitespace
+                        // so we can match below.
+                        name = Regex.Replace(matches[0].Value.ToLower(), @"\s+", "");
 
-                            // multiple authors
-                            values[name] = content.Trim();
-                        }
+                        // multiple authors
+                        values[name] = content.Trim();                        
                     }
                 }
 

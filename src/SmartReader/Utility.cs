@@ -22,7 +22,7 @@ namespace SmartReader
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly string[] divToPElems = { "A", "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL", "SELECT" };
+        private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
         
         private static readonly string[] presentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
 
@@ -41,9 +41,8 @@ namespace SmartReader
 
         internal static void ReplaceNodeTags(IHtmlCollection<IElement> nodeList, string newTagName)
         {
-            for (var i = nodeList.Count() - 1; i >= 0; i--)
+            foreach (var node in nodeList)
             {
-                var node = nodeList[i];
                 SetNodeTag(node, newTagName);
             }
         }
