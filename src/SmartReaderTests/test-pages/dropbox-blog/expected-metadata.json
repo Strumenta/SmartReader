@@ -1,0 +1,13 @@
+{
+  "title": "How we designed Dropbox’s ATF - an async task framework",
+  "byline": "Arun Sai Krishnan",
+  "dir": "",
+  "excerpt": "I joined Dropbox not long after graduating with a Master’s degree in computer science. Aside from an internship, this was my first big-league engineering job. My team had already begun designing a critical internal service that most of our software would use: It would handle asynchronous computing requests behind the scenes, powering everything from dragging a file into a Dropbox folder to scheduling a marketing campaign.",
+  "readerable": true,
+  "language": "en",
+  "timeToRead": "00:15:00",
+  "publicationDate": null,
+  "author": "Arun Sai Krishnan",
+  "siteName": "",
+  "featuredImage": "https://aem.dropbox.com/cms/content/dam/dropbox/tech-blog/en-us/2020/11/atf/diagrams/Techblog-ATF-Social.png"
+}
