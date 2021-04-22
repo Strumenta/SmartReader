@@ -783,6 +783,9 @@ namespace SmartReader
 
             while (true)
             {
+                if (Debug || Logging == ReportLevel.Info)
+                    LoggerDelegate("Starting grabArticle loop");
+                
                 var stripUnlikelyCandidates = FlagIsActive(Flags.StripUnlikelys);
 
                 // First, node prepping. Trash nodes that look cruddy (like ones with the
@@ -790,6 +793,8 @@ namespace SmartReader
                 // used inappropriately (as in, where they contain no other block level elements.)
                 var elementsToScore = new List<IElement>();
                 var node = this.doc.DocumentElement;
+
+                var shouldRemoveTitleHeader = true;
 
                 while (node != null)
                 {
@@ -806,6 +811,16 @@ namespace SmartReader
                     // Check to see if this node is a byline, and remove it if it is.
                     if (CheckByline(node, matchString))
                     {
+                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        continue;
+                    }
+
+                    if (shouldRemoveTitleHeader && HeaderDuplicatesTitle(node))
+                    {
+                        if (Debug || Logging == ReportLevel.Info)
+                            LoggerDelegate($"Removing header: {node.TextContent.Trim()} {articleTitle.Trim()}");
+                        
+                        shouldRemoveTitleHeader = false;
                         node = NodeUtility.RemoveAndGetNext(node) as IElement;
                         continue;
                     }
@@ -1724,14 +1739,36 @@ namespace SmartReader
         private void CleanHeaders(IElement e)
         {
             var headingNodes = NodeUtility.GetAllNodesWithTag(e, new string[] { "h1", "h2" });
-            var nodeToRemove = NodeUtility.FindNode(headingNodes, (node) => {
-                var heading = NodeUtility.GetInnerText(node, false);
-                return Readability.TextSimilarity(this.articleTitle, heading) > 0.75 || GetClassWeight(node) < 0;
-            });
-            if (nodeToRemove is not null)
+            NodeUtility.RemoveNodes(headingNodes, (node) => {
+                var shouldRemove = GetClassWeight(node) < 0;
+                if (shouldRemove)
+                {
+                    if (Debug || Logging == ReportLevel.Info)
+                        LoggerDelegate($"Removing header with low class weight: {node}");                    
+                }
+                return shouldRemove;
+            });            
+        }
+
+        /// <summary>
+        /// Check if this node is an H1 or H2 element whose content is mostly
+        /// the same as the article title.
+        /// </summary>
+        /// <param name="node">The node to check.</param>
+        /// <returns>
+        /// Boolean indicating whether this is a title-like header.
+        /// </returns>    
+        private bool HeaderDuplicatesTitle(IElement node)
+        {
+            if (node.TagName is not "H1" && node.TagName is not"H2")
             {
-                NodeUtility.RemoveNodes(new IElement[] { nodeToRemove });                
+                return false;
             }
+            var heading = NodeUtility.GetInnerText(node, false);
+            if (Debug || Logging == ReportLevel.Info)
+                LoggerDelegate($"Evaluating similarity of header> {heading} {articleTitle}");
+            
+            return Readability.TextSimilarity(articleTitle, heading) > 0.75;
         }
 
         private bool FlagIsActive(Flags flag)
