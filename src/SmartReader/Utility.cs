@@ -21,7 +21,7 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_HashUrl = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_HashUrl = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
         
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
@@ -87,8 +87,8 @@ namespace SmartReader
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
                 && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
-        }
-    
+        }           
+
         /// <summary>
         /// <para>Iterates over a NodeList, calls <c>filterFn</c> for each node and removes node
 		/// if function returned<c>true</c>.</para>
@@ -97,11 +97,11 @@ namespace SmartReader
         /// </summary>
         /// <param name="nodeList">The nodes to operate on</param>
         /// <param name="filterFn">The filter that dictates which nodes to remove</param>
-        internal static void RemoveNodes(IHtmlCollection<IElement> nodeList, Func<IElement, bool> filterFn = null)
+        internal static void RemoveNodes(IEnumerable<IElement> nodeList, Func<IElement, bool> filterFn = null)
         {
             for (var i = nodeList.Count() - 1; i >= 0; i--)
             {
-                var node = nodeList[i];
+                var node = nodeList.ElementAt(i);
                 var parentNode = node.Parent;
                 if (parentNode != null)
                 {

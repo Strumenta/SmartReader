@@ -21,6 +21,7 @@ namespace SmartReader
         private static readonly Regex RE_SrcSetUrl = new Regex(@"(\S+)(\s+[\d.]+[xw])?(\s*(?:,|$))", RegexOptions.IgnoreCase);
         // See: https://schema.org/Article
         private static readonly Regex RE_JsonLdArticleTypes = new Regex(@"^Article|AdvertiserContentArticle|NewsArticle|AnalysisNewsArticle|AskPublicNewsArticle|BackgroundNewsArticle|OpinionNewsArticle|ReportageNewsArticle|ReviewNewsArticle|Report|SatiricalArticle|ScholarlyArticle|MedicalScholarlyArticle|SocialMediaPosting|BlogPosting|LiveBlogPosting|DiscussionForumPosting|TechArticle|APIReference$");
+        private static readonly Regex RE_Tokenize = new Regex(@"\W+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         // These are the list of HTML entities that need to be escaped.
         private static Dictionary<string, string> htmlEscapeMap = new () {
             { "lt", "<" },
@@ -286,6 +287,27 @@ namespace SmartReader
             }
 
             return curTitle;
+        }
+
+        /// <summary>
+        /// compares second text to first one
+        /// 1 = same text, 0 = completely different text
+        /// works the way that it splits both texts into words and then finds words that are unique in second text
+        /// the result is given by the lower length of unique parts
+        /// </summary>
+        /// <param name="textA">first text to compare</param>
+        /// <param name="textb">second text to compare</param>
+        internal static int TextSimilarity(string textA, string textB)
+        {
+            var tokensA = RE_Tokenize.Split(textA.ToLower());
+            var tokensB = RE_Tokenize.Split(textB.ToLower());
+            if (tokensA is not { Length: > 0 } || tokensB is not { Length: > 0 })
+            {
+                return 0;
+            }
+            var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
+            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
+            return 1 - distanceB;
         }
 
         /// <summary>

@@ -576,8 +576,7 @@ namespace SmartReader
             CleanConditionally(articleContent, "form");
             CleanConditionally(articleContent, "fieldset");
             Clean(articleContent, "object");
-            Clean(articleContent, "embed");
-            Clean(articleContent, "h1");
+            Clean(articleContent, "embed");            
             Clean(articleContent, "footer");
             Clean(articleContent, "link");
             Clean(articleContent, "aside");
@@ -591,36 +590,7 @@ namespace SmartReader
                 NodeUtility.CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
                     return RE_ShareElements.IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
-                });
-
-            // If there is only one h2 and its text content substantially equals article title,
-            // they are probably using it as a header and not a subheader,
-            // so remove it since we already extract the title separately.
-            if (articleTitle.Length > 0)
-            {
-                var h2 = articleContent.GetElementsByTagName("h2");
-                if (h2.Length == 1)
-                {
-                    var lengthSimilarRate = (h2[0].TextContent.Length - articleTitle.Length) / articleTitle.Length;
-
-                    if (Math.Abs(lengthSimilarRate) < 0.5)
-                    {
-                        var titlesMatch = false;
-                        if (lengthSimilarRate > 0)
-                        {
-                            titlesMatch = h2[0].TextContent.Contains(articleTitle);
-                        }
-                        else
-                        {
-                            titlesMatch = articleTitle.Contains(h2[0].TextContent);
-                        }
-                        if (titlesMatch)
-                        {
-                            Clean(articleContent, "h2");
-                        }
-                    }
-                }
-            }
+                });            
 
             Clean(articleContent, "iframe");
             Clean(articleContent, "input");
@@ -634,6 +604,10 @@ namespace SmartReader
             CleanConditionally(articleContent, "table");
             CleanConditionally(articleContent, "ul");
             CleanConditionally(articleContent, "div");
+
+            // replace H1 with H2 as H1 should be only title that is displayed separately
+            NodeUtility.ReplaceNodeTags(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "h1" }
+            ), "h2");
 
             // Remove extra paragraphs
             NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
@@ -1617,6 +1591,21 @@ namespace SmartReader
             });        
         }
 
+        /// <summary>
+        /// <para>Calculate text density.</para>
+        /// </summary>
+        private int GetTextDensity(IElement e, string[] tags)
+        {
+            var textLength = NodeUtility.GetInnerText(e, true).Length;
+            if (textLength is 0)
+            {
+                return 0;
+            }
+            var childrenLength = 0;
+            var children = NodeUtility.GetAllNodesWithTag(e, tags);
+            NodeUtility.ForEachNode(children, (child) => childrenLength += NodeUtility.GetInnerText(child, true).Length);
+            return childrenLength / textLength;
+        }
 
         /// <summary>
         /// <para>Clean an element of all tags of type "tag" if they look fishy.</para>
@@ -1683,6 +1672,7 @@ namespace SmartReader
                     float img = node.GetElementsByTagName("img").Length;
                     float li = node.GetElementsByTagName("li").Length - 100;
                     float input = node.GetElementsByTagName("input").Length;
+                    float headingDensity = GetTextDensity(node, new string[] { "h1", "h2", "h3", "h4", "h5", "h6" });
 
                     var embedCount = 0;
                     var embeds = NodeUtility.ConcatNodeLists(
@@ -1717,7 +1707,7 @@ namespace SmartReader
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
                       (!isList && li > p) ||
                       (input > Math.Floor(p / 3)) ||
-                      (!isList && contentLength < 25 && (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
+                      (!isList && headingDensity < 0.9 && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
                       (!isList && weight < 25 && linkDensity > 0.2) ||
                       (weight >= 25 && linkDensity > 0.5) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
@@ -1729,16 +1719,18 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// Clean out spurious headers from an Element. Checks things like classnames and link density.
+        /// Clean out spurious headers from an Element.
         /// </summary>
         private void CleanHeaders(IElement e)
         {
-            for (var headerIndex = 1; headerIndex < 3; headerIndex += 1)
+            var headingNodes = NodeUtility.GetAllNodesWithTag(e, new string[] { "h1", "h2" });
+            var nodeToRemove = NodeUtility.FindNode(headingNodes, (node) => {
+                var heading = NodeUtility.GetInnerText(node, false);
+                return Readability.TextSimilarity(this.articleTitle, heading) > 0.75 || GetClassWeight(node) < 0;
+            });
+            if (nodeToRemove is not null)
             {
-                NodeUtility.RemoveNodes(e.GetElementsByTagName("h" + headerIndex), (header) =>
-                {
-                    return GetClassWeight(header) < 0;
-                });
+                NodeUtility.RemoveNodes(new IElement[] { nodeToRemove });                
             }
         }
 
