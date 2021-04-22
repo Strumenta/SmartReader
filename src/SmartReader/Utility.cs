@@ -419,10 +419,10 @@ namespace SmartReader
         /// <para>Get the inner text of a node - cross browser compatibly.</para>
         /// <para>This also strips out any excess whitespace to be found.</para>
         /// </summary>
-        /// <param name="e">Element to operate on</param>
+        /// <param name="e">Node to operate on</param>
         /// <param name="normalizeSpaces">Bool to set whether to normalize whitespace</param>
         /// <returns>String with the text of the node</returns>
-        internal static string GetInnerText(IElement e, bool normalizeSpaces = true)
+        internal static string GetInnerText(INode e, bool normalizeSpaces = true)
         {
             var textContent = e.TextContent.Trim();
 

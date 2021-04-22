@@ -1624,9 +1624,7 @@ namespace SmartReader
         private void CleanConditionally(IElement e, string tag)
         {
             if (!FlagIsActive(Flags.CleanConditionally))
-                return;
-
-            var isList = tag is "ul" or "ol";
+                return;            
 
             // Gather counts for other typical elements embedded within.
             // Traverse backwards so we can remove nodes at the same time
@@ -1635,6 +1633,17 @@ namespace SmartReader
             // TODO: Consider taking into account original contentScore here.
             NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), (node) =>
             {
+                var isList = tag is "ul" or "ol";
+                if (!isList)
+                {
+                    var listLength = 0;
+                    var listNodes = NodeUtility.GetAllNodesWithTag(node, new string[] { "ul", "ol" });
+                    NodeUtility.ForEachNode(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
+                    
+                    if(NodeUtility.GetInnerText(node).Length > 0)
+                        isList = listLength / NodeUtility.GetInnerText(node).Length > 0.9;
+                }
+
                 // First check if this node IS data table, in which case don't remove it.
                 if (tag is "table" && IsDataTable(node))
                 {
