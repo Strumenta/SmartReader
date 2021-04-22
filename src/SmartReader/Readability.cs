@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using AngleSharp.Html;
-using AngleSharp.Dom;
-using AngleSharp.Html.Parser;
-using AngleSharp.Css.Dom;
-using AngleSharp.Css.Parser;
-using AngleSharp;
-using AngleSharp.Html.Dom;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+
+using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 
 [assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
@@ -28,13 +22,15 @@ namespace SmartReader
         // See: https://schema.org/Article
         private static readonly Regex RE_JsonLdArticleTypes = new Regex(@"^Article|AdvertiserContentArticle|NewsArticle|AnalysisNewsArticle|AskPublicNewsArticle|BackgroundNewsArticle|OpinionNewsArticle|ReportageNewsArticle|ReviewNewsArticle|Report|SatiricalArticle|ScholarlyArticle|MedicalScholarlyArticle|SocialMediaPosting|BlogPosting|LiveBlogPosting|DiscussionForumPosting|TechArticle|APIReference$");
         // These are the list of HTML entities that need to be escaped.
-        private static Dictionary<string, string> htmlEscapeMap = new Dictionary<string, string>() {
+        private static Dictionary<string, string> htmlEscapeMap = new () {
             { "lt", "<" },
             { "gt", ">" },
             { "amp", "&"},
             { "quot", "\""},
             { "apos", "'"}
         };
+
+        private static readonly char[] s_space = { ' ' };
 
         /// <summary>
         /// Removes the class attribute from every element in the given
@@ -46,9 +42,10 @@ namespace SmartReader
         {
             var className = "";
 
-            if (!string.IsNullOrEmpty(node.GetAttribute("class")))
-                className = string.Join(" ", node.GetAttribute("class").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(x => classesToPreserve.Contains(x)));
+            if (node.GetAttribute("class") is { Length: > 0 } @class)
+            {
+                className = string.Join(" ", @class.Split(s_space, StringSplitOptions.RemoveEmptyEntries).Where(x => classesToPreserve.Contains(x)));
+            }
 
             if (!string.IsNullOrEmpty(className))
             {
@@ -119,21 +116,18 @@ namespace SmartReader
                 if (media_node is IElement)
                 {
                     var media = media_node as IElement;
-                    var src = media.GetAttribute("src");
-                    var poster = media.GetAttribute("poster");
-                    var srcset = media.GetAttribute("srcset");
 
-                    if (src != null)
+                    if (media.GetAttribute("src") is string src)
                     {
                         media.SetAttribute("src", uri.ToAbsoluteURI(src));
                     }
 
-                    if (poster != null)
+                    if (media.GetAttribute("poster") is string poster)
                     {
                         media.SetAttribute("poster", uri.ToAbsoluteURI(poster));
                     }
 
-                    if (srcset != null)
+                    if (media.GetAttribute("srcset") is string srcset)
                     {                        
                         var newSrcset = RE_SrcSetUrl.Replace(srcset, (input) =>
                         {
@@ -229,7 +223,7 @@ namespace SmartReader
             catch (Exception e) {/* ignore exceptions setting the title. */}
 
             var titleHadHierarchicalSeparators = false;
-            int wordCount(string str)
+            static int wordCount(string str)
             {
                 return Regex.Split(str, @"\s+").Length;
             }
@@ -245,7 +239,7 @@ namespace SmartReader
                 if (wordCount(curTitle) < 3)
                     curTitle = Regex.Replace(origTitle, @"[^\|\-\\\/>»]* [\|\-\\\/>»](.*)", "$1", RegexOptions.IgnoreCase);
             }
-            else if (curTitle.IndexOf(": ") != -1)
+            else if (curTitle.Contains(": "))
             {
                 // Check if we have an heading containing this exact string, so we
                 // could assume it's the full title.
@@ -256,7 +250,7 @@ namespace SmartReader
                 var trimmedTitle = curTitle.Trim();
                 var match = NodeUtility.SomeNode(headings, (heading) =>
                 {
-                    return heading.TextContent.Trim() == trimmedTitle;
+                    return heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan());
                 });
 
                 // If we don't, let's extract the title out of the original title string.
@@ -329,7 +323,7 @@ namespace SmartReader
                 return htmlEscapeMap[tag.Groups[1].Value];
             }), @"&#(?:x([0-9a-z]{1,4})|([0-9]{1,4}));", (entity) =>
             {
-                var num = Convert.ToUInt32(!String.IsNullOrEmpty(entity.Groups[1]?.Value) ? entity.Groups[1]?.Value : entity.Groups[2]?.Value, !String.IsNullOrEmpty(entity.Groups[1]?.Value) ? 16 : 10);
+                var num = Convert.ToUInt32(!string.IsNullOrEmpty(entity.Groups[1]?.Value) ? entity.Groups[1]?.Value : entity.Groups[2]?.Value, !string.IsNullOrEmpty(entity.Groups[1]?.Value) ? 16 : 10);
                 return Convert.ToChar(num).ToString();
             });                   
         }
@@ -347,7 +341,7 @@ namespace SmartReader
             var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "script" });
 
             var jsonLdElement = NodeUtility.FindNode(scripts, (el) => {
-                return el?.GetAttribute("type") == "application/ld+json";
+                return el?.GetAttribute("type") is "application/ld+json";
             });
 
             if (jsonLdElement != null)
@@ -356,91 +350,89 @@ namespace SmartReader
                 var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\$","");
                 try
                 {
-                    using (JsonDocument document = JsonDocument.Parse(content))
+                    using JsonDocument document = JsonDocument.Parse(content);
+
+                    var root = document.RootElement;
+
+                    // JsonLD can contain an array of elements inside property @graph
+                    if (!root.TryGetProperty("@type", out JsonElement value)
+                        && root.TryGetProperty("@graph", out value))
                     {
-                        var root = document.RootElement;
-                        JsonElement value;
-
-                        // JsonLD can contain an array of elements inside property @graph
-                        if (!root.TryGetProperty("@type", out value)
-                            && root.TryGetProperty("@graph", out value))
+                        var graph = value.EnumerateArray();
+                        foreach (var obj in graph)
                         {
-                            var graph = value.EnumerateArray();
-                            foreach(var obj in graph)
+                            if (obj.TryGetProperty("@type", out value)
+                                && RE_JsonLdArticleTypes.IsMatch(value.GetString()))
                             {
-                                if (obj.TryGetProperty("@type", out value)
-                                    && RE_JsonLdArticleTypes.IsMatch(value.GetString()))
-                                {
-                                    root = obj;
-                                    break;
-                                }
-                            }                            
-                        }
-
-                        if (!root.TryGetProperty("@context", out value)
-                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))                     
-                        {
-                            return jsonLDMetadata;
-                        }
-                       
-                        if (!root.TryGetProperty("@type", out value)
-                            || !RE_JsonLdArticleTypes.IsMatch(value.GetString()))
-                        {
-                            return jsonLDMetadata;
-                        }
-
-                        if (root.TryGetProperty("name", out value)
-                            && value.ValueKind == JsonValueKind.String)
-                        {
-                            jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
-                        }
-                        if (root.TryGetProperty("headline", out value)
-                            && value.ValueKind == JsonValueKind.String)
-                        {
-                            jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
-                        }
-                        if (root.TryGetProperty("author", out value))
-                        {
-                            if (value.ValueKind == JsonValueKind.Object)
-                            {
-                                jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString().Trim();
-                            }
-                            else if(value.ValueKind == JsonValueKind.Array
-                                && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
-                            {
-                                 var authors = root.GetProperty("author").EnumerateArray();
-                                 List<string> byline = new List<string>();
-                                 foreach(var author in authors)
-                                 {
-                                    if (author.TryGetProperty("name", out value)
-                                    && value.ValueKind == JsonValueKind.String)
-                                        byline.Add(value.GetString().Trim());
-                                 }
-
-                                jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
+                                root = obj;
+                                break;
                             }
                         }
+                    }
 
-                        if (root.TryGetProperty("description", out value)
-                            && value.ValueKind == JsonValueKind.String)                           
+                    if (!root.TryGetProperty("@context", out value)
+                        || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))
+                    {
+                        return jsonLDMetadata;
+                    }
+
+                    if (!root.TryGetProperty("@type", out value)
+                        || !RE_JsonLdArticleTypes.IsMatch(value.GetString()))
+                    {
+                        return jsonLDMetadata;
+                    }
+
+                    if (root.TryGetProperty("name", out value)
+                        && value.ValueKind == JsonValueKind.String)
+                    {
+                        jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                    }
+                    if (root.TryGetProperty("headline", out value)
+                        && value.ValueKind == JsonValueKind.String)
+                    {
+                        jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                    }
+                    if (root.TryGetProperty("author", out value))
+                    {
+                        if (value.ValueKind == JsonValueKind.Object)
                         {
-                            jsonLDMetadata["jsonld:description"] = value.GetString().Trim();
+                            jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString().Trim();
                         }
-                        if (root.TryGetProperty("publisher", out value)
-                            && value.ValueKind == JsonValueKind.Object)
+                        else if (value.ValueKind == JsonValueKind.Array
+                            && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
                         {
-                            jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString().Trim();
+                            var authors = root.GetProperty("author").EnumerateArray();
+                            List<string> byline = new List<string>();
+                            foreach (var author in authors)
+                            {
+                                if (author.TryGetProperty("name", out value)
+                                && value.ValueKind == JsonValueKind.String)
+                                    byline.Add(value.GetString().Trim());
+                            }
+
+                            jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
                         }
-                        if (root.TryGetProperty("datePublished", out value)
-                            && value.ValueKind == JsonValueKind.String)
-                        {
-                            jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString();
-                        }
-                        if (root.TryGetProperty("image", out value)
-                            && value.ValueKind == JsonValueKind.String)
-                        {
-                            jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString();
-                        }
+                    }
+
+                    if (root.TryGetProperty("description", out value)
+                        && value.ValueKind == JsonValueKind.String)
+                    {
+                        jsonLDMetadata["jsonld:description"] = value.GetString().Trim();
+                    }
+                    if (root.TryGetProperty("publisher", out value)
+                        && value.ValueKind == JsonValueKind.Object)
+                    {
+                        jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString().Trim();
+                    }
+                    if (root.TryGetProperty("datePublished", out value)
+                        && value.ValueKind == JsonValueKind.String)
+                    {
+                        jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString();
+                    }
+                    if (root.TryGetProperty("image", out value)
+                        && value.ValueKind == JsonValueKind.String)
+                    {
+                        jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString();
                     }
                 }
                 catch(Exception e)
@@ -514,7 +506,7 @@ namespace SmartReader
                     }
                 }
 
-                if ((matches == null || matches.Count == 0)
+                if ((matches is null || matches.Count == 0)
                   && !string.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
@@ -669,7 +661,7 @@ namespace SmartReader
 
             metadata.PublicationDate = DateHeuristics().FirstOrDefault(d => d != DateTime.MinValue);
 
-            if (metadata.PublicationDate == null)
+            if (metadata.PublicationDate is null)
             {
                 var times = doc.GetElementsByTagName("time");               
 
@@ -683,7 +675,7 @@ namespace SmartReader
                 }
             }
 
-            if (metadata.PublicationDate == null)
+            if (metadata.PublicationDate is null)
             {
                 // as a last resort check the URL for a date
                 Match maybeDate = Regex.Match(uri.PathAndQuery, "/(?<year>[0-9]{4})/(?<month>[0-9]{2})/(?<day>[0-9]{2})?");

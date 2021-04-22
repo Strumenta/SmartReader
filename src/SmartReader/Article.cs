@@ -1,13 +1,13 @@
-﻿using AngleSharp.Dom;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Globalization;
-using System.Net.Http;
-using System.Text;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+using AngleSharp.Dom;
 
 namespace SmartReader
 {
@@ -58,7 +58,7 @@ namespace SmartReader
         /// <value>Default: return InnerHTML property</value>       
         public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
-        private IElement _article = null;
+        private readonly IElement _article = null;
         private readonly  Reader _reader;
 
         internal Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable, Reader reader)
@@ -84,6 +84,27 @@ namespace SmartReader
             _reader = reader;
         }
 
+        private static readonly Dictionary<string, int> charactersMinute = new ()
+        {
+            { "Arabic", 612 },
+            { "Chinese", 255 },
+            { "Dutch", 978 },
+            { "English", 987 },
+            { "Finnish", 1078 },
+            { "French", 998 },
+            { "German", 920 },
+            { "Hebrew", 833 },
+            { "Italian", 950 },
+            { "Japanese", 357 },
+            { "Polish", 916 },
+            { "Portuguese", 913 },
+            { "Swedish", 917 },
+            { "Slovenian", 885 },
+            { "Spanish", 1025 },
+            { "Russian", 986 },
+            { "Turkish", 1054 }
+        };
+
         private int GetWeightTimeToRead()
         {
             CultureInfo culture = CultureInfo.InvariantCulture;
@@ -96,28 +117,7 @@ namespace SmartReader
             catch(CultureNotFoundException)
             { }
 
-            Dictionary<string, int> CharactersMinute = new Dictionary<string, int>()
-            {
-                { "Arabic", 612 },
-                { "Chinese", 255 },
-                { "Dutch", 978 },
-                { "English", 987 },
-                { "Finnish", 1078 },
-                { "French", 998 },
-                { "German", 920 },
-                { "Hebrew", 833 },
-                { "Italian", 950 },
-                { "Japanese", 357 },
-                { "Polish", 916 },
-                { "Portuguese", 913 },
-                { "Swedish", 917 },
-                { "Slovenian", 885 },
-                { "Spanish", 1025 },
-                { "Russian", 986 },
-                { "Turkish", 1054 }
-            };
-
-            var cpm = CharactersMinute.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key));
+            var cpm = charactersMinute.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key, StringComparison.Ordinal));
 
             // 960 is the average excluding the three outliers languages
             int weight = cpm.Value > 0 ? cpm.Value : 960;
@@ -155,7 +155,7 @@ namespace SmartReader
         /// </returns>  
         public async Task<IEnumerable<Image>> GetImagesAsync(long minSize = 75000)
         {
-            List<Image> images = new List<Image>();
+            var images = new List<Image>();
 
             var imgs = _article?.QuerySelectorAll("img");
 
@@ -167,7 +167,7 @@ namespace SmartReader
                     {
                         long size = 0;
 
-                        Uri imageUri = new Uri(img.GetAttribute("src"));
+                        var imageUri = new Uri(img.GetAttribute("src"));
 
                         try
                         {
@@ -215,9 +215,9 @@ namespace SmartReader
             {
                 foreach (var img in imgs)
                 {
-                    if (!string.IsNullOrEmpty(img.GetAttribute("src")))
+                    if (img.GetAttribute("src") is string src)
                     {
-                        Uri imageUri = new Uri(img.GetAttribute("src"));
+                        var imageUri = new Uri(src);
 
                         try
                         {
@@ -251,7 +251,7 @@ namespace SmartReader
         /// </returns>  
         private static string ConvertToPlaintext(IElement doc)
         {
-            StringWriter writer = new StringWriter();
+            var writer = new StringWriter();
 
             string text = ConvertToText(doc, writer);
 
@@ -266,7 +266,7 @@ namespace SmartReader
             // replace multiple newlines with max two
             text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
 
-            StringBuilder stringBuilder = new StringBuilder(text);
+            var stringBuilder = new StringBuilder(text);
 
             while (index < stringBuilder.Length)
             {
@@ -304,9 +304,9 @@ namespace SmartReader
         /// </summary>
         private static string ConvertToText(IElement doc, StringWriter text)
         {
-            if (doc.NodeType == NodeType.Element && doc.NodeName == "P")
+            if (doc.NodeType == NodeType.Element && doc.NodeName is "P")
                 text.Write(text.NewLine);
-            else if (doc.NodeType == NodeType.Element && doc.NodeName == "BR")
+            else if (doc.NodeType == NodeType.Element && doc.NodeName is "BR")
                 text.Write(text.NewLine);
             
             if (doc.HasChildNodes)
@@ -323,7 +323,7 @@ namespace SmartReader
                 }
             }
 
-            if (doc.NodeType == NodeType.Element && doc.NodeName == "P")
+            if (doc.NodeType == NodeType.Element && doc.NodeName is "P")
                 text.Write(text.NewLine);
 
             return text.ToString();
