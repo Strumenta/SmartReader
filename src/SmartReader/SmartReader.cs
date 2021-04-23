@@ -1219,10 +1219,9 @@ namespace SmartReader
                     var div = doc.CreateElement("DIV");
                     div.Id = "readability-page-1";
                     div.ClassName = "page";
-                    var children = articleContent.ChildNodes;
-                    while (children.Length > 0)
+                    while (articleContent.FirstChild is not null)
                     {
-                        div.AppendChild(children[0]);
+                        div.AppendChild(articleContent.FirstChild);
                     }
                     articleContent.AppendChild(div);
                 }
@@ -1436,11 +1435,11 @@ namespace SmartReader
             }
             return Tuple.Create(rows, columns);
         }
-        
+
         /// <summary>
         /// Look for 'data' (as opposed to 'layout') tables, for which we use
         /// similar checks as
-        /// https://dxr.mozilla.org/mozilla-central/rev/71224049c0b52ab190564d3ea0eab089a159a4cf/accessible/html/    HTMLTableAccessible.cpp#920
+        /// https://searchfox.org/mozilla-central/rev/f82d5c549f046cb64ce5602bfd894b7ae807c8f8/accessible/generic/TableAccessible.cpp#19
         /// </summary>
         private void MarkDataTables(IElement root)
         {
@@ -1571,7 +1570,7 @@ namespace SmartReader
                 {
                     var attr = elem.Attributes[i];
 
-                    if (attr.Name is "src" or "srcset")
+                    if (attr.Name is "src" or "srcset" or "alt")
                     {
                         continue;
                     }

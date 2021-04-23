@@ -299,14 +299,16 @@ namespace SmartReader
         /// <param name="textb">second text to compare</param>
         internal static int TextSimilarity(string textA, string textB)
         {
-            var tokensA = RE_Tokenize.Split(textA.ToLower());
-            var tokensB = RE_Tokenize.Split(textB.ToLower());
+            var tokensA = RE_Tokenize.Split(textA.ToLower()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            var tokensB = RE_Tokenize.Split(textB.ToLower()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             if (tokensA is not { Length: > 0 } || tokensB is not { Length: > 0 })
             {
                 return 0;
             }
             var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
-            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
+            //var distanceB = 0;
+            //if (string.Join(" ", tokensB).Length > 0)
+            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;            
             return 1 - distanceB;
         }
 
