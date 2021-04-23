@@ -49,5 +49,6 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 - [Rohit Patil](https://github.com/RohitPatilRRP)
 - [theolivenbaum](https://github.com/theolivenbaum)
 - [DanielEgbers](https://github.com/DanielEgbers)
+- [Jason Nelson](https://github.com/iamcarbon)
 
 Thanks to all the people involved.
