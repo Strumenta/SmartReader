@@ -1289,7 +1289,7 @@ namespace SmartReader
 				if(parseSuccessful)
                 {
                     // Find out text direction from ancestors of final top candidate.
-                    IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(NodeUtility.GetElementAncestors(parentOfTopCandidate)) as IEnumerable<IElement>;                        
+                    IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(NodeUtility.GetElementAncestors(parentOfTopCandidate));                        
                     NodeUtility.SomeNode(ancestors, (ancestor) =>
                     {
                         if (string.IsNullOrEmpty(ancestor.TagName))
