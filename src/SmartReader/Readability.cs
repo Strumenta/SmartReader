@@ -468,6 +468,8 @@ namespace SmartReader
             return jsonLDMetadata;
         }
 
+#nullable enable
+
         /// <summary>
         /// Attempts to get metadata for the article.
         /// </summary>
@@ -478,7 +480,7 @@ namespace SmartReader
         /// <returns>The metadata object with all the info found</returns>
         internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string language, Dictionary<string, string> jsonLD)
         {
-            Metadata metadata = new Metadata();
+            var metadata = new Metadata();
             Dictionary<string, string> values = jsonLD;            
             var metaElements = doc.GetElementsByTagName("meta");
 
@@ -508,7 +510,7 @@ namespace SmartReader
                 {
                     return;
                 }
-                MatchCollection matches = null;
+                MatchCollection? matches = null;
                 string name = "";
 
                 if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
@@ -567,7 +569,7 @@ namespace SmartReader
             });
 
             // Find the the description of the article
-            IEnumerable<string> DescriptionKeys()
+            IEnumerable<string?> DescriptionKeys()
             {
                 yield return values.GetValueOrDefault("jsonld:description");
                 yield return values.GetValueOrDefault("description");
@@ -579,19 +581,19 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("twitter:description");
             }
 
-            metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.Excerpt = FirstNonEmptyValueOrDefault(DescriptionKeys()) ?? "";
 
-            IEnumerable<string> SiteNameKeys()
+            IEnumerable<string?> SiteNameKeys()
             {
                 yield return values.GetValueOrDefault("jsonld:siteName") ;
                 yield return values.GetValueOrDefault("og:site_name");
             }
 
             // Get the name of the site
-            metadata.SiteName = SiteNameKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.SiteName = FirstNonEmptyValueOrDefault(SiteNameKeys()) ?? "";
 
             // Find the title of the article
-            IEnumerable<string> TitleKeys()
+            IEnumerable<string?> TitleKeys()
             {
                 yield return values.GetValueOrDefault("jsonld:title");
                 yield return values.GetValueOrDefault("dc:title");
@@ -603,7 +605,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("title");
             }
 
-            metadata.Title = TitleKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? ""; 
+            metadata.Title = FirstNonEmptyValueOrDefault(TitleKeys()) ?? ""; 
 
             // Let's try to eliminate the site name from the title
             metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
@@ -613,8 +615,18 @@ namespace SmartReader
             if (string.IsNullOrEmpty(metadata.Title))
                 metadata.Title = GetArticleTitle(doc);
 
+            static string? FirstNonEmptyValueOrDefault(IEnumerable<string?> values)
+            {
+                foreach (var value in values)
+                {
+                    if (!string.IsNullOrEmpty(value)) return value;
+                }
+
+                return null;
+            }
+
             // added language extraction            
-            IEnumerable<string> LanguageHeuristics()
+            IEnumerable<string?> LanguageHeuristics()
             {
                 yield return language;
                 yield return doc.GetElementsByTagName("html")[0].GetAttribute("lang");
@@ -624,10 +636,10 @@ namespace SmartReader
                 yield return doc.QuerySelector("meta[name=\"lang\"]")?.GetAttribute("value");
             }
 
-            metadata.Language = LanguageHeuristics().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.Language = FirstNonEmptyValueOrDefault(LanguageHeuristics()) ?? "";
 
             // Find the featured image of the article
-            IEnumerable<string> FeaturedImageKeys()
+            IEnumerable<string?> FeaturedImageKeys()
             {
                 yield return values.GetValueOrDefault("jsonld:image");
                 yield return values.GetValueOrDefault("og:image");
@@ -636,13 +648,13 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("weibo:webpage:image");
             }
 
-            metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.FeaturedImage = FirstNonEmptyValueOrDefault(FeaturedImageKeys()) ?? "";
             
             // We try to find a meta tag for the author.
             // Note that there is Open Grapg tag for an author,
             // but it usually contains a profile URL of the author.
             // So we do not use it
-            IEnumerable<string> AuthorKeys()
+            IEnumerable<string?> AuthorKeys()
             {
                 yield return values.GetValueOrDefault("jsonld:author");
                 yield return values.GetValueOrDefault("dc:creator");
@@ -650,7 +662,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("author");
             }
 
-            metadata.Author = AuthorKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
+            metadata.Author = FirstNonEmptyValueOrDefault(AuthorKeys()) ?? "";
 
             // added date extraction
             DateTime date;
