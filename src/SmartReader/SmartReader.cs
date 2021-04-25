@@ -77,7 +77,20 @@ namespace SmartReader
         private string language;
         private string author;
         private string charset;
-        private sealed class Attempt { public IElement content; public long length; }
+
+        private sealed class Attempt 
+        {
+            public Attempt(IElement content, long length)
+            {
+                Content = content;
+                Length = length;
+            }
+
+            public IElement Content { get; }
+
+            public long Length { get; }
+        }
+
         private List<Attempt> attempts = new ();
 
         // Start with all flags set        
@@ -1244,23 +1257,23 @@ namespace SmartReader
                     if (FlagIsActive(Flags.StripUnlikelys))
                     {
                         RemoveFlag(Flags.StripUnlikelys);
-						attempts.Add(new Attempt() { content = articleContent, length = textLength});
+						attempts.Add(new Attempt(articleContent, textLength));
                     }
                     else if (FlagIsActive(Flags.WeightClasses))
                     {
                         RemoveFlag(Flags.WeightClasses);
-                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
+                        attempts.Add(new Attempt(articleContent, textLength));
                     }
                     else if (FlagIsActive(Flags.CleanConditionally))
                     {
                         RemoveFlag(Flags.CleanConditionally);
-                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
+                        attempts.Add(new Attempt(articleContent, textLength));
                     }
                     else
                     {
-                        attempts.Add(new Attempt() { content = articleContent, length = textLength });
+                        attempts.Add(new Attempt(articleContent, textLength));
                         // No luck after removing flags, just return the longest text we found during the different loops
-                        attempts = attempts.OrderByDescending(x => x.length).ToList();
+                        attempts = attempts.OrderByDescending(x => x.Length).ToList();
 						
 						// But first check if we actually have something
 						if (attempts.Count == 0)
@@ -1268,7 +1281,7 @@ namespace SmartReader
 							return null;
 						}
 				
-						articleContent = attempts[0].content;
+						articleContent = attempts[0].Content;
 						parseSuccessful = true;
                     }
                 }
