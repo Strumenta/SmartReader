@@ -49,7 +49,7 @@ namespace SmartReader
                 return prePath + uriToCheck;
 
             // Dotslash relative URI.
-            if (uriToCheck.IndexOf("./") == 0)
+            if (uriToCheck.StartsWith("./", StringComparison.Ordinal))
                 return pathBase + uriToCheck.Substring(2);
 
             // Standard relative URI; add entire path. pathBase already includes a
