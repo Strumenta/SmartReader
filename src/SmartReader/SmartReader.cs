@@ -242,7 +242,7 @@ namespace SmartReader
             this.uri = new Uri(uri);
                         
             var context = BrowsingContext.New(Configuration.Default.WithCss());
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(text);
 
             articleTitle = "";
@@ -263,7 +263,7 @@ namespace SmartReader
             this.uri = new Uri(uri);
             
             var context = BrowsingContext.New(Configuration.Default.WithCss());
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(source);
 
             articleTitle = "";
@@ -348,7 +348,7 @@ namespace SmartReader
         public async Task<Article> GetArticleAsync()
         {
             var context = BrowsingContext.New(Configuration.Default.WithCss());
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions(), context);
             
             if (doc is null)
             {
@@ -368,7 +368,7 @@ namespace SmartReader
         public Article GetArticle()
         {
             var context = BrowsingContext.New(Configuration.Default.WithCss());
-            HtmlParser parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             if (doc is null)
             {
@@ -1677,7 +1677,7 @@ namespace SmartReader
                     return false;
                 }
 
-                var weight = GetClassWeight(node);
+                int weight = GetClassWeight(node);
 
                 if (Debug || Logging == ReportLevel.Info)
                     LoggerDelegate($"Cleaning Conditionally {node}");
@@ -1726,10 +1726,10 @@ namespace SmartReader
                         embedCount++;
                     }
 
-                    var linkDensity = NodeUtility.GetLinkDensity(node);
+                    double linkDensity = NodeUtility.GetLinkDensity(node);
                     var contentLength = NodeUtility.GetInnerText(node).Length;                 
 
-                    var haveToRemove =
+                    bool haveToRemove =
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
                       (!isList && li > p) ||
                       (input > Math.Floor(p / 3)) ||

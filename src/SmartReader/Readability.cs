@@ -306,9 +306,7 @@ namespace SmartReader
             {
                 return 0;
             }
-            var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
-            //var distanceB = 0;
-            //if (string.Join(" ", tokensB).Length > 0)
+            var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));            
             var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;            
             return 1 - distanceB;
         }
