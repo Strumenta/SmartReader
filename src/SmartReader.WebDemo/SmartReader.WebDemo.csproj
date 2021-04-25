@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlSanitizer" Version="5.0.376" />
+    <PackageReference Include="HtmlSanitizer" Version="5.0.404" />
   </ItemGroup>
 
   <ItemGroup>
