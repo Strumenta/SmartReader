@@ -485,7 +485,7 @@ namespace SmartReader
         /// </summary>
         private void ReplaceBrs(IElement elem)
         {
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(elem, new string[] { "br" }), (br) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(elem, "br"), (br) =>
             {
                 var next = br.NextSibling;
 
@@ -606,8 +606,7 @@ namespace SmartReader
             CleanConditionally(articleContent, "div");
 
             // replace H1 with H2 as H1 should be only title that is displayed separately
-            NodeUtility.ReplaceNodeTags(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "h1" }
-            ), "h2");
+            NodeUtility.ReplaceNodeTags(NodeUtility.GetAllNodesWithTag(articleContent, "h1"), "h2");
 
             // Remove extra paragraphs
             NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
@@ -622,7 +621,7 @@ namespace SmartReader
                 return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "br" }), (br) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next != null && next.TagName is "P")
@@ -630,7 +629,7 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "table" }), (table) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (table) =>
             {
                 var tbody = NodeUtility.HasSingleTagInsideElement(table as IElement, "TBODY") ? (table as IElement).FirstElementChild : table;
                 if (NodeUtility.HasSingleTagInsideElement(tbody as IElement, "TR"))

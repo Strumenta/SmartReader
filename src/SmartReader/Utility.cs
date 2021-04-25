@@ -230,7 +230,13 @@ namespace SmartReader
         {
             return node.QuerySelectorAll(string.Join(",", tagNames));
         }
-        
+
+
+        internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string tagName)
+        {
+            return node.QuerySelectorAll(tagName);
+        }
+
         /// <summary>
         /// Check if node is image, or if node contains exactly only one image
         /// whether as a direct child or as its descendants.

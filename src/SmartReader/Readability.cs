@@ -76,7 +76,7 @@ namespace SmartReader
             var prePath = uri.GetBase();
             var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
 
-            var links = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "a" });
+            var links = NodeUtility.GetAllNodesWithTag(articleContent, "a");
 
             NodeUtility.ForEachNode(links, (linkNode) =>
             {
@@ -363,7 +363,7 @@ namespace SmartReader
         {
             var jsonLDMetadata = new Dictionary<string, string>();
             
-            var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "script" });
+            var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "script");
 
             var jsonLdElement = NodeUtility.FindNode(scripts, (el) => {
                 return el?.GetAttribute("type") is "application/ld+json";
