@@ -138,9 +138,9 @@ namespace SmartReader
         /// <value>Default: true</value>
         public bool ContinueIfNotReadable { get; set; } = true;
 
-        /// <summary>Element tags to score by default.</summary>
+        /// <summary>Element tags to score by default. These must be alphanumerically sorted.</summary>
         /// <value>Default: false</value>
-        public string[] TagsToScore = new[] { "SECTION", "H2", "H3", "H4", "H5", "H6", "P", "TD", "PRE" };
+        public readonly string[] TagsToScore = new[] { "H2", "H3", "H4", "H5", "H6", "P", "PRE", "SECTION", "TD" };
 
         /// <summary>The library look first at JSON-LD to determine metadata.
         /// This setting gives you the option of disabling it</summary>
@@ -860,7 +860,7 @@ namespace SmartReader
                         continue;
                     }
 
-                    if (TagsToScore.ToList().IndexOf(node.TagName) != -1)
+                    if (Array.BinarySearch(TagsToScore, node.TagName) > -1)
                     {
                         elementsToScore.Add(node);
                     }
