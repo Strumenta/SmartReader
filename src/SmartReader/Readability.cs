@@ -500,9 +500,9 @@ namespace SmartReader
             {
                 var element = (IElement)node;
 
-                var elementName = element.GetAttribute("name") ?? "";
-                var elementProperty = element.GetAttribute("property") ?? "";
-                var itemProp = element.GetAttribute("itemprop") ?? "";
+                var elementName = element.GetAttribute("name");
+                var elementProperty = element.GetAttribute("property");
+                var itemProp = element.GetAttribute("itemprop");
                 var content = element.GetAttribute("content");
 
                 // avoid issues with no meta tags
@@ -513,12 +513,12 @@ namespace SmartReader
                 MatchCollection? matches = null;
                 string name = "";
 
-                if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
+                if (elementName is "author" || elementProperty is "author" || itemProp is "author")
                 {                    
                     values["author"] = element.GetAttribute("content");
                 }
 
-                if (!string.IsNullOrEmpty(elementProperty))
+                if (elementProperty is { Length: > 0 })
                 {
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
@@ -533,23 +533,20 @@ namespace SmartReader
                 }
 
                 if ((matches is null || matches.Count == 0)
-                  && !string.IsNullOrEmpty(elementName) && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
+                  && elementName is { Length: > 0 } && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
-                    if (!string.IsNullOrEmpty(content))
-                    {
-                        // Convert to lowercase, remove any whitespace, and convert dots
-                        // to colons so we can match below.
-                        name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.", ":");
-                        values[name] = content.Trim();
-                    }
-
+                    
+                    // Convert to lowercase, remove any whitespace, and convert dots
+                    // to colons so we can match below.
+                    name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.", ":");
+                    values[name] = content.Trim();
                 }
-                else if (Regex.IsMatch(elementProperty, propertyPattern, RegexOptions.IgnoreCase))
+                else if (elementProperty is { Length: > 0 } && Regex.IsMatch(elementProperty, propertyPattern, RegexOptions.IgnoreCase))
                 {
                     name = elementProperty;
                 }
-                else if (Regex.IsMatch(itemProp, itemPropPattern, RegexOptions.IgnoreCase))
+                else if (itemProp is { Length: > 0 } && Regex.IsMatch(itemProp, itemPropPattern, RegexOptions.IgnoreCase))
                 {
                     name = itemProp;
                 }
