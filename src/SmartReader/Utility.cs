@@ -397,8 +397,8 @@ namespace SmartReader
         {
             var b = SomeNode(element?.ChildNodes, (node) =>
             {
-                return divToPElems.ToList().IndexOf((node as IElement)?.TagName) != -1
-                || HasChildBlockElement(node as IElement);
+                return divToPElems.Contains((node as IElement)?.TagName)
+                    || HasChildBlockElement(node as IElement);
             });
             var d = element?.TextContent;
 

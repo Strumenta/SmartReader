@@ -205,7 +205,7 @@ namespace SmartReader
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
 
-        private readonly string[] alterToDivExceptions = { "DIV", "ARTICLE", "SECTION", "P" };        
+        private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION" };        
         
         private static readonly string[] unlikelyRoles = { "menu", "menubar", "complementary", "navigation", "alert", "alertdialog", "dialog" };
 
@@ -872,7 +872,7 @@ namespace SmartReader
                         continue;
                     }
 
-                    if (Array.BinarySearch(TagsToScore, node.TagName) > -1)
+                    if (TagsToScore.Contains(node.TagName))
                     {
                         elementsToScore.Add(node);
                     }
@@ -1190,7 +1190,7 @@ namespace SmartReader
 
                     if (append)
                     {
-                        if (alterToDivExceptions.ToList().IndexOf(sibling.NodeName) == -1)
+                        if (!alterToDivExceptions.Contains(sibling.NodeName))
                         {
                             // We have a node that isn't a common block level element, like a form or td tag.
                             // Turn it into a div so it doesn't get filtered out later by accident.
