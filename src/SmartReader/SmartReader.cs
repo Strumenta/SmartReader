@@ -998,7 +998,7 @@ namespace SmartReader
 
                 // After we've calculated scores, loop through all of the possible
                 // candidate nodes we found and find the one with the highest score.
-                List<IElement> topCandidates = new List<IElement>();
+                var topCandidates = new List<IElement>();
                 for (int c = 0, cl = candidates?.Count ?? 0; c < cl; c += 1)
                 {
                     var candidate = candidates[c];
@@ -1053,7 +1053,7 @@ namespace SmartReader
                     // Find a better top candidate node if it contains (at least three) nodes which belong to `topCandidates` array
                     // and whose scores are quite closed with current `topCandidate` node.
   
-                    List<IElement> alternativeCandidateAncestors = new List<IElement>();
+                    var alternativeCandidateAncestors = new List<IElement>();
                     for (var i = 1; i < topCandidates.Count; i++)
                     {                        
                         if (GetReadabilityScore(topCandidates[i]) / GetReadabilityScore(topCandidate) >= 0.75)

@@ -427,7 +427,7 @@ namespace SmartReader
                             && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
                         {
                             var authors = root.GetProperty("author").EnumerateArray();
-                            List<string> byline = new List<string>();
+                            var byline = new List<string>();
                             foreach (var author in authors)
                             {
                                 if (author.TryGetProperty("name", out value)
