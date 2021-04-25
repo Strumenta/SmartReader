@@ -78,9 +78,10 @@ namespace SmartReader
 
             var links = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "a" });
 
-            NodeUtility.ForEachNode(links, (link) =>
+            NodeUtility.ForEachNode(links, (linkNode) =>
             {
-                var href = (link as IElement).GetAttribute("href");
+                var link = (IElement)linkNode;
+                var href = link.GetAttribute("href");
                 if (!string.IsNullOrWhiteSpace(href))
                 {
                     // Remove links with javascript: URIs, since
@@ -106,7 +107,7 @@ namespace SmartReader
                     }
                     else
                     {
-                        (link as IElement).SetAttribute("href", uri.ToAbsoluteURI(href));
+                        link.SetAttribute("href", uri.ToAbsoluteURI(href));
                     }
                 }
             });
@@ -493,12 +494,14 @@ namespace SmartReader
             var itemPropPattern = @"\s*datePublished\s*";
 
             // Find description tags.
-            NodeUtility.ForEachNode(metaElements, (element) =>
+            NodeUtility.ForEachNode(metaElements, (node) =>
             {
-                var elementName = (element as IElement).GetAttribute("name") ?? "";
-                var elementProperty = (element as IElement).GetAttribute("property") ?? "";
-                var itemProp = (element as IElement).GetAttribute("itemprop") ?? "";
-                var content = (element as IElement).GetAttribute("content");
+                var element = (IElement)node;
+
+                var elementName = element.GetAttribute("name") ?? "";
+                var elementProperty = element.GetAttribute("property") ?? "";
+                var itemProp = element.GetAttribute("itemprop") ?? "";
+                var content = element.GetAttribute("content");
 
                 // avoid issues with no meta tags
                 if (string.IsNullOrEmpty(content))
@@ -510,7 +513,7 @@ namespace SmartReader
 
                 if (new string[] { elementName, elementProperty, itemProp }.ToList().IndexOf("author") != -1)
                 {                    
-                    values["author"] = (element as IElement).GetAttribute("content");
+                    values["author"] = element.GetAttribute("content");
                 }
 
                 if (!string.IsNullOrEmpty(elementProperty))
@@ -551,7 +554,7 @@ namespace SmartReader
 
                 if (!string.IsNullOrEmpty(name))
                 {
-                    content = (element as IElement).GetAttribute("content");
+                    content = element.GetAttribute("content");
                     if (!string.IsNullOrEmpty(content))
                     {
                         // Convert to lowercase and remove any whitespace
