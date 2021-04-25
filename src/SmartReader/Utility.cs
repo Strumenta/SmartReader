@@ -412,7 +412,7 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool IsPhrasingContent(INode node)
         {
-            return node.NodeType == NodeType.Text || Array.IndexOf(phrasingElems, node.NodeName) != -1 ||
+            return node.NodeType == NodeType.Text || phrasingElems.Contains(node.NodeName) ||
               ((node.NodeName is "A" or "DEL" or "INS") &&
                 EveryNode(node.ChildNodes, IsPhrasingContent));
         }
