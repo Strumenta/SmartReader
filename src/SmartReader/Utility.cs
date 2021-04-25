@@ -553,7 +553,7 @@ namespace SmartReader
             {
                 if (filter(next, next.ClassName + " " + next.Id))
                 {
-                    next = RemoveAndGetNext(next as INode) as IElement;
+                    next = RemoveAndGetNext(next) as IElement;
                 }
                 else
                 {
