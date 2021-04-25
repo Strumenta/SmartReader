@@ -566,22 +566,22 @@ namespace SmartReader
             // Find the the description of the article
             IEnumerable<string> DescriptionKeys()
             {
-                yield return values.ContainsKey("jsonld:description") ? values["jsonld:description"] : null;
-                yield return values.ContainsKey("description") ? values["description"] : null;
-                yield return values.ContainsKey("dc:description") ? values["dc:description"] : null;
-                yield return values.ContainsKey("dcterm:description") ? values["dcterm:description"] : null;
-                yield return values.ContainsKey("og:description") ? values["og:description"] : null;
-                yield return values.ContainsKey("weibo:article:description") ? values["weibo:article:description"] : null;
-                yield return values.ContainsKey("weibo:webpage:description") ? values["weibo:webpage:description"] : null;
-                yield return values.ContainsKey("twitter:description") ? values["twitter:description"] : null;
+                yield return values.GetValueOrDefault("jsonld:description");
+                yield return values.GetValueOrDefault("description");
+                yield return values.GetValueOrDefault("dc:description");
+                yield return values.GetValueOrDefault("dcterm:description");
+                yield return values.GetValueOrDefault("og:description");
+                yield return values.GetValueOrDefault("weibo:article:description");
+                yield return values.GetValueOrDefault("weibo:webpage:description");
+                yield return values.GetValueOrDefault("twitter:description");
             }
 
             metadata.Excerpt = DescriptionKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
 
             IEnumerable<string> SiteNameKeys()
             {
-                yield return values.ContainsKey("jsonld:siteName") ? values["jsonld:siteName"] : null;
-                yield return values.ContainsKey("og:site_name") ? values["og:site_name"] : null;
+                yield return values.GetValueOrDefault("jsonld:siteName") ;
+                yield return values.GetValueOrDefault("og:site_name");
             }
 
             // Get the name of the site
@@ -590,14 +590,14 @@ namespace SmartReader
             // Find the title of the article
             IEnumerable<string> TitleKeys()
             {
-                yield return values.ContainsKey("jsonld:title") ? values["jsonld:title"] : null;
-                yield return values.ContainsKey("dc:title") ? values["dc:title"] : null;
-                yield return values.ContainsKey("dcterm:title") ? values["dcterm:title"] : null;
-                yield return values.ContainsKey("og:title") ? values["og:title"] : null;
-                yield return values.ContainsKey("weibo:article:title") ? values["weibo:article:title"] : null;
-                yield return values.ContainsKey("weibo:webpage:title") ? values["weibo:webpage:title"] : null;
-                yield return values.ContainsKey("twitter:title") ? values["twitter:title"] : null;
-                yield return values.ContainsKey("title") ? values["title"] : null;
+                yield return values.GetValueOrDefault("jsonld:title");
+                yield return values.GetValueOrDefault("dc:title");
+                yield return values.GetValueOrDefault("dcterm:title");
+                yield return values.GetValueOrDefault("og:title") ;
+                yield return values.GetValueOrDefault("weibo:article:title");
+                yield return values.GetValueOrDefault("weibo:webpage:title");
+                yield return values.GetValueOrDefault("twitter:title");
+                yield return values.GetValueOrDefault("title");
             }
 
             metadata.Title = TitleKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? ""; 
@@ -626,11 +626,11 @@ namespace SmartReader
             // Find the featured image of the article
             IEnumerable<string> FeaturedImageKeys()
             {
-                yield return values.ContainsKey("jsonld:image") ? values["jsonld:image"] : null;
-                yield return values.ContainsKey("og:image") ? values["og:image"] : null;
-                yield return values.ContainsKey("twitter:image") ? values["twitter:image"] : null;
-                yield return values.ContainsKey("weibo:article:image") ? values["weibo:article:image"] : null;
-                yield return values.ContainsKey("weibo:webpage:image") ? values["weibo:webpage:image"] : null;
+                yield return values.GetValueOrDefault("jsonld:image");
+                yield return values.GetValueOrDefault("og:image");
+                yield return values.GetValueOrDefault("twitter:image");
+                yield return values.GetValueOrDefault("weibo:article:image");
+                yield return values.GetValueOrDefault("weibo:webpage:image");
             }
 
             metadata.FeaturedImage = FeaturedImageKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
@@ -641,10 +641,10 @@ namespace SmartReader
             // So we do not use it
             IEnumerable<string> AuthorKeys()
             {
-                yield return values.ContainsKey("jsonld:author") ? values["jsonld:author"] : null;
-                yield return values.ContainsKey("dc:creator") ? values["dc:creator"] : null;
-                yield return values.ContainsKey("dcterm:creator") ? values["dcterm:creator"] :null;
-                yield return values.ContainsKey("author") ? values["author"] : null;
+                yield return values.GetValueOrDefault("jsonld:author");
+                yield return values.GetValueOrDefault("dc:creator");
+                yield return values.GetValueOrDefault("dcterm:creator");
+                yield return values.GetValueOrDefault("author");
             }
 
             metadata.Author = AuthorKeys().FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
