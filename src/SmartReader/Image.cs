@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿#nullable enable
+
+using System;
 
 namespace SmartReader
 {
@@ -10,7 +10,7 @@ namespace SmartReader
     public class Image
     {
         /// <value>The original URI of the source</value>
-        public Uri Source { get; set; } = null;
+        public Uri? Source { get; set; } = null;
         /// <value>The size in bytes of the image</value>
         public long Size { get; set; } = 0;
         /// <value>The value of the attribute title of &lt;img&gt; tag</value>
