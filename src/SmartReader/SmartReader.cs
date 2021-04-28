@@ -213,8 +213,11 @@ namespace SmartReader
 
         private readonly List<Action<IElement>> CustomOperationsEnd = new ();
 
-        private static readonly string[] s_P_PRE = { "p", "pre" };
-
+        private static readonly string[] s_p_pre = { "p", "pre" };
+        private static readonly string[] s_img_picture_figure = { "img", "picture", "figure" };
+        private static readonly string[] s_ul_ol = { "ul", "ol" };
+        private static readonly string[] s_h1_h2 = { "h1", "h2" };
+        private static readonly string[] s_h1_h2_h3_h4_h5_h6 = { "h1", "h2", "h3", "h4", "h5", "h6" };
 
         /// <summary>
         /// Reads content from the given URI.
@@ -1528,7 +1531,7 @@ namespace SmartReader
         /// </summary>
         private void FixLazyImages(IElement root)
         {
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(root, new string[] { "img", "picture", "figure" }), (node) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(root, s_img_picture_figure), (node) =>
             {
                 // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
                 // So, here we check if the data uri is too short, just might as well remove it.
@@ -1577,8 +1580,8 @@ namespace SmartReader
 
                 var srcset = elem.GetAttribute("srcset");                
 
-                if ((!String.IsNullOrEmpty(src) || (!String.IsNullOrEmpty(srcset) && srcset != null))
-                && (!string.IsNullOrEmpty(elem.ClassName) && elem.ClassName.ToLower().IndexOf("lazy") == -1))
+                if ((!String.IsNullOrEmpty(src) || !String.IsNullOrEmpty(srcset))
+                && (elem.ClassName is { Length: > 0 } className && className.IndexOf("lazy", StringComparison.OrdinalIgnoreCase) == -1))
                 {
                     return;
                 }
@@ -1658,7 +1661,7 @@ namespace SmartReader
                 if (!isList)
                 {
                     var listLength = 0;
-                    var listNodes = NodeUtility.GetAllNodesWithTag(node, new string[] { "ul", "ol" });
+                    var listNodes = NodeUtility.GetAllNodesWithTag(node, s_ul_ol);
                     NodeUtility.ForEachNode(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
                     
                     if(NodeUtility.GetInnerText(node).Length > 0)
@@ -1703,7 +1706,7 @@ namespace SmartReader
                     float img = node.GetElementsByTagName("img").Length;
                     float li = node.GetElementsByTagName("li").Length - 100;
                     float input = node.GetElementsByTagName("input").Length;
-                    float headingDensity = GetTextDensity(node, new string[] { "h1", "h2", "h3", "h4", "h5", "h6" });
+                    float headingDensity = GetTextDensity(node, s_h1_h2_h3_h4_h5_h6);
 
                     var embedCount = 0;
                     var embeds = NodeUtility.ConcatNodeLists(
@@ -1754,7 +1757,7 @@ namespace SmartReader
         /// </summary>
         private void CleanHeaders(IElement e)
         {
-            var headingNodes = NodeUtility.GetAllNodesWithTag(e, new string[] { "h1", "h2" });
+            var headingNodes = NodeUtility.GetAllNodesWithTag(e, s_h1_h2);
             NodeUtility.RemoveNodes(headingNodes, (node) => {
                 var shouldRemove = GetClassWeight(node) < 0;
                 if (shouldRemove)
@@ -1803,7 +1806,7 @@ namespace SmartReader
         /// <returns>Whether or not we suspect parse method will suceeed at returning an article object.</returns>
         private bool IsProbablyReaderable()
         {            
-            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_P_PRE);
+            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_p_pre);
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
             // Some articles' DOM structures might look like

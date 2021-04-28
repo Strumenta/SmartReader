@@ -32,6 +32,7 @@ namespace SmartReader
         };
 
         private static readonly char[] s_space = { ' ' };
+        private static readonly string[] s_img_picture_figure_video_audio_source = { "img", "picture", "figure", "video", "audio", "source" };
 
         /// <summary>
         /// Removes the class attribute from every element in the given
@@ -112,7 +113,7 @@ namespace SmartReader
                 }
             });
 
-            var medias = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "img", "picture", "figure", "video", "audio", "source" });
+            var medias = NodeUtility.GetAllNodesWithTag(articleContent, s_img_picture_figure_video_audio_source);
 
             NodeUtility.ForEachNode(medias, (mediaNode) => {
                 if (mediaNode is IElement media)
