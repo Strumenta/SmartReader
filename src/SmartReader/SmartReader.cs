@@ -110,7 +110,7 @@ namespace SmartReader
         /// <value>Default: 500</value>
         public int CharThreshold { get; set; } = 500;
         
-        private string[] classesToPreserve = { "page" };        
+        private string[] classesToPreserve = { "page" };
         /// <summary>
         /// The classes that must be preserved
         /// </summary>
@@ -1982,7 +1982,7 @@ namespace SmartReader
 
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
-            HttpRequestMessage headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
+            var headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
             var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
 
             long size = 0;

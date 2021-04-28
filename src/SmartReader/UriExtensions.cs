@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace SmartReader
 {
-   internal static class UriExtensions
+    internal static class UriExtensions
     {
         internal static string GetBase(this Uri startUri)
         {
-            StringBuilder sb = new StringBuilder(startUri.Scheme + "://");
+            var sb = new StringBuilder(startUri.Scheme + "://");
 
             if (!string.IsNullOrEmpty(startUri.UserInfo))
                 sb.Append(startUri.UserInfo + "@");

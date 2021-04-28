@@ -21,8 +21,7 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_HashUrl = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
-        
+        private static readonly Regex RE_HashUrl      = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
         
