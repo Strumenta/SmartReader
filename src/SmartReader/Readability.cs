@@ -19,9 +19,16 @@ namespace SmartReader
     {
         private static readonly Regex RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_SrcSetUrl = new Regex(@"(\S+)(\s+[\d.]+[xw])?(\s*(?:,|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        // See: https://schema.org/Article
-        private static readonly Regex RE_JsonLdArticleTypes = new Regex(@"^Article|AdvertiserContentArticle|NewsArticle|AnalysisNewsArticle|AskPublicNewsArticle|BackgroundNewsArticle|OpinionNewsArticle|ReportageNewsArticle|ReviewNewsArticle|Report|SatiricalArticle|ScholarlyArticle|MedicalScholarlyArticle|SocialMediaPosting|BlogPosting|LiveBlogPosting|DiscussionForumPosting|TechArticle|APIReference$");
         private static readonly Regex RE_Tokenize = new Regex(@"\W+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        // See: https://schema.org/Article
+        private static readonly HashSet<string> JsonLdArticleTypes = new (new[] {
+            "Article", "AdvertiserContentArticle", "NewsArticle", "AnalysisNewsArticle", "AskPublicNewsArticle",
+            "BackgroundNewsArticle", "OpinionNewsArticle", "ReportageNewsArticle", "ReviewNewsArticle", "Report",
+            "SatiricalArticle", "ScholarlyArticle", "MedicalScholarlyArticle", "SocialMediaPosting", "BlogPosting",
+            "LiveBlogPosting", "DiscussionForumPosting", "TechArticle", "APIReference" 
+        });
+
         // These are the list of HTML entities that need to be escaped.
         private static readonly Dictionary<string, string> htmlEscapeMap = new () {
             { "lt", "<" },
@@ -383,7 +390,7 @@ namespace SmartReader
                         foreach (var obj in graph)
                         {
                             if (obj.TryGetProperty("@type", out value)
-                                && RE_JsonLdArticleTypes.IsMatch(value.GetString()))
+                                && JsonLdArticleTypes.Contains(value.GetString()!))
                             {
                                 root = obj;
                                 break;
@@ -398,7 +405,7 @@ namespace SmartReader
                     }
 
                     if (!root.TryGetProperty("@type", out value)
-                        || !RE_JsonLdArticleTypes.IsMatch(value.GetString()))
+                        || !JsonLdArticleTypes.Contains(value.GetString()!))
                     {
                         return jsonLDMetadata;
                     }
