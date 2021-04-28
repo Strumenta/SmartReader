@@ -746,9 +746,9 @@ namespace SmartReader
             string rel = "";
             string itemprop = "";
 
-            if (node is IElement && !string.IsNullOrEmpty(node.GetAttribute("rel")))
+            if (node is IElement && node.GetAttribute("rel") is { Length: > 0 } relValue)
             {
-                rel = node.GetAttribute("rel");
+                rel = relValue;
                 itemprop = node.GetAttribute("itemprop");
             }
 
@@ -1302,10 +1302,10 @@ namespace SmartReader
                     {
                         if (string.IsNullOrEmpty(ancestor.TagName))
                             return false;
-                        var _articleDir = ancestor.GetAttribute("dir");
-                        if (!string.IsNullOrEmpty(_articleDir))
+
+                        if (ancestor.GetAttribute("dir") is { Length: > 0 } dir)
                         {
-                            this.articleDir = _articleDir;
+                            this.articleDir = dir;
                             return true;
                         }
                         return false;
@@ -1466,20 +1466,20 @@ namespace SmartReader
             for (var i = 0; i < tables.Length; i++)
             {
                 var table = tables[i];
-                var role = table.GetAttribute("role");
-                if (role is "presentation")
+
+                if (table.GetAttribute("role") is "presentation")
                 {                    
                     table.SetAttribute("dataTable", "false");
                     continue;
                 }
-                var datatable = table.GetAttribute("datatable");
-                if (datatable is "0")
+
+                if (table.GetAttribute("datatable") is "0")
                 {                   
                     table.SetAttribute("dataTable", "false");
                     continue;
                 }
-                var summary = table.GetAttribute("summary");
-                if (!string.IsNullOrEmpty(summary))
+
+                if (table.GetAttribute("summary") is { Length: > 0 })
                 {
                     table.SetAttribute("dataTable", "true");                    
                     continue;

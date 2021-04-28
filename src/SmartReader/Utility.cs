@@ -319,7 +319,7 @@ namespace SmartReader
                             if (attr.Name is "src" or "srcset"
                             || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             {
-                                if (newImg.GetAttribute(attr.Name) == attr.Value)
+                                if (string.Equals(newImg.GetAttribute(attr.Name), attr.Value, StringComparison.Ordinal))
                                 {
                                     continue;
                                 }

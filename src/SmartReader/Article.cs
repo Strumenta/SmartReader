@@ -163,18 +163,18 @@ namespace SmartReader
             {
                 foreach (var img in imgs)
                 {
-                    if (!string.IsNullOrEmpty(img.GetAttribute("src")))
+                    if (img.GetAttribute("src") is { Length: > 0 } src)
                     {
                         long size = 0;
 
-                        var imageUri = new Uri(img.GetAttribute("src"));
+                        var imageUri = new Uri(src);
 
                         try
                         {
                             imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
                             size = await _reader!.GetImageSizeAsync(imageUri);
                         }
-                        catch (Exception e) { }
+                        catch { }
 
                         string description = img.GetAttribute("alt");
                         string title = img.GetAttribute("title");
