@@ -765,7 +765,7 @@ namespace SmartReader
 
                 articleByline = node.TextContent.Trim();
                 // we remove residual mustache (or similar templating) references
-                articleByline = Regex.Replace(articleByline.StartsWith("by") ? articleByline.Substring(2) : articleByline, @"{{.*?}}", "").Trim();
+                articleByline = Regex.Replace(articleByline.StartsWith("by", StringComparison.Ordinal) ? articleByline.Substring(2) : articleByline, @"{{.*?}}", "").Trim();
                 return true;
             }
 
@@ -1849,7 +1849,7 @@ namespace SmartReader
                     return false;
                 }
 
-                var textContentLength = node.TextContent.Trim().Length;
+                var textContentLength = node.TextContent.AsSpan().Trim().Length;
                 if (textContentLength < MinContentLengthReadearable)
                 {
                     return false;
