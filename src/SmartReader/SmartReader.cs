@@ -1400,14 +1400,13 @@ namespace SmartReader
         /// <param name="filterFn">Filter to ignore some matching tags</param>
         private bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
         {
-            tagName = tagName.ToUpper();
             var depth = 0;
 
             while (node.ParentElement != null)
             {
                 if (maxDepth > 0 && depth > maxDepth)
                     return false;
-                if (node.ParentElement.TagName == tagName
+                if (string.Equals(node.ParentElement.TagName, tagName, StringComparison.OrdinalIgnoreCase)
                     && (filterFn is null || filterFn(node.ParentElement)))
                     return true;
                 node = node.ParentElement;
