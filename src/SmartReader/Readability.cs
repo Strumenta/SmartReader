@@ -114,11 +114,9 @@ namespace SmartReader
 
             var medias = NodeUtility.GetAllNodesWithTag(articleContent, new string[] { "img", "picture", "figure", "video", "audio", "source" });
 
-            NodeUtility.ForEachNode(medias, (media_node) => {
-                if (media_node is IElement)
+            NodeUtility.ForEachNode(medias, (mediaNode) => {
+                if (mediaNode is IElement media)
                 {
-                    var media = media_node as IElement;
-
                     if (media.GetAttribute("src") is string src)
                     {
                         media.SetAttribute("src", uri.ToAbsoluteURI(src));
@@ -164,7 +162,6 @@ namespace SmartReader
 
             return title;
         }
-
         /// <summary>
         /// Simplify nested elements
         /// </summary>
@@ -178,11 +175,11 @@ namespace SmartReader
 
             while (node != null)
             {
-                if (node.Parent != null && (new string[] { "DIV", "SECTION"}).Contains(node.TagName) && !(!String.IsNullOrWhiteSpace(node.Id) && node.Id.StartsWith("readability")))
+                if (node.Parent != null && node.TagName is "DIV" or "SECTION" && !(node.Id is string id && id.StartsWith("readability", StringComparison.Ordinal)))
                 {
                     if (NodeUtility.IsElementWithoutContent(node))
                     {
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
                     else if (NodeUtility.HasSingleTagInsideElement(node, "DIV") || NodeUtility.HasSingleTagInsideElement(node, "SECTION"))
@@ -408,18 +405,18 @@ namespace SmartReader
                     if (root.TryGetProperty("name", out value)
                         && value.ValueKind == JsonValueKind.String)
                     {
-                        jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                        jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
                     }
                     if (root.TryGetProperty("headline", out value)
                         && value.ValueKind == JsonValueKind.String)
                     {
-                        jsonLDMetadata["jsonld:title"] = value.GetString().Trim();
+                        jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
                     }
                     if (root.TryGetProperty("author", out value))
                     {
                         if (value.ValueKind == JsonValueKind.Object)
                         {
-                            jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString().Trim();
+                            jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString()!.Trim();
                         }
                         else if (value.ValueKind == JsonValueKind.Array
                             && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
@@ -430,7 +427,7 @@ namespace SmartReader
                             {
                                 if (author.TryGetProperty("name", out value)
                                 && value.ValueKind == JsonValueKind.String)
-                                    byline.Add(value.GetString().Trim());
+                                    byline.Add(value.GetString()!.Trim());
                             }
 
                             jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
@@ -440,22 +437,22 @@ namespace SmartReader
                     if (root.TryGetProperty("description", out value)
                         && value.ValueKind == JsonValueKind.String)
                     {
-                        jsonLDMetadata["jsonld:description"] = value.GetString().Trim();
+                        jsonLDMetadata["jsonld:description"] = value.GetString()!.Trim();
                     }
                     if (root.TryGetProperty("publisher", out value)
                         && value.ValueKind == JsonValueKind.Object)
                     {
-                        jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString().Trim();
+                        jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString()!.Trim();
                     }
                     if (root.TryGetProperty("datePublished", out value)
                         && value.ValueKind == JsonValueKind.String)
                     {
-                        jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString();
+                        jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString()!;
                     }
                     if (root.TryGetProperty("image", out value)
                         && value.ValueKind == JsonValueKind.String)
                     {
-                        jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString();
+                        jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString()!;
                     }
                 }
                 catch(Exception e)
@@ -476,7 +473,7 @@ namespace SmartReader
         /// <param name="language">The language that was possibly found in the headers of the response</param>
         /// <param name="jsonLD">The dictionary containing metadata found in JSON LD</param>
         /// <returns>The metadata object with all the info found</returns>
-        internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string language, Dictionary<string, string> jsonLD)
+        internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string? language, Dictionary<string, string> jsonLD)
         {
             var metadata = new Metadata();
             Dictionary<string, string> values = jsonLD;            

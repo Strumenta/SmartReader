@@ -67,16 +67,16 @@ namespace SmartReader
     public class Reader
     {
         private static Lazy<HttpMessageHandler> _httpClientHandler = new Lazy<HttpMessageHandler>(() => new HttpClientHandler());
-        private string _userAgent = "SmartReader Library";
+        private string? _userAgent = "SmartReader Library";
 
         private Uri uri;
-        private IHtmlDocument doc = null;
+        private IHtmlDocument doc;
         private string articleTitle;
         private string articleByline;
         private string articleDir;
-        private string language;
-        private string author;
-        private string charset;
+        private string? language;
+        private string? author;
+        private string? charset;
 
         private sealed class Attempt 
         {
@@ -212,6 +212,9 @@ namespace SmartReader
         private readonly List<Action<IElement>> CustomOperationsStart = new ();
 
         private readonly List<Action<IElement>> CustomOperationsEnd = new ();
+
+        private static readonly string[] s_P_PRE = { "p", "pre" };
+
 
         /// <summary>
         /// Reads content from the given URI.
@@ -388,7 +391,7 @@ namespace SmartReader
         /// <returns>
         /// An async Task Article object with all the data extracted
         /// </returns>    
-        public static async Task<Article> ParseArticleAsync(string uri, string userAgent = null)
+        public static async Task<Article> ParseArticleAsync(string uri, string? userAgent = null)
         {
             return await new Reader(uri).SetCustomUserAgent(userAgent).GetArticleAsync();
         }
@@ -402,7 +405,7 @@ namespace SmartReader
         /// An Article object with all the data extracted
         /// </returns>    
 
-        public static Article ParseArticle(string uri, string userAgent = null)
+        public static Article ParseArticle(string uri, string? userAgent = null)
         {
             var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
@@ -424,7 +427,7 @@ namespace SmartReader
         /// <returns>
         /// An article object with all the data extracted
         /// </returns>    
-        public static Article ParseArticle(string uri, string text, string userAgent = null)
+        public static Article ParseArticle(string uri, string text, string? userAgent = null)
         {
             return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse();
         }
@@ -509,7 +512,7 @@ namespace SmartReader
                 // If we find a <br> chain, remove the <br>s until we hit another element
                 // or non-whitespace. This leaves behind the first <br> in the chain
                 // (which will be replaced with a <p> later).
-                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) != null && ((next as IElement).TagName is "BR"))
+                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) != null && (((IElement)next).TagName is "BR"))
                 {
                     replaced = true;
                     var brSibling = next.NextSibling;
@@ -600,7 +603,7 @@ namespace SmartReader
             var shareElementThreshold = CharThreshold;
 
             NodeUtility.ForEachNode(articleContent.Children, (topCandidate) => {
-                NodeUtility.CleanMatchedNodes(topCandidate as IElement, (node, matchString) => {
+                NodeUtility.CleanMatchedNodes((IElement)topCandidate, (node, matchString) => {
                     return RE_ShareElements.IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
                 });            
@@ -642,17 +645,19 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (table) =>
+            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (tableNode) =>
             {
-                var tbody = NodeUtility.HasSingleTagInsideElement(table as IElement, "TBODY") ? (table as IElement).FirstElementChild : table;
-                if (NodeUtility.HasSingleTagInsideElement(tbody as IElement, "TR"))
+                var tableEl = (IElement)tableNode;
+
+                var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild : tableEl;
+                if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
                 {
-                    var row = (tbody as IElement).FirstElementChild;
+                    var row = tbody.FirstElementChild;
                     if (NodeUtility.HasSingleTagInsideElement(row, "TD"))
                     {
                         var cell = row.FirstElementChild;
                         cell = NodeUtility.SetNodeTag(cell, NodeUtility.EveryNode(cell.ChildNodes, NodeUtility.IsPhrasingContent) ? "P" : "DIV");
-                        table.Parent.ReplaceChild(cell, table);
+                        tableEl.Parent.ReplaceChild(cell, tableEl);
                     }
                 }
             });
@@ -721,11 +726,10 @@ namespace SmartReader
         }
 
         private double GetReadabilityScore(IElement node)
-        {            
-            if (!string.IsNullOrEmpty(node.GetAttribute("readability-score")))
-                return double.Parse(node.GetAttribute("readability-score"), CultureInfo.InvariantCulture.NumberFormat);
-            else
-                return 0.0;
+        {
+            return node.GetAttribute("readability-score") is { Length: > 0 } readabilityScore
+                ? double.Parse(readabilityScore, CultureInfo.InvariantCulture.NumberFormat)
+                : 0D;
         }        
 
         private bool CheckByline(IElement node, string matchString)
@@ -770,14 +774,14 @@ namespace SmartReader
         /// most likely to be the stuff a user wants to read.Then return it wrapped up in a div.
         /// </summary>
         /// <param name="page">a document to run upon. Needs to be a full document, complete with body</param>
-        private IElement GrabArticle(IElement page = null)
+        private IElement? GrabArticle(IElement? page = null)
         {
             if (Debug || Logging == ReportLevel.Info)
                 LoggerDelegate("**** grabArticle ****");
 
             var doc = this.doc;
             var isPaging = (page != null);
-            page ??= this.doc.Body;
+            page ??= this.doc!.Body;
 
             // We can't grab an article if we don't have a page!
             if (page is null)
@@ -881,7 +885,7 @@ namespace SmartReader
                     if (node.TagName is "DIV")
                     {
                         // Put phrasing content into paragraphs.
-                        INode p = null;
+                        INode? p = null;
                         var childNode = node.FirstChild;                      
                         while (childNode != null)
                         {                           
@@ -946,7 +950,7 @@ namespace SmartReader
                         return;
 
                     // If this paragraph is less than 25 characters, don't even count it.
-                    string innerText = NodeUtility.GetInnerText(elementToScore as IElement);
+                    string innerText = NodeUtility.GetInnerText((IElement)elementToScore);
                     if (innerText.Length < 25)
                         return;
 
@@ -968,16 +972,17 @@ namespace SmartReader
 
                     // Initialize and score ancestors.                    
                     NodeUtility.ForEachNode(ancestors, (ancestor, level) =>
-                    {                               
-                        if (string.IsNullOrEmpty((ancestor as IElement)?.TagName) ||
-                            (ancestor as IElement)?.ParentElement is null ||
-                            string.IsNullOrEmpty((ancestor as IElement)?.ParentElement?.TagName))                            
+                    {                              
+                        var ancestorEl = ancestor as IElement;
+                        if (ancestorEl is null || string.IsNullOrEmpty(ancestorEl.TagName) ||
+                            ancestorEl.ParentElement is null ||
+                            string.IsNullOrEmpty(ancestorEl.ParentElement?.TagName))                            
                             return;
                         
-                        if (GetReadabilityScore(ancestor as IElement).CompareTo(0.0) == 0)
+                        if (GetReadabilityScore(ancestorEl).CompareTo(0.0) == 0)
                         {
-                            InitializeNode(ancestor as IElement);
-                            candidates.Add(ancestor as IElement);
+                            InitializeNode(ancestorEl);
+                            candidates.Add(ancestorEl);
                         }
 
                         // Node score divider:
@@ -992,7 +997,7 @@ namespace SmartReader
                         else
                             scoreDivider = level * 3;
                         
-                        AddToReadabilityScore(ancestor as IElement, contentScore / scoreDivider);
+                        AddToReadabilityScore(ancestorEl, contentScore / scoreDivider);
                     }, 0);
                 });
 
@@ -1001,7 +1006,7 @@ namespace SmartReader
                 var topCandidates = new List<IElement>();
                 for (int c = 0, cl = candidates?.Count ?? 0; c < cl; c += 1)
                 {
-                    var candidate = candidates[c];
+                    var candidate = candidates![c];
 
                     // Scale the final candidates score based on link density. Good content
                     // should have a relatively small link density (5% or less) and be mostly
@@ -1011,7 +1016,7 @@ namespace SmartReader
             
                     for (var t = 0; t < NTopCandidates; t++)
                     {
-                        IElement aTopCandidate = null;
+                        IElement? aTopCandidate = null;
                         if (t < topCandidates.Count)
                             aTopCandidate = topCandidates[t];
                         
@@ -1062,7 +1067,7 @@ namespace SmartReader
                                 alternativeCandidateAncestors.Add(possibleAncestor);
                         }
                     }
-                    var MINIMUM_TOPCANDIDATES = 3;
+                    const int MINIMUM_TOPCANDIDATES = 3;
                     if (alternativeCandidateAncestors.Count >= MINIMUM_TOPCANDIDATES)
                     {
                         parentOfTopCandidate = topCandidate.ParentElement;
@@ -1078,11 +1083,11 @@ namespace SmartReader
                                 topCandidate = parentOfTopCandidate;
                                 break;
                             }
-                            parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
+                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
                         }
                     }
                     
-                    if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
+                    if (GetReadabilityScore(topCandidate!).CompareTo(0.0) == 0)
                     {
                         InitializeNode(topCandidate);
                     }
@@ -1094,7 +1099,7 @@ namespace SmartReader
                     // lurking in other places that we want to unify in. The sibling stuff
                     // below does some of that - but only if we've looked high enough up the DOM
                     // tree.
-                    parentOfTopCandidate = topCandidate.Parent as IElement;
+                    parentOfTopCandidate = (IElement)topCandidate.Parent;
                     
                     var lastScore = GetReadabilityScore(topCandidate);
                     // The scores shouldn't get too low.
@@ -1103,7 +1108,7 @@ namespace SmartReader
                     {                        
                         if (GetReadabilityScore(parentOfTopCandidate).CompareTo(0.0) == 0)
                         {
-                            parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
+                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
                             continue;
                         }
                         
@@ -1118,16 +1123,16 @@ namespace SmartReader
                         }
                         
                         lastScore = GetReadabilityScore(parentOfTopCandidate);
-                        parentOfTopCandidate = parentOfTopCandidate.Parent as IElement;
+                        parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
                     }
 
                     // If the top candidate is the only child, use parent instead. This will help sibling
                     // joining logic when adjacent content is actually located in parent's sibling node.
-                    parentOfTopCandidate = topCandidate.Parent as IElement;
+                    parentOfTopCandidate = (IElement)topCandidate.Parent;
                     while (parentOfTopCandidate.TagName is not "BODY" && parentOfTopCandidate.Children.Length == 1)
                     {
                         topCandidate = parentOfTopCandidate;
-                        parentOfTopCandidate = topCandidate.Parent as IElement;
+                        parentOfTopCandidate = (IElement)topCandidate.Parent;
                     }
                     
                     if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
@@ -1143,9 +1148,9 @@ namespace SmartReader
                 if (isPaging)
                     articleContent.Id = "readability-content";
 
-                var siblingScoreThreshold = Math.Max(10, GetReadabilityScore(topCandidate) * 0.2);
+                var siblingScoreThreshold = Math.Max(10, GetReadabilityScore(topCandidate!) * 0.2);
                 // Keep potential top candidate's parent node to try to get text direction of it later.
-                parentOfTopCandidate = topCandidate.ParentElement;
+                parentOfTopCandidate = topCandidate!.ParentElement;
                 var siblings = parentOfTopCandidate.Children;
 
                 for (int s = 0, sl = siblings.Length; s < sl; s++)
@@ -1162,7 +1167,7 @@ namespace SmartReader
                         double contentBonus = 0;
 
                         // Give a bonus if sibling nodes and top candidates have the example same classname
-                        if (sibling.ClassName == topCandidate.ClassName && topCandidate.ClassName is not "")                            
+                        if (string.Equals(sibling.ClassName, topCandidate.ClassName, StringComparison.Ordinal) && topCandidate.ClassName is not "")                            
                             contentBonus += GetReadabilityScore(topCandidate) * 0.2;
                                                 
                         if (GetReadabilityScore(sibling) > 0 &&
@@ -1390,7 +1395,7 @@ namespace SmartReader
         /// <param name="tagName">Tag to check</param>
         /// <param name="maxDepth">Maximum depth of parent to search</param>
         /// <param name="filterFn">Filter to ignore some matching tags</param>
-        private bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool> filterFn = null)
+        private bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
         {
             tagName = tagName.ToUpper();
             var depth = 0;
@@ -1527,7 +1532,7 @@ namespace SmartReader
             {
                 // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
                 // So, here we check if the data uri is too short, just might as well remove it.
-                var elem = node as IElement;          
+                var elem = (IElement)node;          
                 var src = elem.GetAttribute("src");
                 
                 if(src != null && G_RE_B64DataUrl.IsMatch(src))
@@ -1798,7 +1803,7 @@ namespace SmartReader
         /// <returns>Whether or not we suspect parse method will suceeed at returning an article object.</returns>
         private bool IsProbablyReaderable()
         {            
-            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "p", "pre" });
+            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_P_PRE);
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
             // Some articles' DOM structures might look like
@@ -1807,7 +1812,7 @@ namespace SmartReader
             //   <br>
             //   Sentences<br>
             // </div>
-            var brNodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, new string[] { "div > br" });
+            var brNodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "div > br");
             IEnumerable<IElement> totalNodes = nodes;
             if (brNodes.Length > 0)
             {
@@ -2078,7 +2083,7 @@ namespace SmartReader
         }
         /// <summary>Allow to set an user agent</summary>
         /// <param name="userAgent">A string indicating the User Agent used for web requests made by this library</param>
-        public Reader SetCustomUserAgent(string userAgent)
+        public Reader SetCustomUserAgent(string? userAgent)
         {
             if (!string.IsNullOrWhiteSpace(userAgent))
             {
