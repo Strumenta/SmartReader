@@ -305,8 +305,8 @@ namespace SmartReader
         /// <param name="textb">second text to compare</param>
         internal static int TextSimilarity(string textA, string textB)
         {
-            var tokensA = RE_Tokenize.Split(textA.ToLower()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
-            var tokensB = RE_Tokenize.Split(textB.ToLower()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            var tokensA = RE_Tokenize.Split(textA.ToLowerInvariant()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            var tokensB = RE_Tokenize.Split(textB.ToLowerInvariant()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
             if (tokensA is not { Length: > 0 } || tokensB is not { Length: > 0 })
             {
                 return 0;
@@ -528,7 +528,7 @@ namespace SmartReader
                     {                        
                         // Convert to lowercase, and remove any whitespace
                         // so we can match below.
-                        name = Regex.Replace(matches[0].Value.ToLower(), @"\s+", "");
+                        name = Regex.Replace(matches[0].Value.ToLowerInvariant(), @"\s+", "");
 
                         // multiple authors
                         values[name] = content.Trim();                        
@@ -542,7 +542,7 @@ namespace SmartReader
                     
                     // Convert to lowercase, remove any whitespace, and convert dots
                     // to colons so we can match below.
-                    name = Regex.Replace(Regex.Replace(name.ToLower(), @"\s+", ""), @"\.", ":");
+                    name = Regex.Replace(Regex.Replace(name.ToLowerInvariant(), @"\s+", ""), @"\.", ":");
                     values[name] = content.Trim();
                 }
                 else if (elementProperty is { Length: > 0 } && Regex.IsMatch(elementProperty, propertyPattern, RegexOptions.IgnoreCase))
@@ -561,7 +561,7 @@ namespace SmartReader
                     {
                         // Convert to lowercase and remove any whitespace
                         // so we can match below.
-                        name = Regex.Replace(name.ToLower(), @"\s", "", RegexOptions.IgnoreCase);
+                        name = Regex.Replace(name.ToLowerInvariant(), @"\s", "", RegexOptions.IgnoreCase);
                         if (!values.ContainsKey(name))
                             values.Add(name, content.Trim());
                     }
