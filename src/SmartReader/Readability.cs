@@ -671,28 +671,28 @@ namespace SmartReader
             // added language extraction            
             IEnumerable<DateTime?> DateHeuristics()
             {
-                yield return values.ContainsKey("jsonld:datePublished")
-                    && DateTime.TryParse(values["jsonld:datePublished"], out date) ?
+                yield return values.TryGetValue("jsonld:datePublished", out var jsonLdDatePublished)
+                    && DateTime.TryParse(jsonLdDatePublished, out date) ?
                     date : DateTime.MinValue;
 
-                yield return values.ContainsKey("article:published_time")
-                    && DateTime.TryParse(values["article:published_time"], out date) ?
+                yield return values.TryGetValue("article:published_time", out var articlePublishedTime)
+                    && DateTime.TryParse(articlePublishedTime, out date) ?
                     date : DateTime.MinValue;
 
-                yield return values.ContainsKey("date")
-                    && DateTime.TryParse(values["date"], out date) ?
+                yield return values.TryGetValue("date", out var dateValue)
+                    && DateTime.TryParse(dateValue, out date) ?
                     date : DateTime.MinValue;
 
-                yield return values.ContainsKey("datepublished")
-                  && DateTime.TryParse(values["datepublished"], out date) ?
+                yield return values.TryGetValue("datepublished", out var datePublishedValue)
+                  && DateTime.TryParse(datePublishedValue, out date) ?
                   date : DateTime.MinValue;
 
-                yield return values.ContainsKey("weibo:article:create_at")
-                  && DateTime.TryParse(values["weibo:article:create_at"], out date) ?
+                yield return values.TryGetValue("weibo:article:create_at", out var weiboArticleCreateAt)
+                  && DateTime.TryParse(weiboArticleCreateAt, out date) ?
                   date : DateTime.MinValue;
 
-                yield return values.ContainsKey("weibo:webpage:create_at")
-                  && DateTime.TryParse(values["weibo:webpage:create_at"], out date) ?
+                yield return values.TryGetValue("weibo:webpage:create_at", out var weiboWebPageCreateAt)
+                  && DateTime.TryParse(weiboWebPageCreateAt, out date) ?
                   date : DateTime.MinValue;
             }
 
