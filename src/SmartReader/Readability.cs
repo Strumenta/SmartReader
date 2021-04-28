@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -717,9 +718,9 @@ namespace SmartReader
                 Match maybeDate = Regex.Match(uri.PathAndQuery, "/(?<year>[0-9]{4})/(?<month>[0-9]{2})/(?<day>[0-9]{2})?");
                 if (maybeDate.Success)
                 {
-                    metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value),
-                        int.Parse(maybeDate.Groups["month"].Value),
-                        !string.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value) : 1);
+                    metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value, CultureInfo.InvariantCulture),
+                        int.Parse(maybeDate.Groups["month"].Value, CultureInfo.InvariantCulture),
+                        !string.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value, CultureInfo.InvariantCulture) : 1);
                 }
             }
 
