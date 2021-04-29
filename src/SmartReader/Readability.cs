@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Web;
 
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
@@ -30,15 +31,7 @@ namespace SmartReader
             "LiveBlogPosting", "DiscussionForumPosting", "TechArticle", "APIReference" 
         });
 
-        // These are the list of HTML entities that need to be escaped.
-        private static readonly Dictionary<string, string> htmlEscapeMap = new () {
-            { "lt", "<" },
-            { "gt", ">" },
-            { "amp", "&"},
-            { "quot", "\""},
-            { "apos", "'"}
-        };
-
+     
         private static readonly char[] s_space = { ' ' };
         private static readonly string[] s_img_picture_figure_video_audio_source = { "img", "picture", "figure", "video", "audio", "source" };
 
@@ -334,29 +327,6 @@ namespace SmartReader
             return false;
         }
 
-        /// <summary>
-        /// Converts some of the common HTML entities in string to their corresponding characters.
-        /// <para>This verifies that the input is a string, and that the length
-		/// is less than 100 chars.</para> 
-        /// </summary>
-        /// <param name="str">a string to unescape</param>
-        /// <returns>String without HTML entity</returns>
-        internal static string UnescapeHtmlEntities(string str)
-        {
-            if (String.IsNullOrEmpty(str))
-            {
-                return str;
-            }
-
-            return Regex.Replace(Regex.Replace(str, @"&(quot|amp|apos|lt|gt);", (tag) => {
-                return htmlEscapeMap[tag.Groups[1].Value];
-            }), @"&#(?:x([0-9a-z]{1,4})|([0-9]{1,4}));", (entity) =>
-            {
-                var num = Convert.ToUInt32(!string.IsNullOrEmpty(entity.Groups[1]?.Value) ? entity.Groups[1]?.Value : entity.Groups[2]?.Value, !string.IsNullOrEmpty(entity.Groups[1]?.Value) ? 16 : 10);
-                return Convert.ToChar(num).ToString();
-            });                   
-        }
-   
         /// <summary>
         /// Try to extract metadata from JSON-LD object.
         /// For now, only Schema.org objects of type Article or its subtypes are supported.
@@ -726,9 +696,9 @@ namespace SmartReader
 
             // in many sites the meta value is escaped with HTML entities,
             // so here we need to unescape it    
-            metadata.Title = UnescapeHtmlEntities(metadata.Title);            
-            metadata.Excerpt = UnescapeHtmlEntities(metadata.Excerpt);
-            metadata.SiteName = UnescapeHtmlEntities(metadata.SiteName);
+            metadata.Title = HttpUtility.HtmlDecode(metadata.Title).Trim();            
+            metadata.Excerpt = HttpUtility.HtmlDecode(metadata.Excerpt).Trim();
+            metadata.SiteName = HttpUtility.HtmlDecode(metadata.SiteName).Trim();
 
             return metadata;
         }
