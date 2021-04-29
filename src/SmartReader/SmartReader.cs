@@ -109,8 +109,11 @@ namespace SmartReader
         /// </summary>
         /// <value>Default: 500</value>
         public int CharThreshold { get; set; } = 500;
-        
+
+        private static readonly IEnumerable<string> s_page = new string[] { "page" };
+
         private string[] classesToPreserve = { "page" };
+
         /// <summary>
         /// The classes that must be preserved
         /// </summary>
@@ -125,7 +128,7 @@ namespace SmartReader
             {
                 classesToPreserve = value;
 
-                classesToPreserve = classesToPreserve.Union(new string[] { "page" }).ToArray();
+                classesToPreserve = classesToPreserve.Union(s_page).ToArray();
             }
         }
 
@@ -218,6 +221,7 @@ namespace SmartReader
         private static readonly string[] s_ul_ol = { "ul", "ol" };
         private static readonly string[] s_h1_h2 = { "h1", "h2" };
         private static readonly string[] s_h1_h2_h3_h4_h5_h6 = { "h1", "h2", "h3", "h4", "h5", "h6" };
+        private static readonly string[] s_IMG_PICTURE = { "IMG", "PICTURE" };
 
         /// <summary>
         /// Reads content from the given URI.
@@ -1455,6 +1459,9 @@ namespace SmartReader
             return Tuple.Create(rows, columns);
         }
 
+
+        private static readonly string[] dataTableDescendantTagNames = { "col", "colgroup", "tfoot", "thead", "th" };
+
         /// <summary>
         /// Look for 'data' (as opposed to 'layout') tables, for which we use
         /// similar checks as
@@ -1492,13 +1499,13 @@ namespace SmartReader
                     continue;
                 }
 
-                // If the table has a descendant with any of these tags, consider a data table:
-                var dataTableDescendants = new string[] { "col", "colgroup", "tfoot", "thead", "th" };
+                // If the table has a descendant with a COL, COLGROUP, TFOOT, THEAD, or TH tag, consider a data table:
                 bool descendantExists(string tag)
                 {
                     return table.GetElementsByTagName(tag).ElementAtOrDefault(0) != null;
                 }
-                if (dataTableDescendants.Any(descendantExists))
+
+                if (dataTableDescendantTagNames.Any(descendantExists))
                 {
                     if (Debug || Logging == ReportLevel.Info)
                         LoggerDelegate("Data table because found data-y descendant");
@@ -1611,7 +1618,7 @@ namespace SmartReader
                             elem.SetAttribute(copyTo, attr.Value);
                         }
                         else if (elem.TagName is "FIGURE"
-                        && NodeUtility.GetAllNodesWithTag(elem, new string[] { "IMG", "PICTURE" }).Length == 0)
+                        && NodeUtility.GetAllNodesWithTag(elem, s_IMG_PICTURE).Length == 0)
                         {
                             //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
                             //see the nytimes-3 testcase for an example
