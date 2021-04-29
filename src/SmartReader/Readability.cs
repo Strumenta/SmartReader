@@ -140,7 +140,9 @@ namespace SmartReader
                     }
                 }            
             });
-        }               
+        }
+
+        private static readonly char[] titleSeperators = { '|', '-', '»', '/', '>' };
 
         /// <summary>
         /// Clean the article title found in a tag
@@ -150,10 +152,10 @@ namespace SmartReader
         /// <returns>
         /// The clean title
         /// </returns>
-        internal static string CleanTitle(string title, string siteName)
+        internal static string CleanTitle(string title, string? siteName)
         {
             // eliminate any text after a separator
-            if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
+            if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(titleSeperators) != -1)
             {
 
                 // we eliminate the text after the separator only if it is the site name
