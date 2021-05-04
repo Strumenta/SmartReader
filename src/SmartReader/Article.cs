@@ -38,9 +38,9 @@ namespace SmartReader
         /// <value>The language provided by the metadata</value>
         public string Language { get; private set; }
         /// <value>The author, which can be parsed or read in the metadata</value>
-        public string Author { get; private set; }
+        public string? Author { get; private set; }
         /// <value>The name of the website, which can be parsed or read in the metadata </value>
-        public string SiteName { get; private set; }
+        public string? SiteName { get; private set; }
         /// <value>The length in bytes of <c>Content</c></value>
         public int Length { get; private set; }
         /// <value>The average time to read</value>
@@ -58,10 +58,10 @@ namespace SmartReader
         /// <value>Default: return InnerHTML property</value>       
         public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
-        private readonly IElement _article = null;
-        private readonly  Reader _reader;
+        private readonly IElement? _article = null;
+        private readonly Reader? _reader;
 
-        internal Article(Uri uri, string title, string byline, string dir, string language, string author, IElement article, Metadata metadata, bool readable, Reader reader)
+        internal Article(Uri uri, string title, string byline, string dir, string language, string? author, IElement article, Metadata metadata, bool readable, Reader reader)
         {
             Uri = uri;
             Title = title;
@@ -114,7 +114,7 @@ namespace SmartReader
                 if (!string.IsNullOrWhiteSpace(Language))
                     culture = new CultureInfo(Language);
             }
-            catch(CultureNotFoundException)
+            catch (CultureNotFoundException)
             { }
 
             var cpm = charactersMinute.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key, StringComparison.Ordinal));
@@ -163,18 +163,18 @@ namespace SmartReader
             {
                 foreach (var img in imgs)
                 {
-                    if (!string.IsNullOrEmpty(img.GetAttribute("src")))
+                    if (img.GetAttribute("src") is { Length: > 0 } src)
                     {
                         long size = 0;
 
-                        var imageUri = new Uri(img.GetAttribute("src"));
+                        var imageUri = new Uri(src);
 
                         try
                         {
                             imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
-                            size = await _reader.GetImageSizeAsync(imageUri);
+                            size = await _reader!.GetImageSizeAsync(imageUri);
                         }
-                        catch (Exception e) { }
+                        catch { }
 
                         string description = img.GetAttribute("alt");
                         string title = img.GetAttribute("title");
@@ -194,7 +194,7 @@ namespace SmartReader
 
                 // if there is no featured image, let's set the first one we found
                 if (string.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
-                    FeaturedImage = images[0].Source.ToString();
+                    FeaturedImage = images[0].Source!.ToString();
             }
 
             return images;
@@ -209,38 +209,35 @@ namespace SmartReader
         /// </returns>  
         public async Task ConvertImagesToDataUriAsync(long minSize = 75000)
         {
-            var imgs = _article?.QuerySelectorAll("img");            
+            if (_article is null) return;
 
-            if (imgs != null)
+            foreach (var img in _article.QuerySelectorAll("img"))
             {
-                foreach (var img in imgs)
+                if (img.GetAttribute("src") is string src)
                 {
-                    if (img.GetAttribute("src") is string src)
+                    var imageUri = new Uri(src);
+
+                    try
                     {
-                        var imageUri = new Uri(src);
+                        // download image
+                        byte[] bytes = await _reader!.GetImageBytesAsync(imageUri).ConfigureAwait(false);
 
-                        try
+                        if (bytes.LongLength > minSize)
                         {
-                            // download image
-                            byte[] bytes = await _reader.GetImageBytesAsync(imageUri);
-
-                            if (bytes.LongLength > minSize)
-                            {
-                                // convert it to data uri scheme and replace the original source
-                                img.SetAttribute("src", Image.ConvertImageToDataUri(imageUri.AbsolutePath, bytes));
-                            }
-                            else
-                            {
-                                img.Remove();
-                            }                            
+                            // convert it to data uri scheme and replace the original source
+                            img.SetAttribute("src", Image.ConvertImageToDataUri(imageUri.AbsolutePath, bytes));
                         }
-                        catch (Exception e) { }                                                
+                        else
+                        {
+                            img.Remove();
+                        }                            
                     }
+                    catch { }                                                
                 }
-
-                // we update the affected properties
-                Content = _article.InnerHtml;
             }
+
+            // we update the affected properties
+            Content = _article.InnerHtml;            
         }
 
         /// <summary>
@@ -316,7 +313,7 @@ namespace SmartReader
                     // if the element has other elements we look inside of them
                     if (el.NodeType == NodeType.Element
                         || el.NodeType == NodeType.EntityReference)
-                        ConvertToText(el as IElement, text);
+                        ConvertToText((IElement)el, text);
                     // if the element has children text nodes we extract the text
                     if (el.NodeType == NodeType.Text)
                         text.Write(el.TextContent);

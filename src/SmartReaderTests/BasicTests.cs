@@ -459,6 +459,30 @@ namespace SmartReaderTests
 
             Assert.Equal("Real Author, Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
         }
+
+        [Fact]
+        public void TestGetMetadataTypeOnlyCorrectJsonLDType()
+        {
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>                    
+                    <meta name=""author"" content=""Secret Man"">
+					<script type=""application/ld+json"">
+					{
+						""@context"": ""http://schema.org""
+						,""@type"": ""FakeArticle""
+						,""author"": {
+                            ""@type"": ""Person"",
+                            ""name"": ""Real Author""
+                        }
+					}
+					</script>
+               </head>
+               <body></body>
+               </html>");
+
+            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+        }
     }
 }
 

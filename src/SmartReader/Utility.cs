@@ -21,8 +21,7 @@ namespace SmartReader
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_HashUrl = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
-        
+        private static readonly Regex RE_HashUrl      = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
         
@@ -83,7 +82,7 @@ namespace SmartReader
         internal static bool IsProbablyVisible(IElement node)
         {
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
-            return (node.GetStyle() is null || node?.GetStyle()?.GetDisplay() is not "none")
+            return (node.GetStyle() is null || node.GetStyle().GetDisplay() is not "none")
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
                 && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
@@ -97,7 +96,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="nodeList">The nodes to operate on</param>
         /// <param name="filterFn">The filter that dictates which nodes to remove</param>
-        internal static void RemoveNodes(IEnumerable<IElement> nodeList, Func<IElement, bool> filterFn = null)
+        internal static void RemoveNodes(IEnumerable<IElement> nodeList, Func<IElement, bool>? filterFn = null)
         {
             for (var i = nodeList.Count() - 1; i >= 0; i--)
             {
@@ -165,7 +164,7 @@ namespace SmartReader
         /// <param name="nodeList">The nodes to operate on</param>
         /// <param name="fn">The iterate function</param>
         /// <returns>bool</returns>
-        internal static bool SomeNode(INodeList nodeList, Func<INode, bool> fn)
+        internal static bool SomeNode(INodeList? nodeList, Func<INode, bool> fn)
         {
             if (nodeList != null)
                 return nodeList.Any(fn);
@@ -181,7 +180,7 @@ namespace SmartReader
         /// <param name="elementList">The nodes to operate on</param>
         /// <param name="fn">The test function</param>
         /// <returns>INode</returns>
-        internal static IElement FindNode(IHtmlCollection<IElement> elementList, Func<IElement, bool> fn)
+        internal static IElement? FindNode(IHtmlCollection<IElement> elementList, Func<IElement, bool> fn)
         {
             foreach (var node in elementList)
             {
@@ -245,7 +244,7 @@ namespace SmartReader
         internal static bool IsSingleImage(IElement element)
         {
             if (element.TagName is "IMG") return true;
-            if (element.Children.Length != 1 || element.TextContent.Trim() is not "") return false;
+            if (element.Children.Length != 1 || element.TextContent.AsSpan().Trim().Length != 0) return false;
             return IsSingleImage(element.Children[0]);
         }
 
@@ -320,7 +319,7 @@ namespace SmartReader
                             if (attr.Name is "src" or "srcset"
                             || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             {
-                                if (newImg.GetAttribute(attr.Name) == attr.Value)
+                                if (string.Equals(newImg.GetAttribute(attr.Name), attr.Value, StringComparison.Ordinal))
                                 {
                                     continue;
                                 }
@@ -362,12 +361,12 @@ namespace SmartReader
         /// or if it contains no element with given tag or more than 1 element.
         /// </summary>
         /// <param name="element">Element to operate on</param>
-        /// <param name="tag">Tag of the child element</param>
+        /// <param name="tagName">Tag of the child element</param>
         /// <returns>bool</returns>
-        internal static bool HasSingleTagInsideElement(IElement element, string tag)
+        internal static bool HasSingleTagInsideElement(IElement element, string tagName)
         {
             // There should be exactly 1 element child with given tag:
-            if (element.Children.Length != 1 || element.Children[0].TagName != tag)
+            if (element.Children.Length != 1 || !string.Equals(element.Children[0].TagName, tagName, StringComparison.Ordinal))
             {
                 return false;
             }
@@ -393,13 +392,15 @@ namespace SmartReader
         /// </summary>
         /// <param name="element">Element to operate on</param>
         /// <returns>bool</returns>
-        internal static bool HasChildBlockElement(IElement element)
+        internal static bool HasChildBlockElement(IElement? element)
         {
             var b = SomeNode(element?.ChildNodes, (node) =>
             {
-                return divToPElems.Contains((node as IElement)?.TagName)
-                    || HasChildBlockElement(node as IElement);
+                var el = node as IElement;
+
+                return el is not null && (divToPElems.Contains(el.TagName) || HasChildBlockElement(el));
             });
+
             var d = element?.TextContent;
 
             return b;
@@ -427,18 +428,16 @@ namespace SmartReader
         /// <para>Get the inner text of a node - cross browser compatibly.</para>
         /// <para>This also strips out any excess whitespace to be found.</para>
         /// </summary>
-        /// <param name="e">Node to operate on</param>
+        /// <param name="node">Node to operate on</param>
         /// <param name="normalizeSpaces">Bool to set whether to normalize whitespace</param>
         /// <returns>String with the text of the node</returns>
-        internal static string GetInnerText(INode e, bool normalizeSpaces = true)
+        internal static string GetInnerText(INode node, bool normalizeSpaces = true)
         {
-            var textContent = e.TextContent.Trim();
+            var textContent = node.TextContent.Trim();
 
-            if (normalizeSpaces)
-            {
-                return RE_Normalize.Replace(textContent, " ");
-            }
-            return textContent;
+            return (normalizeSpaces)
+                ? RE_Normalize.Replace(textContent, " ")
+                : textContent;
         }
 
         /// <summary>
@@ -456,25 +455,25 @@ namespace SmartReader
         /// <para>Remove the style attribute on every e and under.</para>
         /// <para>TODO: Test if getElementsByTagName(*) is faster.</para>
         /// </summary>
-        /// <param name="e">Element to operate on</param>
-        internal static void CleanStyles(IElement e = null)
+        /// <param name="el">Element to operate on</param>
+        internal static void CleanStyles(IElement? el = null)
         {            
-            if (e is null || e.TagName.Equals("svg", StringComparison.OrdinalIgnoreCase))
+            if (el is null || el.TagName.Equals("svg", StringComparison.OrdinalIgnoreCase))
                 return;
 
             // Remove `style` and deprecated presentational attributes
             for (var i = 0; i < presentationalAttributes.Length; i++)
             {
-                e.RemoveAttribute(presentationalAttributes[i]);
+                el.RemoveAttribute(presentationalAttributes[i]);
             }
 
-            if (deprecatedSizeAttributeElems.FirstOrDefault(x => x.Equals(e.TagName, StringComparison.Ordinal)) != null)
+            if (deprecatedSizeAttributeElems.Contains(el.TagName))
             {
-                e.RemoveAttribute("width");
-                e.RemoveAttribute("height");
+                el.RemoveAttribute("width");
+                el.RemoveAttribute("height");
             }
 
-            var cur = e.FirstElementChild;
+            var cur = el.FirstElementChild;
             while (cur != null)
             {
                 CleanStyles(cur);
@@ -498,19 +497,21 @@ namespace SmartReader
 
             // XXX implement _reduceNodeList?
             ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
-            {                
-                var href = (linkNode as IElement).GetAttribute("href");
+            {
+                var linkEl = ((IElement)linkNode);
+
+                var href = linkEl.GetAttribute("href");
                 var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
-                linkLength += GetInnerText(linkNode as IElement).Length * coefficient;
+                linkLength += GetInnerText(linkEl).Length * coefficient;
             });
 
             return linkLength / textLength;
         }
 
-        internal static INode RemoveAndGetNext(INode node)
+        internal static IElement? RemoveAndGetNext(IElement element)
         {
-            var nextNode = GetNextNode(node as IElement, true);
-            node.Parent.RemoveChild(node);
+            var nextNode = GetNextNode(element, true);
+            element.Parent.RemoveChild(element);
             return nextNode;
         }
 
@@ -523,7 +524,7 @@ namespace SmartReader
         /// <param name="node">Node to operate on</param>  
         /// <param name="ignoreSelfAndKids">Whether to ignore this node and his kids</param>  
         /// <returns>The next node</returns>
-        internal static IElement GetNextNode(IElement node, bool ignoreSelfAndKids = false)
+        internal static IElement? GetNextNode(IElement node, bool ignoreSelfAndKids = false)
         {
             // First check for kids if those aren't being ignored
             if (!ignoreSelfAndKids && node.FirstElementChild != null)
@@ -551,7 +552,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="e">Element to operate on</param>  
         /// <param name="filter">Filter function on match id/class combination</param> 
-        internal static void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter = null)
+        internal static void CleanMatchedNodes(IElement e, Func<IElement, string, bool> filter)
         {
             var endOfSearchMarkerNode = GetNextNode(e, true);
             var next = GetNextNode(e);
@@ -559,7 +560,7 @@ namespace SmartReader
             {
                 if (filter(next, next.ClassName + " " + next.Id))
                 {
-                    next = RemoveAndGetNext(next) as IElement;
+                    next = RemoveAndGetNext(next);
                 }
                 else
                 {
@@ -643,7 +644,7 @@ namespace SmartReader
         /// whitespace in between. If the given node is an element, the same node is
         /// returned.
         /// </summary>  
-        internal static IElement NextElement(INode node, Regex whitespace)
+        internal static IElement? NextElement(INode node, Regex whitespace)
         {
             var next = node;
             while (next != null
