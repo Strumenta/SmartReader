@@ -2,8 +2,6 @@
 
 using System;
 
-using AngleSharp.Io;
-
 namespace SmartReader
 {
     /// <summary>
@@ -27,12 +25,7 @@ namespace SmartReader
         /// <param name="bytes">The actual binary content of the image</param>
         internal static string ConvertImageToDataUri(string path, byte[] bytes)
         {
-            int dotIndex = path.IndexOf('.');
-            string extension = dotIndex > 0 ? path.Substring(dotIndex) : string.Empty;
-
-            var mime = MimeTypeNames.FromExtension(extension);
-
-            return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
+            return $"data:{MimeMapping.MimeUtility.GetMimeMapping(path)};base64,{Convert.ToBase64String(bytes)}";
         }
     }
 }
