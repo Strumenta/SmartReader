@@ -73,7 +73,7 @@ namespace SmartReader
 
         internal static bool IsVisible(IElement element)
         {
-            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() is "none")
+            if (element.GetStyle()?.GetDisplay() is "none")
                 return false;
             else
                 return true;
