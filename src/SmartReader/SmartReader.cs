@@ -719,9 +719,10 @@ namespace SmartReader
                     author = node.TextContent.Trim();
                 else
                 {
-                    IElement tempAuth = node.QuerySelector("[rel=\"author\"]");
-                    if (tempAuth != null)
-                        author = tempAuth.TextContent.Trim();
+                    if (node.QuerySelector("[rel=\"author\"]") is IElement tempAuthor)
+                    {
+                        author = tempAuthor.TextContent.Trim();
+                    }
                 }
 
                 articleByline = node.TextContent.Trim();
