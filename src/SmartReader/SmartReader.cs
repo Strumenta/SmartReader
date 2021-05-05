@@ -69,7 +69,7 @@ namespace SmartReader
         private static Lazy<HttpMessageHandler> _httpClientHandler = new Lazy<HttpMessageHandler>(() => new HttpClientHandler());
         private string? _userAgent = "SmartReader Library";
 
-        private Uri uri;
+        private readonly Uri uri;
         private IHtmlDocument doc;
         private string articleTitle;
         private string articleByline;
@@ -1705,34 +1705,59 @@ namespace SmartReader
 
                 if (NodeUtility.GetCharCount(node, ',') < 10)
                 {
+                                                        // Readability.js algorithm
+                    var p = 0f;                         // var p = node.getElementsByTagName("p").length;
+                    var img = 0f;                       // var img = node.getElementsByTagName("img").length;
+                    var li = -100f;                     // var li = node.getElementsByTagName("li").length - 100;
+                    var input = 0f;                     // var input = node.getElementsByTagName("input").length;
+                    var embeds = new List<IElement>();  // this._getAllNodesWithTag(node, ["object", "embed", "iframe"]);
+
+                    foreach (var descendentNode in node.Descendents())
+                    {
+                        if (descendentNode is IElement el)
+                        {
+                            switch (el.TagName)
+                            {
+                                case "P":
+                                    p++;
+                                    break;
+                                case "IMG":
+                                    img++;
+                                    break;
+                                case "LI":
+                                    li++;
+                                    break;
+                                case "INPUT":
+                                    input++;
+                                    break;
+                                case "OBJECT" or "EMBED" or "IFRAME":
+                                    embeds.Add(el);
+                                    break;
+                            }
+                        }
+                    }
+
                     // If there are not very many commas, and the number of
                     // non-paragraph elements is more than paragraphs or other
                     // ominous signs, remove the element.
-                    float p = node.GetElementsByTagName("p").Length;
-                    float img = node.GetElementsByTagName("img").Length;
-                    float li = node.GetElementsByTagName("li").Length - 100;
-                    float input = node.GetElementsByTagName("input").Length;
+                   
                     float headingDensity = GetTextDensity(node, s_h1_h2_h3_h4_h5_h6);
 
                     var embedCount = 0;
-                    var embeds = NodeUtility.ConcatNodeLists(
-                        node.GetElementsByTagName("object"),
-                        node.GetElementsByTagName("embed"),
-                        node.GetElementsByTagName("iframe"));
-
-                    for (var i = 0; i < embeds.Count(); i++)
+                  
+                    for (var i = 0; i < embeds.Count; i++)
                     {
                         // If this embed has attribute that matches video regex, don't delete it.
-                        for (var j = 0; j < embeds.ElementAt(i).Attributes.Length; j++)
+                        for (var j = 0; j < embeds[i].Attributes.Length; j++)
                         {
-                            if (RE_Videos.IsMatch(embeds.ElementAt(i).Attributes[j].Value))
+                            if (RE_Videos.IsMatch(embeds[i].Attributes[j].Value))
                             {
                                 return false;
                             }
                         }
 
                         // For embed with <object> tag, check inner HTML as well.
-                        if (embeds.ElementAt(i).TagName is "OBJECT" && RE_Videos.IsMatch(embeds.ElementAt(i).InnerHtml))
+                        if (embeds[i].TagName is "OBJECT" && RE_Videos.IsMatch(embeds[i].InnerHtml))
                         {
                             return false;
                         }
@@ -1747,9 +1772,9 @@ namespace SmartReader
                       (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
                       (!isList && li > p) ||
                       (input > Math.Floor(p / 3)) ||
-                      (!isList && headingDensity < 0.9 && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
-                      (!isList && weight < 25 && linkDensity > 0.2) ||
-                      (weight >= 25 && linkDensity > 0.5) ||
+                      (!isList && headingDensity < 0.9f && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
+                      (!isList && weight < 25 && linkDensity > 0.2f) ||
+                      (weight >= 25f && linkDensity > 0.5f) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
 
                     return haveToRemove;
