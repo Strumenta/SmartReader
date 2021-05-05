@@ -672,14 +672,16 @@ namespace SmartReader
 
         private void AddToReadabilityScore(IElement node, double score)
         {
-            if (GetReadabilityScore(node) > 0)
-            {
-                double current = double.Parse(node.GetAttribute("readability-score"), CultureInfo.InvariantCulture.NumberFormat);
+            double current;
 
+            if ((current = GetReadabilityScore(node)) > 0d)
+            {
                 node.SetAttribute("readability-score", (current + score).ToString(CultureInfo.InvariantCulture.NumberFormat));
             }
             else
+            {
                 SetReadabilityScore(node, score);
+            }
         }
 
         private void SetReadabilityScore(IElement node, double score)
