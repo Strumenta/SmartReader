@@ -266,15 +266,11 @@ namespace SmartReader
                     for (var i = 0; i < img.Attributes.Length; i++)
                     {
                         var attr = img.Attributes[i];
-                        switch(attr.Name)
-                        {
-                            case "src":
-                            case "srcset":
-                            case "data-src":
-                            case "data-srcset":
-                                return;
-                        }
 
+                        if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
+                        {
+                            return;
+                        }
 
                         if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             return; 
