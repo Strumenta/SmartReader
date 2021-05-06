@@ -16,7 +16,6 @@ namespace SmartReader
            
         private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_Normalize    = new Regex(@"\s{2,}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -73,7 +72,7 @@ namespace SmartReader
 
         internal static bool IsVisible(IElement element)
         {
-            if (element.GetStyle()?.GetDisplay() != null && element.GetStyle()?.GetDisplay() is "none")
+            if (element.GetStyle()?.GetDisplay() is "none")
                 return false;
             else
                 return true;
@@ -266,15 +265,11 @@ namespace SmartReader
                     for (var i = 0; i < img.Attributes.Length; i++)
                     {
                         var attr = img.Attributes[i];
-                        switch(attr.Name)
-                        {
-                            case "src":
-                            case "srcset":
-                            case "data-src":
-                            case "data-srcset":
-                                return;
-                        }
 
+                        if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
+                        {
+                            return;
+                        }
 
                         if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                             return; 
@@ -436,7 +431,7 @@ namespace SmartReader
             var textContent = node.TextContent.Trim();
 
             return (normalizeSpaces)
-                ? RE_Normalize.Replace(textContent, " ")
+                ? AngleSharp.Text.StringExtensions.Collapse(textContent)
                 : textContent;
         }
 
@@ -448,7 +443,15 @@ namespace SmartReader
         /// <returns>int</returns>
         internal static int GetCharCount(IElement e, char s = ',')
         {
-            return GetInnerText(e).Split(s).Length - 1;
+            int count = 0;
+
+            foreach (var c in GetInnerText(e))
+            {
+                if (c == s) count++;
+            }
+
+            return count;
+
         }
 
         /// <summary>
@@ -498,7 +501,7 @@ namespace SmartReader
             // XXX implement _reduceNodeList?
             ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
             {
-                var linkEl = ((IElement)linkNode);
+                var linkEl = (IElement)linkNode;
 
                 var href = linkEl.GetAttribute("href");
                 var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
