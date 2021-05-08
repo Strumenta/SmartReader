@@ -36,7 +36,7 @@ namespace SmartReader
         /// <value>The excerpt provided by the metadata</value>
         public string Excerpt { get; private set; }
         /// <value>The language provided by the metadata</value>
-        public string Language { get; private set; }
+        public string? Language { get; private set; }
         /// <value>The author, which can be parsed or read in the metadata</value>
         public string? Author { get; private set; }
         /// <value>The name of the website, which can be parsed or read in the metadata </value>
@@ -61,7 +61,7 @@ namespace SmartReader
         private readonly IElement? _article = null;
         private readonly Reader? _reader;
 
-        internal Article(Uri uri, string title, string byline, string dir, string language, string? author, IElement article, Metadata metadata, bool readable, Reader reader)
+        internal Article(Uri uri, string title, string byline, string dir, string? language, string? author, IElement article, Metadata metadata, bool readable, Reader reader)
         {
             Uri = uri;
             Title = title;
