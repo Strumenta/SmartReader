@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## 0.8.0
 - Improved code quality (thanks to [Jason Nelson](https://github.com/iamcarbon))
 - Updated to support .NET Standard 2.1 (thanks to [Jason Nelson](https://github.com/iamcarbon))
+- Improved performance (thanks to [Jason Nelson](https://github.com/iamcarbon))
 - Added settings for determining whether the document contains an article, before attempting to do so
 - Improvements to header and title detection
 - Improvements to handling of link density and added support for hash links
