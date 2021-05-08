@@ -139,8 +139,7 @@ namespace SmartReader
         private Regex RE_Negative             = G_RE_Negative;
         private Regex RE_Extraneous           = G_RE_Extraneous;
         private Regex RE_Byline               = G_RE_Byline;
-        private Regex RE_ReplaceFonts         = G_RE_ReplaceFonts;
-        private Regex RE_Normalize            = G_RE_Normalize;
+        private Regex RE_ReplaceFonts         = G_RE_ReplaceFonts;        
         private Regex RE_Videos               = G_RE_Videos;
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
@@ -154,8 +153,7 @@ namespace SmartReader
         private static readonly Regex G_RE_Negative = new Regex(@"-ad-|hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Extraneous = new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Byline = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_Normalize = new Regex(@"\s{2,}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
         private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_NextLink = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
