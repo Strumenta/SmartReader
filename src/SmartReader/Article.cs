@@ -111,48 +111,52 @@ namespace SmartReader
         /// <returns>
         /// A Task object with the images found
         /// </returns>  
-        public async Task<IEnumerable<Image>> GetImagesAsync(long minSize = 75000)
+        public async Task<IReadOnlyList<Image>> GetImagesAsync(long minSize = 75_000)
         {
-            var images = new List<Image>();
-
             var imgs = _element?.QuerySelectorAll("img");
 
-            if (imgs != null)
+            if (imgs is null)
             {
-                foreach (var img in imgs)
+                return Array.Empty<Image>();
+            }
+
+            var images = new List<Image>();
+
+            foreach (var img in imgs)
+            {
+                if (img.GetAttribute("src") is { Length: > 0 } src)
                 {
-                    if (img.GetAttribute("src") is { Length: > 0 } src)
+                    long size = 0;
+
+                    var imageUri = new Uri(src);
+
+                    try
                     {
-                        long size = 0;
+                        imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
+                        size = await _reader!.GetImageSizeAsync(imageUri);
+                    }
+                    catch { }
 
-                        var imageUri = new Uri(src);
+                    string description = img.GetAttribute("alt");
+                    string title = img.GetAttribute("title");
 
-                        try
+                    if (size > minSize)
+                    {
+                        images.Add(new Image()
                         {
-                            imageUri = new Uri(Uri.ToAbsoluteURI(imageUri.ToString()));
-                            size = await _reader!.GetImageSizeAsync(imageUri);
-                        }
-                        catch { }
-
-                        string description = img.GetAttribute("alt");
-                        string title = img.GetAttribute("title");
-
-                        if (size > minSize)
-                        {
-                            images.Add(new Image()
-                            {
-                                Size = size,
-                                Source = imageUri,
-                                Description = description,
-                                Title = title
-                            });
-                        }
+                            Size = size,
+                            Source = imageUri,
+                            Description = description,
+                            Title = title
+                        });
                     }
                 }
+            }
 
-                // if there is no featured image, let's set the first one we found
-                if (string.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
-                    FeaturedImage = images[0].Source!.ToString();
+            // if there is no featured image, let's set the first one we found
+            if (string.IsNullOrEmpty(FeaturedImage) && images.Count > 0)
+            {
+                FeaturedImage = images[0].Source!.ToString();
             }
 
             return images;
