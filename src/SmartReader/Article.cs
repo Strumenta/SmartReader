@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -58,71 +56,31 @@ namespace SmartReader
         /// <value>Default: return InnerHTML property</value>       
         public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
-        private readonly IElement? _article = null;
+        private readonly IElement? _element = null;
         private readonly Reader? _reader;
 
-        internal Article(Uri uri, string title, string byline, string dir, string? language, string? author, IElement article, Metadata metadata, bool readable, Reader reader)
+        internal IElement? Element => _element;
+
+        internal Article(Uri uri, string title, string byline, string dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
+            _element = element;
+            _reader = reader;
+
             Uri = uri;
             Title = title;
             Byline = string.IsNullOrWhiteSpace(byline) ? metadata.Author : byline;
             Dir = dir;
-            Content = Serializer(article);
-            TextContent = Converter(article);
+            Content = Serializer(element);
+            TextContent = Converter(element);
             Excerpt = metadata.Excerpt;
-            Length = article.TextContent.Length;
+            Length = element.TextContent.Length;
             Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
             PublicationDate = metadata.PublicationDate;
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
             IsReadable = readable;
-            // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
-            TimeToRead = TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !char.IsPunctuation(x)) / GetWeightTimeToRead()) > TimeSpan.Zero ? TimeSpan.FromMinutes(article.TextContent.Count(x => x != ' ' && !char.IsPunctuation(x)) / GetWeightTimeToRead()) : TimeSpan.FromMinutes(1);
-            FeaturedImage = metadata.FeaturedImage;
-
-            _article = article;
-            _reader = reader;
-        }
-
-        private static readonly Dictionary<string, int> charactersMinute = new ()
-        {
-            { "Arabic", 612 },
-            { "Chinese", 255 },
-            { "Dutch", 978 },
-            { "English", 987 },
-            { "Finnish", 1078 },
-            { "French", 998 },
-            { "German", 920 },
-            { "Hebrew", 833 },
-            { "Italian", 950 },
-            { "Japanese", 357 },
-            { "Polish", 916 },
-            { "Portuguese", 913 },
-            { "Swedish", 917 },
-            { "Slovenian", 885 },
-            { "Spanish", 1025 },
-            { "Russian", 986 },
-            { "Turkish", 1054 }
-        };
-
-        private int GetWeightTimeToRead()
-        {
-            CultureInfo culture = CultureInfo.InvariantCulture;
-
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(Language))
-                    culture = new CultureInfo(Language);
-            }
-            catch (CultureNotFoundException)
-            { }
-
-            var cpm = charactersMinute.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key, StringComparison.Ordinal));
-
-            // 960 is the average excluding the three outliers languages
-            int weight = cpm.Value > 0 ? cpm.Value : 960;
-
-            return weight;
+            TimeToRead = TimeToReadCalculator.Calculate(this);
+            FeaturedImage = metadata.FeaturedImage;          
         }
 
         /// <summary>
@@ -157,7 +115,7 @@ namespace SmartReader
         {
             var images = new List<Image>();
 
-            var imgs = _article?.QuerySelectorAll("img");
+            var imgs = _element?.QuerySelectorAll("img");
 
             if (imgs != null)
             {
@@ -209,9 +167,9 @@ namespace SmartReader
         /// </returns>  
         public async Task ConvertImagesToDataUriAsync(long minSize = 75000)
         {
-            if (_article is null) return;
+            if (_element is null) return;
 
-            foreach (var img in _article.QuerySelectorAll("img"))
+            foreach (var img in _element.QuerySelectorAll("img"))
             {
                 if (img.GetAttribute("src") is string src)
                 {
@@ -237,7 +195,7 @@ namespace SmartReader
             }
 
             // we update the affected properties
-            Content = _article.InnerHtml;            
+            Content = _element.InnerHtml;            
         }
 
         /// <summary>
