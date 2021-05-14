@@ -41,9 +41,6 @@ namespace SmartReader
         public string? SiteName { get; private set; }
         /// <value>The length in bytes of <c>Content</c></value>
         public int Length { get; private set; }
-        /// <value>The average time to read</value>
-        /// <remarks>It is based on http://iovs.arvojournals.org/article.aspx?articleid=2166061</remarks>
-        public TimeSpan TimeToRead { get; private set; }
         /// <value>The publication date, which can be parsed or read in the metadata</value>
         public DateTime? PublicationDate { get; private set; }
         /// <value>It indicates whether an article was actually found</value>
@@ -58,8 +55,13 @@ namespace SmartReader
 
         private readonly IElement? _element = null;
         private readonly Reader? _reader;
+        private TimeSpan? _timeToRead = null;
 
         internal IElement? Element => _element;
+
+        /// <value>The average time to read</value>
+        /// <remarks>It is based on http://iovs.arvojournals.org/article.aspx?articleid=2166061</remarks>
+        public TimeSpan TimeToRead => _timeToRead ??= TimeToReadCalculator.Calculate(this);
 
         internal Article(Uri uri, string title, string byline, string dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
@@ -79,7 +81,6 @@ namespace SmartReader
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
             IsReadable = readable;
-            TimeToRead = TimeToReadCalculator.Calculate(this);
             FeaturedImage = metadata.FeaturedImage;          
         }
 
@@ -100,7 +101,6 @@ namespace SmartReader
             Language = "";
             PublicationDate = new DateTime();
             Author = "";
-            TimeToRead = new TimeSpan();
             FeaturedImage = "";
         }
 
