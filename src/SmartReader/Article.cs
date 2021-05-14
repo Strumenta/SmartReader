@@ -18,33 +18,47 @@ namespace SmartReader
     public class Article
     {
         /// <value>The original URI of the source</value>
-        public Uri Uri { get; private set; }
+        public Uri Uri { get; }
+
         /// <value>The clean title</value>
-        public string Title { get; private set; }
+        public string Title { get; }
+
         /// <value>The parsed byline</value>
-        public string Byline { get; private set; }
+        public string Byline { get; }
+
         /// <value>The direction of the writing</value>
-        public string Dir { get; private set; }
+        public string Dir { get; }
+
         /// <value>The URI of the main image</value>
         public string FeaturedImage { get; private set; }
+
         /// <value>The HTML content</value>
         public string Content { get; private set; }
+
         /// <value>The pure-text content cleaned to be readable</value>
-        public string TextContent { get; private set; }
+        public string TextContent { get; }
+
         /// <value>The excerpt provided by the metadata</value>
-        public string Excerpt { get; private set; }
+        public string Excerpt { get; }
+
         /// <value>The language provided by the metadata</value>
-        public string? Language { get; private set; }
+        public string? Language { get; }
+
         /// <value>The author, which can be parsed or read in the metadata</value>
-        public string? Author { get; private set; }
+        public string? Author { get; }
+
         /// <value>The name of the website, which can be parsed or read in the metadata </value>
-        public string? SiteName { get; private set; }
+        public string? SiteName { get; }
+
         /// <value>The length in bytes of <c>Content</c></value>
-        public int Length { get; private set; }
+        public int Length { get; }
+
         /// <value>The publication date, which can be parsed or read in the metadata</value>
-        public DateTime? PublicationDate { get; private set; }
+        public DateTime? PublicationDate { get; }
+
         /// <value>It indicates whether an article was actually found</value>
-        public bool IsReadable { get; private set; }
+        public bool IsReadable { get; }
+
         /// <summary>The function that will serialize the HTML content of the article</summary>
         /// <value>Default: return InnerHTML property</value>       
         public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>((el) => { return el.InnerHtml; });
