@@ -230,8 +230,8 @@ namespace SmartReader
             while (index < stringBuilder.Length)
             {
                 // carriage return and line feed are not separator characters
-                bool isSpace = char.IsSeparator(stringBuilder[index]);              
-                bool isNewline = stringBuilder[index] == '\r' || stringBuilder[index] == '\n';
+                bool isSpace = char.IsSeparator(stringBuilder[index]);
+                bool isNewline = stringBuilder[index] is '\r' or '\n';
 
                 // we remove a space before a newline
                 if (previousSpace && isNewline)
@@ -263,22 +263,26 @@ namespace SmartReader
         /// </summary>
         private static string ConvertToText(IElement doc, StringWriter text)
         {
-            if (doc.NodeType == NodeType.Element && doc.NodeName is "P")
+            if (doc.NodeType == NodeType.Element && doc.NodeName is "P" or "BR")
+            {
                 text.Write(text.NewLine);
-            else if (doc.NodeType == NodeType.Element && doc.NodeName is "BR")
-                text.Write(text.NewLine);
+            }
             
             if (doc.HasChildNodes)
             {
                 foreach (INode el in doc.ChildNodes)
                 {
                     // if the element has other elements we look inside of them
-                    if (el.NodeType == NodeType.Element
-                        || el.NodeType == NodeType.EntityReference)
+                    if (el.NodeType is NodeType.Element or NodeType.EntityReference)
+                    {
                         ConvertToText((IElement)el, text);
+                    }
+
                     // if the element has children text nodes we extract the text
-                    if (el.NodeType == NodeType.Text)
+                    else if (el.NodeType == NodeType.Text)
+                    {
                         text.Write(el.TextContent);
+                    }
                 }
             }
 
