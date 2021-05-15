@@ -114,10 +114,10 @@ string RemoveSpace(AngleSharp.Dom.IElement element)
 Article.Serializer = RemoveSpace;
 ```
 
-You can also replace the standard function used to convert HTML content in plain text, that is the function called to calculate the `TextContent` property of an `Article` object. You can do that by changing the property `Converter` which is also of type `Func<IElement, string>`, that is is a method that accepts as an argument an `IElement` and returns a `string`. 
+You can also replace the standard function used to convert HTML content in plain text, that is the function called to calculate the `TextContent` property of an `Article` object. You can do that by changing the property `Converter` which is also of type `Func<IElement, string>`, that is a method that accepts as an argument an `IElement` and returns a `string`. 
 
 
-Since you have access to the AngleSharp library, this can be quite useful. For example, the standard converter function convert <p> and <br> tags in corresponding line breaks in text.
+Since you have access to the AngleSharp library, this can be quite useful. For example, the standard converter function convert &lt;p&gt; and &lt;br&gt; tags in corresponding line breaks in text.
 
 ```
 // example of an alternative converter
