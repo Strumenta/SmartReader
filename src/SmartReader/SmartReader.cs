@@ -785,14 +785,14 @@ namespace SmartReader
                     {
                         if (Debug || Logging == ReportLevel.Info)
                             LoggerDelegate("Removing hidden node - " + matchString);
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
                     // Check to see if this node is a byline, and remove it if it is.
                     if (CheckByline(node, matchString))
                     {
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -802,7 +802,7 @@ namespace SmartReader
                             LoggerDelegate($"Removing header: {node.TextContent.Trim()} {articleTitle.Trim()}");
                         
                         shouldRemoveTitleHeader = false;
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -818,7 +818,7 @@ namespace SmartReader
                         {
                             if (Debug || Logging == ReportLevel.Info)
                                 LoggerDelegate("Removing unlikely candidate - " + matchString);                            
-                            node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                            node = NodeUtility.RemoveAndGetNext(node);
                             continue;
                         }
                     }
@@ -827,7 +827,7 @@ namespace SmartReader
                     if (unlikelyRoles.Contains(node.GetAttribute("role")))
                     {
                         LoggerDelegate($"Removing content with role {node.GetAttribute("role")} -  {matchString}");
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -837,7 +837,7 @@ namespace SmartReader
                         or "H1" or "H2" or "H3" or "H4" or "H5" or "H6") &&
                         NodeUtility.IsElementWithoutContent(node))
                     {
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
