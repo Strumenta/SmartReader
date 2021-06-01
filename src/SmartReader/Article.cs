@@ -151,8 +151,8 @@ namespace SmartReader
                     }
                     catch { }
 
-                    string description = img.GetAttribute("alt");
-                    string title = img.GetAttribute("title");
+                    string? description = img.GetAttribute("alt");
+                    string? title = img.GetAttribute("title");
 
                     if (size > minSize)
                     {
