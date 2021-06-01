@@ -377,7 +377,7 @@ namespace SmartReader
         internal static bool IsElementWithoutContent(IElement node)
         {
             return node.NodeType == NodeType.Element &&
-                       node.TextContent.Trim().Length == 0 &&
+                       node.TextContent.AsSpan().Trim().Length == 0 &&
                        (node.Children.Length == 0 ||
                         node.Children.Length == node.GetElementsByTagName("br").Length + node.GetElementsByTagName("hr").Length);
         }
