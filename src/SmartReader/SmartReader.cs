@@ -1970,14 +1970,17 @@ namespace SmartReader
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
             var headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
-            var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
+
+            using var response = await httpClient.SendAsync(headRequest, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             long size = 0;
 
             if (response.IsSuccessStatusCode)
             {
-                if (response.Content.Headers.ContentLength != null)
-                    size = response.Content.Headers.ContentLength.Value;
+                if (response.Content.Headers.ContentLength is long contentLength)
+                {
+                    size = contentLength;
+                }
             }
 
             return size;
@@ -1989,7 +1992,7 @@ namespace SmartReader
 
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
-            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+            using var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
