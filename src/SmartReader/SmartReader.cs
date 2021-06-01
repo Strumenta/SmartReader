@@ -711,7 +711,7 @@ namespace SmartReader
                 itemprop = node.GetAttribute("itemprop");
             }
 
-            if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent))
+            if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent.AsSpan()))
             {
                 if (rel is "author")
                 {
