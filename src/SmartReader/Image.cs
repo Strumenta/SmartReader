@@ -10,13 +10,16 @@ namespace SmartReader
     public class Image
     {
         /// <value>The original URI of the source</value>
-        public Uri? Source { get; set; } = null;
+        public Uri? Source { get; set; }
+
         /// <value>The size in bytes of the image</value>
-        public long Size { get; set; } = 0;
+        public long Size { get; set; }
+
         /// <value>The value of the attribute title of &lt;img&gt; tag</value>
-        public string Title { get; set; } = "";
+        public string? Title { get; set; }
+
         /// <value>The value of the attribute alt of &lt;img&gt; tag</value>
-        public string Description { get; set; } = "";
+        public string? Description { get; set; }
 
         /// <summary>
         /// Convert an image in a data URI string

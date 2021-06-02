@@ -301,8 +301,8 @@ namespace SmartReader
         /// <param name="textb">second text to compare</param>
         internal static int TextSimilarity(string textA, string textB)
         {
-            var tokensA = RE_Tokenize.Split(textA.ToLowerInvariant()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
-            var tokensB = RE_Tokenize.Split(textB.ToLowerInvariant()).Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            var tokensA = RE_Tokenize.Split(textA.ToLowerInvariant()).Where(x => x.Length != 0).ToArray();
+            var tokensB = RE_Tokenize.Split(textB.ToLowerInvariant()).Where(x => x.Length != 0).ToArray();
             if (tokensA is not { Length: > 0 } || tokensB is not { Length: > 0 })
             {
                 return 0;
@@ -319,14 +319,9 @@ namespace SmartReader
         /// </summary>
         /// <param name="byline">a string to check whether its a byline</param>
         /// <returns>Whether the input string is a byline</returns>
-        internal static bool IsValidByline(string byline)
+        internal static bool IsValidByline(ReadOnlySpan<char> byline)
         {
-            if (!string.IsNullOrEmpty(byline))
-            {
-                byline = byline.Trim();
-                return (byline.Length > 0) && (byline.Length < 100);
-            }
-            return false;
+            return byline.Trim().Length is > 0 and < 100;            
         }
 
         /// <summary>

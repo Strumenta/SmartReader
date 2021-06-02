@@ -702,8 +702,8 @@ namespace SmartReader
             }
 
 
-            string rel = "";
-            string itemprop = "";
+            string? rel = null;
+            string? itemprop = null;
 
             if (node is IElement && node.GetAttribute("rel") is { Length: > 0 } relValue)
             {
@@ -711,10 +711,12 @@ namespace SmartReader
                 itemprop = node.GetAttribute("itemprop");
             }
 
-            if ((rel is "author" || (!string.IsNullOrEmpty(itemprop) && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent))
+            if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent.AsSpan()))
             {
                 if (rel is "author")
+                {
                     author = node.TextContent.Trim();
+                }
                 else
                 {
                     if (node.QuerySelector("[rel=\"author\"]") is IElement tempAuthor)
@@ -783,14 +785,14 @@ namespace SmartReader
                     {
                         if (Debug || Logging == ReportLevel.Info)
                             LoggerDelegate("Removing hidden node - " + matchString);
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
                     // Check to see if this node is a byline, and remove it if it is.
                     if (CheckByline(node, matchString))
                     {
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -800,7 +802,7 @@ namespace SmartReader
                             LoggerDelegate($"Removing header: {node.TextContent.Trim()} {articleTitle.Trim()}");
                         
                         shouldRemoveTitleHeader = false;
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -816,7 +818,7 @@ namespace SmartReader
                         {
                             if (Debug || Logging == ReportLevel.Info)
                                 LoggerDelegate("Removing unlikely candidate - " + matchString);                            
-                            node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                            node = NodeUtility.RemoveAndGetNext(node);
                             continue;
                         }
                     }
@@ -825,7 +827,7 @@ namespace SmartReader
                     if (unlikelyRoles.Contains(node.GetAttribute("role")))
                     {
                         LoggerDelegate($"Removing content with role {node.GetAttribute("role")} -  {matchString}");
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -835,7 +837,7 @@ namespace SmartReader
                         or "H1" or "H2" or "H3" or "H4" or "H5" or "H6") &&
                         NodeUtility.IsElementWithoutContent(node))
                     {
-                        node = NodeUtility.RemoveAndGetNext(node) as IElement;
+                        node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }
 
@@ -1390,9 +1392,9 @@ namespace SmartReader
             var trs = table.GetElementsByTagName("tr");
             for (var i = 0; i < trs.Length; i++)
             {
-                string rowspan = trs[i].GetAttribute("rowspan") ?? "";
+                string? rowspan = trs[i].GetAttribute("rowspan");
                 int rowSpanInt = 0;
-                if (!string.IsNullOrEmpty(rowspan))
+                if (rowspan is { Length: > 0 })
                 {
                     int.TryParse(rowspan, out rowSpanInt);
                 }
@@ -1402,9 +1404,9 @@ namespace SmartReader
                 var cells = trs[i].GetElementsByTagName("td");
                 for (var j = 0; j < cells.Length; j++)
                 {
-                    string colspan = cells[j].GetAttribute("colspan");
+                    string? colspan = cells[j].GetAttribute("colspan");
                     int colSpanInt = 0;
-                    if (!string.IsNullOrEmpty(colspan))
+                    if (colspan is { Length: > 0 })
                     {
                         int.TryParse(colspan, out colSpanInt);
                     }
@@ -1414,7 +1416,6 @@ namespace SmartReader
             }
             return Tuple.Create(rows, columns);
         }
-
 
         private static readonly string[] dataTableDescendantTagNames = { "col", "colgroup", "tfoot", "thead", "th" };
 
@@ -1498,7 +1499,7 @@ namespace SmartReader
                 // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
                 // So, here we check if the data uri is too short, just might as well remove it.
                 var elem = (IElement)node;          
-                var src = elem.GetAttribute("src");
+                string? src = elem.GetAttribute("src");
                 
                 if(src != null && G_RE_B64DataUrl.IsMatch(src))
                 {
@@ -1540,7 +1541,7 @@ namespace SmartReader
                     }  
                 }
 
-                var srcset = elem.GetAttribute("srcset");                
+                string? srcset = elem.GetAttribute("srcset");                
 
                 if ((!String.IsNullOrEmpty(src) || !String.IsNullOrEmpty(srcset))
                 && (elem.ClassName is { Length: > 0 } className && className.IndexOf("lazy", StringComparison.OrdinalIgnoreCase) == -1))
@@ -1970,14 +1971,17 @@ namespace SmartReader
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
             var headRequest = new HttpRequestMessage(HttpMethod.Head, imageSrc);
-            var response = await httpClient.SendAsync(headRequest).ConfigureAwait(false);
+
+            using var response = await httpClient.SendAsync(headRequest, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             long size = 0;
 
             if (response.IsSuccessStatusCode)
             {
-                if (response.Content.Headers.ContentLength != null)
-                    size = response.Content.Headers.ContentLength.Value;
+                if (response.Content.Headers.ContentLength is long contentLength)
+                {
+                    size = contentLength;
+                }
             }
 
             return size;
@@ -1989,7 +1993,7 @@ namespace SmartReader
 
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
-            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+            using var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
