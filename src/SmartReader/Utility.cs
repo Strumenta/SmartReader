@@ -63,9 +63,13 @@ namespace SmartReader
 
             for (var i = 0; i < node.Attributes.Length; i++)
             {
+                var attr = node.Attributes[i];
+
                 // the possible result of malformed HTML
-                if (!node.Attributes[i].Name.Contains("<") && !node.Attributes[i].Name.Contains(">"))
-                    replacement.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
+                if (!attr.Name.Contains("<") && !attr.Name.Contains(">"))
+                {
+                    replacement.SetAttribute(attr.Name, attr.Value);
+                }
             }
             return replacement;
         }
