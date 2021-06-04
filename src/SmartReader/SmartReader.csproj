@@ -4,17 +4,14 @@
     <Description>A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla</Description>
     <Copyright>Strumenta</Copyright>
     <AssemblyTitle>SmartReader</AssemblyTitle>
-    <VersionPrefix>0.1.1</VersionPrefix>
+    <Version>0.7.5</Version>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <AssemblyName>SmartReader</AssemblyName>
     <PackageId>SmartReader</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <PackageLicenseUrl></PackageLicenseUrl>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -23,7 +20,8 @@
     <PackageIconUrl></PackageIconUrl>
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web</PackageTags>
-    <Version>0.7.5</Version>
+    <Company>Strumenta</Company>
+    <Description>A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla. It also determine and gather metadata about the content, such as language, author, main image, etc.</Description>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
