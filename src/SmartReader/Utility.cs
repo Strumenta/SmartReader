@@ -442,20 +442,24 @@ namespace SmartReader
         /// <summary>
         /// Get the number of times a string s appears in the node e.
         /// </summary>
-        /// <param name="e">Element to operate on</param>
+        /// <param name="el">Element to operate on</param>
         /// <param name="s">The string to check</param>
         /// <returns>int</returns>
-        internal static int GetCharCount(IElement e, char s = ',')
+        internal static int GetCharCount(IElement el, char s = ',')
         {
-            int count = 0;
+            var text = GetInnerText(el).AsSpan();
 
-            foreach (var c in GetInnerText(e))
+            int count = 0;
+            int index;
+
+            while ((index = text.IndexOf(s)) > -1)
             {
-                if (c == s) count++;
+                text = text.Slice(index + 1);
+
+                count++;
             }
 
             return count;
-
         }
 
         /// <summary>
