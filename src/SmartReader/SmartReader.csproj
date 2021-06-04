@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>A .NET Standard library to extract the main content of a web page based on a port of the Readability library by Mozilla</Description>
     <Copyright>Strumenta</Copyright>
     <AssemblyTitle>SmartReader</AssemblyTitle>
     <Version>0.7.5</Version>
