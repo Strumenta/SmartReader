@@ -930,7 +930,7 @@ namespace SmartReader
                     contentScore += 1;
 
                     // Add points for any commas within this paragraph.
-                    contentScore += innerText.Split(',').Length;
+                    contentScore += TextUtility.CountWordsSeperatedByComma(innerText.AsSpan());
 
                     // For every 100 characters in this paragraph, add another point. Up to 3 points.
                     contentScore += Math.Min(Math.Floor(innerText.Length / 100.0), 3);
