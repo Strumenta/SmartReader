@@ -3,35 +3,13 @@ using Xunit;
 using SmartReader;
 using System.IO;
 using Moq;
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Text;
-using System.Linq;
 using Xunit.Abstractions;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SmartReaderTests
 {
-    public interface IArticleTest
-    {
-        Uri Uri { get; set; }
-        string Title { get; set; }
-        string Byline { get; set; }
-        string Dir { get; set; }
-        string Content { get; set; }
-        string TextContent { get; set; }
-        string Excerpt { get; set; }
-        string Language { get; set; }
-        string Author { get; set; }
-        string SiteName { get; set; }
-        string FeaturedImage { get; set; }
-        int Length { get; set; }
-        TimeSpan TimeToRead { get; set; }
-        DateTime? PublicationDate { get; set; }
-        bool IsReadable { get; set; }
-    }
-
     public class PagesTests
     {
         private readonly ITestOutputHelper _output;
@@ -40,28 +18,33 @@ namespace SmartReaderTests
             _output = output;            
         }
 
-        public IArticleTest GetTestArticle(JObject metadata, string content)
+        public IArticleTest GetTestArticle(ArticleMetadata metadata, string content)
         {
             var mockArticle = new Mock<IArticleTest>();
             mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
-            mockArticle.Setup(x => x.IsReadable).Returns(bool.Parse(metadata["readerable"].ToString()));
-            mockArticle.Setup(x => x.Title).Returns(metadata["title"].ToString());
-            mockArticle.Setup(x => x.Dir).Returns(metadata["dir"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.Byline).Returns(metadata["byline"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata["author"]?.ToString()) ? null : metadata["author"].ToString());
-            mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata["publicationDate"]?.ToString()) ? (DateTime?) null : DateTime.Parse(metadata["publicationDate"].ToString()));
-            mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata["language"]?.ToString()) ? null : metadata["language"].ToString());			
-            mockArticle.Setup(x => x.Excerpt).Returns(metadata["excerpt"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.SiteName).Returns(metadata["siteName"]?.ToString() ?? "");
-            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata["timeToRead"].ToString()));
+            mockArticle.Setup(x => x.IsReadable).Returns(metadata.Readerable);
+            mockArticle.Setup(x => x.Title).Returns(metadata.Title);
+            mockArticle.Setup(x => x.Dir).Returns(metadata.Dir ?? "");
+            mockArticle.Setup(x => x.Byline).Returns(metadata.Byline ?? "");
+            mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata.Author) ? null : metadata.Author);
+            mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata.PublicationDate) ? (DateTime?) null : DateTime.Parse(metadata.PublicationDate.ToString()));
+            mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata.Language) ? null : metadata.Language.ToString());			
+            mockArticle.Setup(x => x.Excerpt).Returns(metadata.Excerpt ?? "");
+            mockArticle.Setup(x => x.SiteName).Returns(metadata.SiteName ?? "");
+            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata.TimeToRead));
             mockArticle.Setup(x => x.Content).Returns(content);
-            mockArticle.Setup(x => x.FeaturedImage).Returns(metadata["featuredImage"]?.ToString() ?? "");
+            mockArticle.Setup(x => x.FeaturedImage).Returns(metadata.FeaturedImage ?? "");
 
             return mockArticle.Object;
         }
 
         private void UpdateExpectedJson(Article article, string directory)
         {
+            var jso = new JsonSerializerOptions { 
+                WriteIndented = true, 
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull 
+            };
+
             var obj = new
             {
                 title = article.Title,
@@ -70,14 +53,14 @@ namespace SmartReaderTests
                 excerpt = article.Excerpt,
                 readerable = article.IsReadable,
                 language = article.Language,
-                timeToRead = article.TimeToRead,
+                timeToRead = article.TimeToRead.ToString(),
                 publicationDate = article.PublicationDate,
                 author = article.Author,
                 siteName = article.SiteName,
                 featuredImage = article.FeaturedImage
             };
 
-            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonConvert.SerializeObject(obj, Formatting.Indented));
+            File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonSerializer.Serialize(obj, jso));
         }
 
         private void UpdateExpectedHtml(string html, string directory)
@@ -113,10 +96,14 @@ namespace SmartReaderTests
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
         {
+            var jso = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
-            var expectedMetadataString = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));            
-            var expectedMetadata = JObject.Parse(expectedMetadataString);
+            var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
+            var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
 
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
 
@@ -124,5 +111,6 @@ namespace SmartReaderTests
             
             AssertProperties(expected, found);
         }
+
     }
 }
