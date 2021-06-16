@@ -36,9 +36,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.15.0" />
-    <PackageReference Include="AngleSharp.Css" Version="0.15.0" />
-    <PackageReference Include="MimeMapping" Version="1.0.1.37" />
+    <PackageReference Include="AngleSharp" Version="0.16.0" />
+    <PackageReference Include="AngleSharp.Css" Version="0.16.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
