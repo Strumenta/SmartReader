@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -10,7 +9,6 @@ using System.Web;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 
-[assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
 {
     /// <summary>
