@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
 - Improvements to header and title detection
 - Improvements to handling of link density and added support for hash links
 - Added improvements from latest updates of Readability up until April 2021 
+- Updated Demo project to .NET 5
+- Removed MimeMappings dependency
 
 ## 0.7.5 - 2020/10/31
 - Fix bug Reader throws DivideByZeroException when articleTitle is empty (Thanks to [DanielEgbers](https://github.com/DanielEgbers))
