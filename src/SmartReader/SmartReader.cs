@@ -33,7 +33,7 @@ namespace SmartReader
         private string? author;
         private string? charset;
 
-        private sealed class Attempt 
+        private readonly struct Attempt 
         {
             public Attempt(IElement content, long length)
             {
@@ -476,7 +476,7 @@ namespace SmartReader
                 {
                     replaced = true;
                     var brSibling = next.NextSibling;
-                    next.Parent.RemoveChild(next);
+                    next.Parent!.RemoveChild(next);
                     next = brSibling;
                 }
 
@@ -486,7 +486,7 @@ namespace SmartReader
                 if (replaced)
                 {
                     var p = doc.CreateElement("p");
-                    br.Parent.ReplaceChild(p, br);
+                    br.Parent!.ReplaceChild(p, br);
 
                     next = p.NextSibling;
                     while (next != null)
@@ -511,8 +511,8 @@ namespace SmartReader
                     while (p.LastChild != null && NodeUtility.IsWhitespace(p.LastChild))
                         p.RemoveChild(p.LastChild);
 
-                    if (p.Parent.NodeName is "P")
-                        NodeUtility.SetNodeTag(p.ParentElement, "DIV");
+                    if (p.Parent!.NodeName is "P")
+                        NodeUtility.SetNodeTag(p.ParentElement!, "DIV");
 
                 }
             });
@@ -601,7 +601,7 @@ namespace SmartReader
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next != null && next.TagName is "P")
-                    br.Parent.RemoveChild(br);
+                    br.Parent!.RemoveChild(br);
             });
 
             // Remove single-cell tables
@@ -609,15 +609,15 @@ namespace SmartReader
             {
                 var tableEl = (IElement)tableNode;
 
-                var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild : tableEl;
+                var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild! : tableEl;
                 if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
                 {
-                    var row = tbody.FirstElementChild;
+                    var row = tbody.FirstElementChild!;
                     if (NodeUtility.HasSingleTagInsideElement(row, "TD"))
                     {
-                        var cell = row.FirstElementChild;
+                        var cell = row.FirstElementChild!;
                         cell = NodeUtility.SetNodeTag(cell, NodeUtility.EveryNode(cell.ChildNodes, NodeUtility.IsPhrasingContent) ? "P" : "DIV");
-                        tableEl.Parent.ReplaceChild(cell, tableEl);
+                        tableEl.Parent!.ReplaceChild(cell, tableEl);
                     }
                 }
             });
@@ -889,7 +889,7 @@ namespace SmartReader
                             var newNode = node.Children[0];
                             // preserve the old DIV classes into the new P node
                             newNode.ClassName += " " + node.ClassName;
-                            node.Parent.ReplaceChild(newNode, node);
+                            node.Parent!.ReplaceChild(newNode, node);
                             node = newNode;
                             elementsToScore.Add(node);
                         }
@@ -1035,7 +1035,7 @@ namespace SmartReader
                     const int MINIMUM_TOPCANDIDATES = 3;
                     if (alternativeCandidateAncestors.Count >= MINIMUM_TOPCANDIDATES)
                     {
-                        parentOfTopCandidate = topCandidate.ParentElement;
+                        parentOfTopCandidate = topCandidate.ParentElement!;
                         while (parentOfTopCandidate.TagName is not "BODY")
                         {
                             var listsContainingThisAncestor = 0;
@@ -1048,7 +1048,7 @@ namespace SmartReader
                                 topCandidate = parentOfTopCandidate;
                                 break;
                             }
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
+                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
                         }
                     }
                     
@@ -1064,7 +1064,7 @@ namespace SmartReader
                     // lurking in other places that we want to unify in. The sibling stuff
                     // below does some of that - but only if we've looked high enough up the DOM
                     // tree.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent;
+                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
                     
                     var lastScore = GetReadabilityScore(topCandidate);
                     // The scores shouldn't get too low.
@@ -1073,7 +1073,7 @@ namespace SmartReader
                     {                        
                         if (GetReadabilityScore(parentOfTopCandidate).CompareTo(0.0) == 0)
                         {
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
+                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
                             continue;
                         }
                         
@@ -1088,16 +1088,16 @@ namespace SmartReader
                         }
                         
                         lastScore = GetReadabilityScore(parentOfTopCandidate);
-                        parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent;
+                        parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
                     }
 
                     // If the top candidate is the only child, use parent instead. This will help sibling
                     // joining logic when adjacent content is actually located in parent's sibling node.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent;
+                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
                     while (parentOfTopCandidate.TagName is not "BODY" && parentOfTopCandidate.Children.Length == 1)
                     {
                         topCandidate = parentOfTopCandidate;
-                        parentOfTopCandidate = (IElement)topCandidate.Parent;
+                        parentOfTopCandidate = (IElement)topCandidate.Parent!;
                     }
                     
                     if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
@@ -1115,7 +1115,7 @@ namespace SmartReader
 
                 var siblingScoreThreshold = Math.Max(10, GetReadabilityScore(topCandidate!) * 0.2);
                 // Keep potential top candidate's parent node to try to get text direction of it later.
-                parentOfTopCandidate = topCandidate!.ParentElement;
+                parentOfTopCandidate = topCandidate!.ParentElement!;
                 var siblings = parentOfTopCandidate.Children;
 
                 for (int s = 0, sl = siblings.Length; s < sl; s++)
@@ -1335,7 +1335,7 @@ namespace SmartReader
                     // First, check the elements attributes to see if any of them contain youtube or vimeo
                     for (var i = 0; i < element.Attributes.Length; i++)
                     {
-                        if (RE_Videos.IsMatch(element.Attributes[i].Value))
+                        if (RE_Videos.IsMatch(element.Attributes[i]!.Value))
                         {
                             return false;
                         }
@@ -1515,7 +1515,7 @@ namespace SmartReader
                     var srcCouldBeRemoved = false;
                     for (var i = 0; i < elem.Attributes.Length; i++)
                     {
-                        var attr = elem.Attributes[i];
+                        var attr = elem.Attributes[i]!;
                         if (attr.Name is "src")
                         {
                              continue;
@@ -1551,7 +1551,7 @@ namespace SmartReader
 
                 for (var i = 0; i < elem.Attributes.Length; i++)
                 {
-                    var attr = elem.Attributes[i];
+                    var attr = elem.Attributes[i]!;
 
                     if (attr.Name is "src" or "srcset" or "alt")
                     {
@@ -1707,7 +1707,7 @@ namespace SmartReader
                         // If this embed has attribute that matches video regex, don't delete it.
                         for (var j = 0; j < embeds[i].Attributes.Length; j++)
                         {
-                            if (RE_Videos.IsMatch(embeds[i].Attributes[j].Value))
+                            if (RE_Videos.IsMatch(embeds[i].Attributes[j]!.Value))
                             {
                                 return false;
                             }
@@ -1811,7 +1811,7 @@ namespace SmartReader
 
                 foreach (var node in brNodes)
                 {
-                    set.Add(node.ParentElement);
+                    set.Add(node.ParentElement!);
                 }
 
                 totalNodes = nodes.Concat(set.ToArray());

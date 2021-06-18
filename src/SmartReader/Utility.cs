@@ -54,16 +54,16 @@ namespace SmartReader
         /// <param name="tag">The new tag name to use</param>
         internal static IElement SetNodeTag(IElement node, string tag)
         {
-            var replacement = node.Owner.CreateElement(tag);
+            var replacement = node.Owner!.CreateElement(tag);
             while (node.FirstChild != null)
             {
                 replacement.AppendChild(node.FirstChild);
             }
-            node.Parent.ReplaceChild(replacement, node);
+            node.Parent!.ReplaceChild(replacement, node);
 
             for (var i = 0; i < node.Attributes.Length; i++)
             {
-                var attr = node.Attributes[i];
+                var attr = node.Attributes[i]!;
 
                 // the possible result of malformed HTML
                 if (!attr.Name.Contains("<") && !attr.Name.Contains(">"))
@@ -268,7 +268,7 @@ namespace SmartReader
                 {
                     for (var i = 0; i < img.Attributes.Length; i++)
                     {
-                        var attr = img.Attributes[i];
+                        var attr = img.Attributes[i]!;
 
                         if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
                         {
@@ -279,7 +279,7 @@ namespace SmartReader
                             return; 
                     }
 
-                    img.Parent.RemoveChild(img);
+                    img.Parent!.RemoveChild(img);
                 }
             });
            
@@ -309,7 +309,7 @@ namespace SmartReader
                         var newImg = tmp.GetElementsByTagName("img")[0];
                         for (var i = 0; i < prevImg.Attributes.Length; i++)
                         {
-                            var attr = prevImg.Attributes[i];
+                            var attr = prevImg.Attributes[i]!;
                             if (attr.Value is "")
                             {
                                 continue;
@@ -333,7 +333,7 @@ namespace SmartReader
                             }
                         }
 
-                        noscript.Parent.ReplaceChild(tmp.FirstElementChild, prevElement);
+                        noscript.Parent!.ReplaceChild(tmp.FirstElementChild!, prevElement);
                     }
                 }
             });
@@ -655,7 +655,7 @@ namespace SmartReader
         /// whitespace in between. If the given node is an element, the same node is
         /// returned.
         /// </summary>  
-        internal static IElement? NextElement(INode node, Regex whitespace)
+        internal static IElement? NextElement(INode? node, Regex whitespace)
         {
             var next = node;
             while (next != null

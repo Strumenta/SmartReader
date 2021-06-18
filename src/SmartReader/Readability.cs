@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -10,7 +9,6 @@ using System.Web;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 
-[assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
 {
     /// <summary>
@@ -59,7 +57,7 @@ namespace SmartReader
                 node.RemoveAttribute("class");
             }
 
-            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
+            for (node = node.FirstElementChild!; node != null; node = node.NextElementSibling!)
             {
                 CleanClasses(node, classesToPreserve);
             }
@@ -88,13 +86,13 @@ namespace SmartReader
                 {
                     // Remove links with javascript: URIs, since
                     // they won't work after scripts have been removed from the page.
-                    if (href.IndexOf("javascript:") == 0)
+                    if (href!.IndexOf("javascript:") == 0)
                     {
                         // if the link only contains simple text content, it can be converted to a text node
                         if (link.ChildNodes.Length == 1 && link.ChildNodes[0].NodeType == NodeType.Text)
                         {
                             var text = doc.CreateTextNode(link.TextContent);
-                            link.Parent.ReplaceChild(text, link);
+                            link.Parent!.ReplaceChild(text, link);
                         }
                         else
                         {
@@ -104,7 +102,7 @@ namespace SmartReader
                             {
                                 container.AppendChild(link.ChildNodes[0]);
                             }
-                            link.Parent.ReplaceChild(container, link);
+                            link.Parent!.ReplaceChild(container, link);
                         }
                     }
                     else
@@ -191,7 +189,7 @@ namespace SmartReader
                         var child = node.Children[0];
                         for (var i = 0; i < node.Attributes.Length; i++)
                         {
-                            child.SetAttribute(node.Attributes[i].Name, node.Attributes[i].Value);
+                            child.SetAttribute(node.Attributes[i]!.Name, node.Attributes[i]!.Value);
                         }
                         node.Parent.ReplaceChild(child, node);
                         node = child;
@@ -212,13 +210,11 @@ namespace SmartReader
         /// </returns>
         internal static string GetArticleTitle(IHtmlDocument doc)
         {
-            var curTitle = "";
-            var origTitle = "";
+            string origTitle = doc.Title?.Trim() ?? string.Empty;
+            string curTitle = origTitle;
 
             try
             {
-                curTitle = origTitle = doc.Title.Trim();
-
                 // If they had an element with id "title" in their HTML
                 if (typeof(string) != curTitle.GetType())
                     curTitle = origTitle = NodeUtility.GetInnerText(doc.GetElementsByTagName("title")[0]);
@@ -477,7 +473,7 @@ namespace SmartReader
                 var content = element.GetAttribute("content");
 
                 // avoid issues with no meta tags
-                if (string.IsNullOrEmpty(content))
+                if (content is null || content.Length == 0)
                 {
                     return;
                 }
@@ -486,7 +482,7 @@ namespace SmartReader
 
                 if (elementName is "author" || elementProperty is "author" || itemProp is "author")
                 {                    
-                    values["author"] = element.GetAttribute("content");
+                    values["author"] = content;
                 }
 
                 if (elementProperty is { Length: > 0 })
@@ -525,7 +521,7 @@ namespace SmartReader
                 if (!string.IsNullOrEmpty(name))
                 {
                     content = element.GetAttribute("content");
-                    if (!string.IsNullOrEmpty(content))
+                    if (content is { Length: > 0 })
                     {
                         // Convert to lowercase and remove any whitespace
                         // so we can match below.

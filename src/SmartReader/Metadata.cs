@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("SmartReaderTests")]
 namespace SmartReader
-{    
+{
     internal class Metadata
     {        
         internal string Title { get; set; } = "";
