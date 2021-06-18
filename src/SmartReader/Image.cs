@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 
 using AngleSharp.Io;
 
