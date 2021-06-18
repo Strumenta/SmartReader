@@ -1,9 +1,10 @@
-﻿using SmartReader;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+using SmartReader;
 
 namespace SmartReaderConsole
 {
@@ -79,7 +80,7 @@ namespace SmartReaderConsole
             Console.WriteLine($"TextContent:\n {article.TextContent}");
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
-            Console.WriteLine($"Images Found: {images.Result?.Count()}");
+            Console.WriteLine($"Images Found: {images.Result?.Count}");
 
             article.ConvertImagesToDataUriAsync().Wait();
 
@@ -103,11 +104,11 @@ namespace SmartReaderConsole
                 lines = File.ReadAllLines(Path.Combine(p, "expected-metadata.json")).ToList();
 
                 // add a comma after the last element, if none is present
-                if (lines[lines.Count() - 2][lines[lines.Count() - 2].Length - 1] != ',')
-                    lines[lines.Count() - 2] += ",";
+                if (lines[lines.Count - 2][lines[lines.Count - 2].Length - 1] != ',')
+                    lines[lines.Count - 2] += ",";
 
                 // insert the new filed before the end of the JSON object
-                lines.Insert(lines.Count() - 1, $"  \"{field.First().ToString().ToLower() + field.Substring(1)}\": \"{article.GetType().GetProperty(field).GetValue(article)}\"");
+                lines.Insert(lines.Count - 1, $"  \"{field.First().ToString().ToLower() + field.Substring(1)}\": \"{article.GetType().GetProperty(field).GetValue(article)}\"");
 
                 File.WriteAllLines(Path.Combine(p, "expected-metadata.json"), lines);
             }                       
