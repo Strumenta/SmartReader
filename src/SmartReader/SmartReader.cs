@@ -33,7 +33,7 @@ namespace SmartReader
         private string? author;
         private string? charset;
 
-        private sealed class Attempt 
+        private readonly struct Attempt 
         {
             public Attempt(IElement content, long length)
             {
