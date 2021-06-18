@@ -40,7 +40,7 @@ namespace SmartReader
                 return uriToCheck;
             
             // Scheme-rooted relative URI.
-            if (uriToCheck.Length >= 2 && uriToCheck.AsSpan(0, 2).Equals("//".AsSpan(), StringComparison.Ordinal))
+            if (uriToCheck.StartsWith("//", StringComparison.Ordinal))
                 return scheme + "://" + uriToCheck.Substring(2);
 
             // Prepath-rooted relative URI.
