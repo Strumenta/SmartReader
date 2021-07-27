@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.16.0" />
     <PackageReference Include="AngleSharp.Css" Version="0.16.0" />
-    <PackageReference Include="HtmlSanitizer" Version="5.0.404" />
+    <PackageReference Include="HtmlSanitizer" Version="6.0.430-beta" />
   </ItemGroup>
 
   <ItemGroup>
