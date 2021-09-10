@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 using AngleSharp.Css.Dom;
@@ -97,13 +97,13 @@ namespace SmartReader
 		/// 
 		/// <para>If function is not passed, removes all the nodes in node list.</para>
         /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
+        /// <param name="elementList">The elements to operate on</param>
         /// <param name="filterFn">The filter that dictates which nodes to remove</param>
-        internal static void RemoveNodes(IEnumerable<IElement> nodeList, Func<IElement, bool>? filterFn = null)
+        internal static void RemoveNodes(IHtmlCollection<IElement> elementList, Func<IElement, bool>? filterFn = null)
         {
-            for (var i = nodeList.Count() - 1; i >= 0; i--)
+            for (var i = elementList.Length - 1; i >= 0; i--)
             {
-                var node = nodeList.ElementAt(i);
+                var node = elementList[i];
                 var parentNode = node.Parent;
                 if (parentNode != null)
                 {
@@ -124,15 +124,13 @@ namespace SmartReader
         /// <param name="nodeList">The nodes to operate on</param>
         /// <param name="fn">The iterate function</param>
         /// <return>void</return>
-        internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode> fn)
+        internal static void ForEachElement(IHtmlCollection<IElement> nodeList, Action<IElement> fn)
         {
-            if (nodeList != null)
+            for (int a = 0; a < nodeList.Length; a++)
             {
-                for (int a = 0; a < nodeList.Count(); a++)
-                {
-                    fn(nodeList.ElementAt(a));
-                }
+                fn(nodeList[a]);
             }
+            
         }
 
         internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
@@ -152,8 +150,12 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
         {
-            if (nodeList != null)
-                return nodeList.Any(fn);
+            if (nodeList is null) return false;
+
+            foreach (var node in nodeList)
+            {
+                if (fn(node)) return true;
+            }
 
             return false;
         }
@@ -169,8 +171,12 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool SomeNode(INodeList? nodeList, Func<INode, bool> fn)
         {
-            if (nodeList != null)
-                return nodeList.Any(fn);
+            if (nodeList is null) return false;
+
+            foreach (var node in nodeList)
+            {
+                if (fn(node)) return true;
+            }
 
             return false;
         }
@@ -196,7 +202,7 @@ namespace SmartReader
 
         /// <summary>
         /// <para>Iterate over a NodeList, return true if all of the provided iterate
-        ///function calls return true, false otherwise.</para>		
+        /// function calls return true, false otherwise.</para>		
         /// <para>For convenience, the current object context is applied to the
         /// provided iterate function.</para>
         /// </summary>
@@ -205,10 +211,14 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
         {
-            if (nodeList != null)
-                return nodeList.All(fn);
+            if (nodeList is null) return false;
 
-            return false;
+            foreach (var node in nodeList)
+            {
+                if (!fn(node)) return false;
+            }
+           
+            return true;
         }
 
         /// <summary>        
@@ -216,13 +226,13 @@ namespace SmartReader
         /// </summary>
         /// <param name="arguments">The nodes to operate on</param>        
         /// <returns>List of concatenated elements</returns>
-        internal static IEnumerable<IElement> ConcatNodeLists(params IEnumerable<IElement>[] arguments)
+        internal static IList<IElement> ConcatNodeLists(params IHtmlCollection<IElement>[] arguments)
         {
             var result = new List<IElement>();
 
             foreach (var arg in arguments)
             {
-                result = result.Concat(arg).ToList();
+                result.AddRange(arg);
             }
 
             return result;
@@ -232,7 +242,6 @@ namespace SmartReader
         {
             return node.QuerySelectorAll(string.Join(",", tagNames));
         }
-
 
         internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string tagName)
         {
@@ -263,79 +272,74 @@ namespace SmartReader
             // Find img without source or attributes that might contains image, and remove it.
             // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
-            ForEachNode(imgs, (imgNode) => {
-                if (imgNode is IElement img)
+            ForEachElement(imgs, (img) => {
+                for (var i = 0; i < img.Attributes.Length; i++)
                 {
-                    for (var i = 0; i < img.Attributes.Length; i++)
+                    var attr = img.Attributes[i]!;
+
+                    if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
                     {
-                        var attr = img.Attributes[i]!;
-
-                        if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
-                        {
-                            return;
-                        }
-
-                        if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
-                            return; 
+                        return;
                     }
 
-                    img.Parent!.RemoveChild(img);
+                    if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
+                        return; 
                 }
+
+                img.Parent!.RemoveChild(img);
+                
             });
            
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
-            ForEachNode(noscripts, (noscriptNode) => {
-                if (noscriptNode is IElement noscript)
-                {
-                    // Parse content of noscript and make sure it only contains image
-                    var tmp = doc.CreateElement("div");
-                    tmp.InnerHtml = noscript.InnerHtml;
-                    if (!IsSingleImage(tmp))
-                        return;
+            ForEachElement(noscripts, noscript => {               
+                // Parse content of noscript and make sure it only contains image
+                var tmp = doc.CreateElement("div");
+                tmp.InnerHtml = noscript.InnerHtml;
+                if (!IsSingleImage(tmp))
+                    return;
 
-                    // If noscript has previous sibling and it only contains image,
-                    // replace it with noscript content. However we also keep old
-                    // attributes that might contains image.
-                    var prevElement = noscript.PreviousElementSibling;
-                    if (prevElement != null && IsSingleImage(prevElement))
+                // If noscript has previous sibling and it only contains image,
+                // replace it with noscript content. However we also keep old
+                // attributes that might contains image.
+                var prevElement = noscript.PreviousElementSibling;
+                if (prevElement != null && IsSingleImage(prevElement))
+                {
+                    var prevImg = prevElement;
+                    if (prevImg.TagName is not "IMG")
                     {
-                        var prevImg = prevElement;
-                        if (prevImg.TagName is not "IMG")
+                        prevImg = prevElement.GetElementsByTagName("img")[0];
+                    }
+
+                    var newImg = tmp.GetElementsByTagName("img")[0];
+                    for (var i = 0; i < prevImg.Attributes.Length; i++)
+                    {
+                        var attr = prevImg.Attributes[i]!;
+                        if (attr.Value is "")
                         {
-                            prevImg = prevElement.GetElementsByTagName("img")[0];
+                            continue;
                         }
 
-                        var newImg = tmp.GetElementsByTagName("img")[0];
-                        for (var i = 0; i < prevImg.Attributes.Length; i++)
+                        if (attr.Name is "src" or "srcset"
+                        || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
                         {
-                            var attr = prevImg.Attributes[i]!;
-                            if (attr.Value is "")
+                            if (string.Equals(newImg.GetAttribute(attr.Name), attr.Value, StringComparison.Ordinal))
                             {
                                 continue;
                             }
 
-                            if (attr.Name is "src" or "srcset"
-                            || Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
+                            var attrName = attr.Name;
+                            if (newImg.HasAttribute(attrName))
                             {
-                                if (string.Equals(newImg.GetAttribute(attr.Name), attr.Value, StringComparison.Ordinal))
-                                {
-                                    continue;
-                                }
-
-                                var attrName = attr.Name;
-                                if (newImg.HasAttribute(attrName))
-                                {
-                                    attrName = "data-old-" + attrName;
-                                }
-
-                                newImg.SetAttribute(attrName, attr.Value);
+                                attrName = "data-old-" + attrName;
                             }
-                        }
 
-                        noscript.Parent!.ReplaceChild(tmp.FirstElementChild!, prevElement);
+                            newImg.SetAttribute(attrName, attr.Value);
+                        }
                     }
-                }
+
+                    noscript.Parent!.ReplaceChild(tmp.FirstElementChild!, prevElement);
+                }                
             });
         }
 
@@ -420,7 +424,7 @@ namespace SmartReader
         internal static bool IsWhitespace(INode node)
         {
             return (node.NodeType == NodeType.Text && node.TextContent.AsSpan().Trim().Length == 0) ||
-                   (node.NodeType == NodeType.Element && node.NodeName is "BR");
+                   (node is { NodeType: NodeType.Element, NodeName: "BR" });
         }
 
         /// <summary>
@@ -507,10 +511,8 @@ namespace SmartReader
             double linkLength = 0;
 
             // XXX implement _reduceNodeList?
-            ForEachNode(element.GetElementsByTagName("a"), (linkNode) =>
+            ForEachElement(element.GetElementsByTagName("a"), (linkEl) =>
             {
-                var linkEl = (IElement)linkNode;
-
                 var href = linkEl.GetAttribute("href");
                 var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
                 linkLength += GetInnerText(linkEl).Length * coefficient;
@@ -522,7 +524,7 @@ namespace SmartReader
         internal static IElement? RemoveAndGetNext(IElement element)
         {
             var nextNode = GetNextNode(element, true);
-            element.Parent.RemoveChild(element);
+            element.Parent!.RemoveChild(element);
             return nextNode;
         }
 
@@ -609,11 +611,10 @@ namespace SmartReader
                 var cells = trs[i].GetElementsByTagName("td");
                 for (var j = 0; j < cells.Length; j++)
                 {
-                    string colspan = cells[j].GetAttribute("colspan");
                     int colSpanInt = 0;
-                    if (!string.IsNullOrEmpty(colspan))
+                    if (cells[j].GetAttribute("colspan") is { Length: > 0 } colspan)
                     {
-                        int.TryParse(colspan, out colSpanInt);
+                        int.TryParse(colspan, NumberStyles.None, CultureInfo.InvariantCulture, out colSpanInt);
                     }
                     columnsInThisRow += colSpanInt == 0 ? 1 : colSpanInt;
                 }
@@ -622,7 +623,7 @@ namespace SmartReader
             return Tuple.Create(rows, columns);
         }
 
-        internal static IEnumerable<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
+        internal static IList<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<IElement>();
@@ -636,7 +637,7 @@ namespace SmartReader
             return ancestors;
         }
 
-        internal static IEnumerable<INode> GetNodeAncestors(INode node, int maxDepth = 0)
+        internal static IList<INode> GetNodeAncestors(INode node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<INode>();
