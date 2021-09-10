@@ -461,7 +461,7 @@ namespace SmartReader
         /// </summary>
         private void ReplaceBrs(IElement elem)
         {
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(elem, "br"), (br) =>
+            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(elem, "br"), (br) =>
             {
                 var next = br.NextSibling;
 
@@ -562,8 +562,8 @@ namespace SmartReader
 
             var shareElementThreshold = CharThreshold;
 
-            NodeUtility.ForEachNode(articleContent.Children, (topCandidate) => {
-                NodeUtility.CleanMatchedNodes((IElement)topCandidate, (node, matchString) => {
+            NodeUtility.ForEachElement(articleContent.Children, (topCandidate) => {
+                NodeUtility.CleanMatchedNodes(topCandidate, (node, matchString) => {
                     return RE_ShareElements.IsMatch(matchString) &&  node.TextContent.Length < shareElementThreshold;
                     });
                 });            
@@ -597,7 +597,7 @@ namespace SmartReader
                 return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
+            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next != null && next.TagName is "P")
@@ -605,10 +605,8 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (tableNode) =>
+            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (tableEl) =>
             {
-                var tableEl = (IElement)tableNode;
-
                 var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild! : tableEl;
                 if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
                 {
@@ -909,20 +907,20 @@ namespace SmartReader
 				 * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
 				*/
                 var candidates = new List<IElement>();
-                NodeUtility.ForEachNode(elementsToScore, (elementToScore) =>
+                foreach (var elementToScore in elementsToScore)
                 {
                     if (elementToScore.Parent is null)
-                        return;
+                        continue;
 
                     // If this paragraph is less than 25 characters, don't even count it.
                     string innerText = NodeUtility.GetInnerText((IElement)elementToScore);
                     if (innerText.Length < 25)
-                        return;
+                        continue;
 
                     // Exclude nodes with no ancestor.
                     var ancestors = NodeUtility.GetNodeAncestors(elementToScore, 5);
-                    if (ancestors.Count() == 0)
-                        return;
+                    if (ancestors.Count is 0)
+                        continue;
 
                     double contentScore = 0;
 
@@ -964,7 +962,7 @@ namespace SmartReader
                         
                         AddToReadabilityScore(ancestorEl, contentScore / scoreDivider);
                     }, 0);
-                });
+                }
 
                 // After we've calculated scores, loop through all of the possible
                 // candidate nodes we found and find the one with the highest score.
@@ -1459,7 +1457,7 @@ namespace SmartReader
                 // If the table has a descendant with a COL, COLGROUP, TFOOT, THEAD, or TH tag, consider a data table:
                 bool descendantExists(string tag)
                 {
-                    return table.GetElementsByTagName(tag).ElementAtOrDefault(0) != null;
+                    return table.GetElementsByTagName(tag).Length > 0;
                 }
 
                 if (dataTableDescendantTagNames.Any(descendantExists))
@@ -1494,11 +1492,10 @@ namespace SmartReader
         /// </summary>
         private void FixLazyImages(IElement root)
         {
-            NodeUtility.ForEachNode(NodeUtility.GetAllNodesWithTag(root, s_img_picture_figure), (node) =>
+            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(root, s_img_picture_figure), (elem) =>
             {
                 // In some sites (e.g. Kotaku), they put 1px square image as base64 data uri in the src attribute.
                 // So, here we check if the data uri is too short, just might as well remove it.
-                var elem = (IElement)node;          
                 string? src = elem.GetAttribute("src");
                 
                 if(src != null && G_RE_B64DataUrl.IsMatch(src))
@@ -1600,7 +1597,7 @@ namespace SmartReader
             }
             var childrenLength = 0;
             var children = NodeUtility.GetAllNodesWithTag(e, tags);
-            NodeUtility.ForEachNode(children, (child) => childrenLength += NodeUtility.GetInnerText(child, true).Length);
+            NodeUtility.ForEachElement(children, (child) => childrenLength += NodeUtility.GetInnerText(child, true).Length);
             return childrenLength / textLength;
         }
 
@@ -1625,9 +1622,9 @@ namespace SmartReader
                 {
                     var listLength = 0;
                     var listNodes = NodeUtility.GetAllNodesWithTag(node, s_ul_ol);
-                    NodeUtility.ForEachNode(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
+                    NodeUtility.ForEachElement(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
                     
-                    if(NodeUtility.GetInnerText(node).Length > 0)
+                    if (NodeUtility.GetInnerText(node).Length > 0)
                         isList = listLength / NodeUtility.GetInnerText(node).Length > 0.9;
                 }
 

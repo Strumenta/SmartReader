@@ -28,7 +28,6 @@ namespace SmartReader
             "SatiricalArticle", "ScholarlyArticle", "MedicalScholarlyArticle", "SocialMediaPosting", "BlogPosting",
             "LiveBlogPosting", "DiscussionForumPosting", "TechArticle", "APIReference" 
         });
-
      
         private static readonly char[] s_space = { ' ' };
         private static readonly string[] s_img_picture_figure_video_audio_source = { "img", "picture", "figure", "video", "audio", "source" };
@@ -78,9 +77,8 @@ namespace SmartReader
 
             var links = NodeUtility.GetAllNodesWithTag(articleContent, "a");
 
-            NodeUtility.ForEachNode(links, (linkNode) =>
+            NodeUtility.ForEachElement(links, (link) =>
             {
-                var link = (IElement)linkNode;
                 var href = link.GetAttribute("href");
                 if (!string.IsNullOrWhiteSpace(href))
                 {
@@ -114,29 +112,26 @@ namespace SmartReader
 
             var medias = NodeUtility.GetAllNodesWithTag(articleContent, s_img_picture_figure_video_audio_source);
 
-            NodeUtility.ForEachNode(medias, (mediaNode) => {
-                if (mediaNode is IElement media)
+            NodeUtility.ForEachElement(medias, (media) => {
+                if (media.GetAttribute("src") is string src)
                 {
-                    if (media.GetAttribute("src") is string src)
+                    media.SetAttribute("src", uri.ToAbsoluteURI(src));
+                }
+
+                if (media.GetAttribute("poster") is string poster)
+                {
+                    media.SetAttribute("poster", uri.ToAbsoluteURI(poster));
+                }
+
+                if (media.GetAttribute("srcset") is string srcset)
+                {                        
+                    var newSrcset = RE_SrcSetUrl.Replace(srcset, (input) =>
                     {
-                        media.SetAttribute("src", uri.ToAbsoluteURI(src));
-                    }
+                        return uri.ToAbsoluteURI(input.Groups[1].Value) + (input.Groups[2]?.Value ?? "") + input.Groups[3].Value;
+                    });                                 
 
-                    if (media.GetAttribute("poster") is string poster)
-                    {
-                        media.SetAttribute("poster", uri.ToAbsoluteURI(poster));
-                    }
-
-                    if (media.GetAttribute("srcset") is string srcset)
-                    {                        
-                        var newSrcset = RE_SrcSetUrl.Replace(srcset, (input) =>
-                        {
-                            return uri.ToAbsoluteURI(input.Groups[1].Value) + (input.Groups[2]?.Value ?? "") + input.Groups[3].Value;
-                        });                                 
-
-                        media.SetAttribute("srcset", newSrcset);
-                    }
-                }            
+                    media.SetAttribute("srcset", newSrcset);
+                }                          
             });
         }
 
@@ -463,10 +458,8 @@ namespace SmartReader
             var itemPropPattern = @"\s*datePublished\s*";
 
             // Find description tags.
-            NodeUtility.ForEachNode(metaElements, (node) =>
+            NodeUtility.ForEachElement(metaElements, (element) =>
             {
-                var element = (IElement)node;
-
                 var elementName = element.GetAttribute("name");
                 var elementProperty = element.GetAttribute("property");
                 var itemProp = element.GetAttribute("itemprop");
