@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace SmartReader
@@ -10,12 +11,18 @@ namespace SmartReader
             var sb = new StringBuilder(startUri.Scheme + "://");
 
             if (!string.IsNullOrEmpty(startUri.UserInfo))
-                sb.Append(startUri.UserInfo + "@");
+            {
+                sb.Append(startUri.UserInfo);
+                sb.Append('@');
+            }
 
             sb.Append(startUri.Host);
 
-            if (startUri.Port != 80 && startUri.Port != 443)
-                sb.Append(":" + startUri.Port);
+            if (!startUri.IsDefaultPort)
+            { 
+                sb.Append(':');
+                sb.Append(startUri.Port.ToString(CultureInfo.InvariantCulture));
+            }
 
             return sb.ToString();
         }
