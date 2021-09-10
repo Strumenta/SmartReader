@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.16.0" />
-    <PackageReference Include="AngleSharp.Css" Version="0.16.0" />
+    <PackageReference Include="AngleSharp.Css" Version="0.16.1" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
