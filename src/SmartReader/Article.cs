@@ -30,7 +30,7 @@ namespace SmartReader
         public string? Dir { get; }
 
         /// <value>The URI of the main image</value>
-        public string FeaturedImage { get; private set; }
+        public string? FeaturedImage { get; private set; }
 
         /// <value>The HTML content</value>
         public string Content { get; private set; }
@@ -113,7 +113,6 @@ namespace SmartReader
             Language = "";
             PublicationDate = new DateTime();
             Author = "";
-            FeaturedImage = "";
         }
 
         /// <summary>
