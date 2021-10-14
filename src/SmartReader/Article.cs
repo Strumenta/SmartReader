@@ -39,7 +39,7 @@ namespace SmartReader
         public string TextContent { get; }
 
         /// <value>The excerpt provided by the metadata</value>
-        public string Excerpt { get; }
+        public string? Excerpt { get; }
 
         /// <value>The language provided by the metadata</value>
         public string? Language { get; }
@@ -108,11 +108,9 @@ namespace SmartReader
             Title = title;
             Content = "";
             TextContent = "";
-            Excerpt = "";
             Length = 0;
             Language = "";
             PublicationDate = new DateTime();
-            Author = "";
         }
 
         /// <summary>
