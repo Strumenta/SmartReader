@@ -243,10 +243,7 @@ namespace SmartReader
                   doc.GetElementsByTagName("h2")
                 );
                 var trimmedTitle = curTitle.Trim();
-                var match = NodeUtility.SomeNode(headings, (heading) =>
-                {
-                    return heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan());
-                });
+                var match = headings.Any(heading => heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan()));
 
                 // If we don't, let's extract the title out of the original title string.
                 if (!match)

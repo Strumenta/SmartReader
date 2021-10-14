@@ -1252,7 +1252,7 @@ namespace SmartReader
                 {
                     // Find out text direction from ancestors of final top candidate.
                     IEnumerable<IElement> ancestors = new IElement[] { parentOfTopCandidate, topCandidate }.Concat(NodeUtility.GetElementAncestors(parentOfTopCandidate));                        
-                    NodeUtility.SomeNode(ancestors, (ancestor) =>
+                    ancestors.Any(ancestor =>
                     {
                         if (string.IsNullOrEmpty(ancestor.TagName))
                             return false;
@@ -1811,7 +1811,7 @@ namespace SmartReader
             double score = 0;
             // This is a little cheeky, we use the accumulator 'score' to decide what to return from
             // this callback:			
-            return NodeUtility.SomeNode(totalNodes, (node) =>
+            return totalNodes.Any(node =>
             {                
                 if (!IsNodeVisible(node))
                     return false;

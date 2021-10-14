@@ -140,27 +140,6 @@ namespace SmartReader
         }       
 
         /// <summary>
-        /// <para>Iterate over a list of IElement, return true if any of the provided iterate
-        /// function calls returns true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (fn(node)) return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// <para>Iterate over a NodeList, return true if any of the provided iterate
         /// function calls returns true, false otherwise.</para>		
         /// <para>For convenience, the current object context is applied to the
