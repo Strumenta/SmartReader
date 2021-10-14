@@ -14,11 +14,11 @@ namespace SmartReader
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
            
-        private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HashUrl      = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
 
@@ -264,11 +264,12 @@ namespace SmartReader
                     }
 
                     if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
-                        return; 
+                    {
+                        return;
+                    }
                 }
 
-                img.Parent!.RemoveChild(img);
-                
+                img.Parent!.RemoveChild(img);                
             });
            
             // Next find noscript and try to extract its image
