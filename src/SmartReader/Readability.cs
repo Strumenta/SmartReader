@@ -112,7 +112,8 @@ namespace SmartReader
 
             var medias = NodeUtility.GetAllNodesWithTag(articleContent, s_img_picture_figure_video_audio_source);
 
-            NodeUtility.ForEachElement(medias, (media) => {
+            foreach (var media in medias)
+            {
                 if (media.GetAttribute("src") is string src)
                 {
                     media.SetAttribute("src", uri.ToAbsoluteURI(src));
@@ -132,7 +133,7 @@ namespace SmartReader
 
                     media.SetAttribute("srcset", newSrcset);
                 }                          
-            });
+            }
         }
 
         private static readonly char[] titleSeperators = { '|', '-', '»', '/', '>' };
