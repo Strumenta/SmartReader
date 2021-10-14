@@ -402,11 +402,11 @@ namespace SmartReaderTests
 
             var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
 
-            // restore standard converter
-            Article.Converter = oldConverter;
-
             // check that the text returned is correct
             Assert.Equal(@"********** is a great language for system programming.", article.TextContent);
+
+            // restore standard converter
+            Article.Converter = oldConverter;      
         }
 
         [Fact]

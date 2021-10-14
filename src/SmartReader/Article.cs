@@ -35,9 +35,6 @@ namespace SmartReader
         /// <value>The HTML content</value>
         public string Content { get; private set; }
 
-        /// <value>The pure-text content cleaned to be readable</value>
-        public string TextContent { get; }
-
         /// <value>The excerpt provided by the metadata</value>
         public string? Excerpt { get; }
 
@@ -49,9 +46,6 @@ namespace SmartReader
 
         /// <value>The name of the website, which can be parsed or read in the metadata </value>
         public string? SiteName { get; }
-
-        /// <value>The length in bytes of <c>Content</c></value>
-        public int Length { get; }
 
         /// <value>The publication date, which can be parsed or read in the metadata</value>
         public DateTime? PublicationDate { get; }
@@ -77,6 +71,23 @@ namespace SmartReader
         /// <remarks>It is based on http://iovs.arvojournals.org/article.aspx?articleid=2166061</remarks>
         public TimeSpan TimeToRead => _timeToRead ??= TimeToReadCalculator.Calculate(this);
 
+        private string? _textContent;
+
+        /// <value>The pure-text content cleaned to be readable</value>
+        public string TextContent
+        {
+            get
+            {
+                if (_element is null) return string.Empty;
+
+                return _textContent ??= Converter(_element);
+            }
+        }
+
+        /// <value>The length in chars of <c>TextContent</c></value>
+        public int Length => TextContent.Length;
+
+
         internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
             _element = element;
@@ -87,9 +98,7 @@ namespace SmartReader
             Byline = string.IsNullOrWhiteSpace(byline) ? metadata.Author : byline;
             Dir = dir;
             Content = Serializer(element);
-            TextContent = Converter(element);
             Excerpt = metadata.Excerpt;
-            Length = element.TextContent.Length;
             Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
             PublicationDate = metadata.PublicationDate;
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
@@ -107,9 +116,6 @@ namespace SmartReader
             Uri = uri;
             Title = title;
             Content = "";
-            TextContent = "";
-            Length = 0;
-            Language = "";
             PublicationDate = new DateTime();
         }
 
@@ -295,7 +301,7 @@ namespace SmartReader
                 }
             }
 
-            if (doc.NodeType == NodeType.Element && doc.NodeName is "P")
+            if (doc.NodeType is NodeType.Element && doc.NodeName is "P")
                 text.Write(text.NewLine);
 
             return text.ToString();
