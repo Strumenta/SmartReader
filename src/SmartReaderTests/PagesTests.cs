@@ -1,12 +1,12 @@
 using System;
-using Xunit;
-using SmartReader;
-using System.IO;
-using Moq;
-using Xunit.Abstractions;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Moq;
+using SmartReader;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace SmartReaderTests
 {
@@ -24,7 +24,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
             mockArticle.Setup(x => x.IsReadable).Returns(metadata.Readerable);
             mockArticle.Setup(x => x.Title).Returns(metadata.Title);
-            mockArticle.Setup(x => x.Dir).Returns(metadata.Dir ?? "");
+            mockArticle.Setup(x => x.Dir).Returns(metadata.Dir);
             mockArticle.Setup(x => x.Byline).Returns(metadata.Byline ?? "");
             mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata.Author) ? null : metadata.Author);
             mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata.PublicationDate) ? (DateTime?) null : DateTime.Parse(metadata.PublicationDate.ToString()));

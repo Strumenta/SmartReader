@@ -24,10 +24,10 @@ namespace SmartReader
         public string Title { get; }
 
         /// <value>The parsed byline</value>
-        public string Byline { get; }
+        public string? Byline { get; }
 
         /// <value>The direction of the writing</value>
-        public string Dir { get; }
+        public string? Dir { get; }
 
         /// <value>The URI of the main image</value>
         public string FeaturedImage { get; private set; }
@@ -77,7 +77,7 @@ namespace SmartReader
         /// <remarks>It is based on http://iovs.arvojournals.org/article.aspx?articleid=2166061</remarks>
         public TimeSpan TimeToRead => _timeToRead ??= TimeToReadCalculator.Calculate(this);
 
-        internal Article(Uri uri, string title, string byline, string dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
+        internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
             _element = element;
             _reader = reader;
@@ -106,8 +106,6 @@ namespace SmartReader
             IsReadable = readable;
             Uri = uri;
             Title = title;
-            Dir = "";
-            Byline = "";
             Content = "";
             TextContent = "";
             Excerpt = "";

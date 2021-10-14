@@ -1,7 +1,7 @@
 {
   "title": "Node.js and CPU profiling on production (in real-time without downtime)",
   "byline": "Vincent Vallet",
-  "dir": "",
+  "dir": null,
   "excerpt": "How to run a CPU profiling with Node.js on your production in real-time and without interruption of service.",
   "readerable": true,
   "language": "en",

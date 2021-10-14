@@ -27,8 +27,8 @@ namespace SmartReader
         private readonly Uri uri;
         private IHtmlDocument doc;
         private string articleTitle;
-        private string articleByline;
-        private string articleDir;
+        private string? articleByline;
+        private string? articleDir;
         private string? language;
         private string? author;
         private string? charset;
@@ -187,9 +187,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
             
-            articleTitle = "";
-            articleByline = "";
-            articleDir = "";                   
+            articleTitle = "";               
         }
 
         /// <summary>
@@ -209,8 +207,6 @@ namespace SmartReader
             doc = parser.ParseDocument(text);
 
             articleTitle = "";
-            articleByline = "";
-            articleDir = "";
         }
 
         /// <summary>
@@ -230,8 +226,6 @@ namespace SmartReader
             doc = parser.ParseDocument(source);
 
             articleTitle = "";
-            articleByline = "";
-            articleDir = "";
         }
 
         /// <summary>

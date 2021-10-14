@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.16.0" />
+    <PackageReference Include="AngleSharp" Version="0.16.1" />
     <PackageReference Include="AngleSharp.Css" Version="0.16.1" />
     <PackageReference Include="HtmlSanitizer" Version="6.0.441" />
   </ItemGroup>
