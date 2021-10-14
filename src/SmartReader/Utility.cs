@@ -126,7 +126,7 @@ namespace SmartReader
         /// <return>void</return>
         internal static void ForEachElement(IHtmlCollection<IElement> nodeList, Action<IElement> fn)
         {
-            for (int a = 0; a < nodeList.Length; a++)
+            for (int a = 0; a < nodeList?.Length; a++)
             {
                 fn(nodeList[a]);
             }
