@@ -5,6 +5,7 @@
     {
         /// <summary>Only issues</summary>
         Issue,
+
         /// <summary>Every useful information</summary>
         Info
     }
