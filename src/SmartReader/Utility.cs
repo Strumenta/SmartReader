@@ -14,11 +14,11 @@ namespace SmartReader
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
            
-        private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_Byline       = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_NextLink     = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_PrevLink     = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // private static readonly Regex RE_Whitespace   = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HasContent   = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HashUrl      = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);              
 
@@ -84,11 +84,13 @@ namespace SmartReader
 
         internal static bool IsProbablyVisible(IElement node)
         {
+            var style = node.GetStyle();
+
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
-            return (node.GetStyle() is null || node.GetStyle().GetDisplay() is not "none")
+            return (style is null || style.GetDisplay() is not "none")
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
-                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.IndexOf("fallback-image") != -1));
+                && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.Contains("fallback-image")));
         }           
 
         /// <summary>
@@ -138,27 +140,6 @@ namespace SmartReader
             foreach (var node in nodeList)
                 fn(node, level++);
         }       
-
-        /// <summary>
-        /// <para>Iterate over a list of IElement, return true if any of the provided iterate
-        /// function calls returns true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool SomeNode(IEnumerable<IElement> nodeList, Func<IElement, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (fn(node)) return true;
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// <para>Iterate over a NodeList, return true if any of the provided iterate
@@ -283,11 +264,12 @@ namespace SmartReader
                     }
 
                     if (Regex.IsMatch(attr.Value, @"\.(jpg|jpeg|png|webp)"))
-                        return; 
+                    {
+                        return;
+                    }
                 }
 
-                img.Parent!.RemoveChild(img);
-                
+                img.Parent!.RemoveChild(img);                
             });
            
             // Next find noscript and try to extract its image

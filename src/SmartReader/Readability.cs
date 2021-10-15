@@ -112,7 +112,8 @@ namespace SmartReader
 
             var medias = NodeUtility.GetAllNodesWithTag(articleContent, s_img_picture_figure_video_audio_source);
 
-            NodeUtility.ForEachElement(medias, (media) => {
+            foreach (var media in medias)
+            {
                 if (media.GetAttribute("src") is string src)
                 {
                     media.SetAttribute("src", uri.ToAbsoluteURI(src));
@@ -132,7 +133,7 @@ namespace SmartReader
 
                     media.SetAttribute("srcset", newSrcset);
                 }                          
-            });
+            }
         }
 
         private static readonly char[] titleSeperators = { '|', '-', '»', '/', '>' };
@@ -242,10 +243,7 @@ namespace SmartReader
                   doc.GetElementsByTagName("h2")
                 );
                 var trimmedTitle = curTitle.Trim();
-                var match = NodeUtility.SomeNode(headings, (heading) =>
-                {
-                    return heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan());
-                });
+                var match = headings.Any(heading => heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan()));
 
                 // If we don't, let's extract the title out of the original title string.
                 if (!match)
