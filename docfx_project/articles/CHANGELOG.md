@@ -1,7 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.8.0
+## 0.8.0 - 2021/10/21
+- Huge thanks to  [Jason Nelson](https://github.com/iamcarbon) for big improvements in optimizing and updating the quality of the code to the latest C# best practices
 - Improved code quality (thanks to [Jason Nelson](https://github.com/iamcarbon))
 - Updated to support .NET Standard 2.1 (thanks to [Jason Nelson](https://github.com/iamcarbon))
 - Improved performance (thanks to [Jason Nelson](https://github.com/iamcarbon))

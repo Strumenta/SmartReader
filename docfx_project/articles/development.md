@@ -39,16 +39,29 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 ## Contributors
 
 - [Gabriele Tomassetti](https://github.com/gabriele-tomassetti)
-- [Dan Rigby](https://github.com/DanRigby)
-- [Yasindn](https://github.com/yasindn)
-- [Jamie Lord](https://github.com/jamie-lord)
-- [Gábor Gergely](https://github.com/kodfodrasz)
-- [AndySchmitt](https://github.com/AndySchmitt)
-- [Andrew Lombard](https://github.com/alombard)
-- [LatisVlad](https://github.com/latisvlad)
-- [Rohit Patil](https://github.com/RohitPatilRRP)
-- [theolivenbaum](https://github.com/theolivenbaum)
-- [DanielEgbers](https://github.com/DanielEgbers)
+
 - [Jason Nelson](https://github.com/iamcarbon)
+
+- [Dan Rigby](https://github.com/DanRigby)
+
+- [Yasindn](https://github.com/yasindn)
+
+- [Jamie Lord](https://github.com/jamie-lord)
+
+- [Gábor Gergely](https://github.com/kodfodrasz)
+
+- [AndySchmitt](https://github.com/AndySchmitt)
+
+- [Andrew Lombard](https://github.com/alombard)
+
+- [LatisVlad](https://github.com/latisvlad)
+
+- [Rohit Patil](https://github.com/RohitPatilRRP)
+
+- [theolivenbaum](https://github.com/theolivenbaum)
+
+- [DanielEgbers](https://github.com/DanielEgbers)
+
+  
 
 Thanks to all the people involved.
