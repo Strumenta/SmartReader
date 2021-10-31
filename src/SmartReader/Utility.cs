@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using AngleSharp.Css.Dom;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 
@@ -121,7 +120,6 @@ namespace SmartReader
             }
 
             return null;
-
         }
 
         /// <summary>
