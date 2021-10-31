@@ -202,7 +202,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
                         
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(text);
 
@@ -221,7 +221,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
             
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(source);
 
@@ -304,7 +304,7 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             
             if (doc is null)
@@ -324,7 +324,7 @@ namespace SmartReader
                 
         public Article GetArticle()
         {
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             if (doc is null)
@@ -364,7 +364,7 @@ namespace SmartReader
             var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
             var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             smartReader.doc = parser.ParseDocument(stream);

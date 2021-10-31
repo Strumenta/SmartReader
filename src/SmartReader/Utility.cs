@@ -77,22 +77,52 @@ namespace SmartReader
 
         internal static bool IsVisible(IElement element)
         {
-            if (element.GetStyle()?.GetDisplay() is "none")
-                return false;
-            else
-                return true;
+            return !IsHidden(element);
         }
 
         internal static bool IsProbablyVisible(IElement node)
         {
-            var style = node.GetStyle();
-
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
-            return (style is null || style.GetDisplay() is not "none")
-                && !node.HasAttribute("hidden")
+            return !IsHidden(node)
                 // check for "fallback-image" so that wikimedia math images are displayed
                 && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.Contains("fallback-image")));
-        }           
+        }
+
+        internal static bool IsHidden(IElement element)
+        {
+            return element.GetAttribute("style") is string style && GetDisplayFromStyle(style).Equals("none".AsSpan(), StringComparison.Ordinal);
+        }
+
+        internal static ReadOnlySpan<char> GetDisplayFromStyle(string style)
+        {
+            int displayIndex = style.IndexOf("display", StringComparison.OrdinalIgnoreCase);
+
+            if (displayIndex > -1)
+            {
+                var value = style.AsSpan(displayIndex + 7).Trim();
+
+                int colonIndex = value.IndexOf(':');
+
+                if (colonIndex is -1)
+                {
+                    return null;
+                }
+
+                value = value.Slice(colonIndex + 1);
+
+                int semicolonIndex = value.IndexOf(';');
+
+                if (semicolonIndex > -1)
+                {
+                    value = value.Slice(0, semicolonIndex - colonIndex).Trim();
+                }
+
+                return value;
+            }
+
+            return null;
+
+        }
 
         /// <summary>
         /// <para>Iterates over a NodeList, calls <c>filterFn</c> for each node and removes node
