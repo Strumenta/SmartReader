@@ -75,16 +75,16 @@ namespace SmartReader
             var prePath = uri.GetBase();
             var pathBase = uri.Scheme + "://" + uri.Host + uri.AbsolutePath.Substring(0, uri.AbsolutePath.LastIndexOf('/') + 1);
 
-            var links = NodeUtility.GetAllNodesWithTag(articleContent, "a");
+            var links = articleContent.QuerySelectorAll("a");
 
-            NodeUtility.ForEachElement(links, (link) =>
+            NodeUtility.ForEachElement(links, link =>
             {
-                var href = link.GetAttribute("href");
+                var href = link.GetAttribute("href")!;
                 if (!string.IsNullOrWhiteSpace(href))
                 {
                     // Remove links with javascript: URIs, since
                     // they won't work after scripts have been removed from the page.
-                    if (href!.IndexOf("javascript:") == 0)
+                    if (href.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase))
                     {
                         // if the link only contains simple text content, it can be converted to a text node
                         if (link.ChildNodes.Length == 1 && link.ChildNodes[0].NodeType == NodeType.Text)
@@ -323,7 +323,7 @@ namespace SmartReader
         {
             var jsonLDMetadata = new Dictionary<string, string>();
             
-            var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "script");
+            var scripts = doc.DocumentElement.QuerySelectorAll("script");
 
             var jsonLdElement = scripts.FirstOrDefault(el => {
                 return el?.GetAttribute("type") is "application/ld+json";

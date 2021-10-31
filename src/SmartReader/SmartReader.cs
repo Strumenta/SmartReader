@@ -455,7 +455,7 @@ namespace SmartReader
         /// </summary>
         private void ReplaceBrs(IElement elem)
         {
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(elem, "br"), (br) =>
+            NodeUtility.ForEachElement(elem.QuerySelectorAll("br"), br =>
             {
                 var next = br.NextSibling;
 
@@ -576,7 +576,7 @@ namespace SmartReader
             CleanConditionally(articleContent, "div");
 
             // replace H1 with H2 as H1 should be only title that is displayed separately
-            NodeUtility.ReplaceNodeTags(NodeUtility.GetAllNodesWithTag(articleContent, "h1"), "h2");
+            NodeUtility.ReplaceNodeTags(articleContent.QuerySelectorAll("h1"), "h2");
 
             // Remove extra paragraphs
             NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
@@ -591,7 +591,7 @@ namespace SmartReader
                 return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
+            NodeUtility.ForEachElement(articleContent.QuerySelectorAll("br"), br =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next is { TagName: "P" })
@@ -599,7 +599,7 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (tableEl) =>
+            NodeUtility.ForEachElement(articleContent.QuerySelectorAll("table"), (tableEl) =>
             {
                 var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild! : tableEl;
                 if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
@@ -1794,7 +1794,7 @@ namespace SmartReader
             //   <br>
             //   Sentences<br>
             // </div>
-            var brNodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "div > br");
+            var brNodes = doc.DocumentElement.QuerySelectorAll("div > br");
             IEnumerable<IElement> totalNodes = nodes;
             if (brNodes.Length > 0)
             {
