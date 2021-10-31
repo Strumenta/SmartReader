@@ -129,7 +129,7 @@ namespace SmartReader
         /// <return>void</return>
         internal static void ForEachElement(IHtmlCollection<IElement> nodeList, Action<IElement> fn)
         {
-            for (int a = 0; a < nodeList?.Length; a++)
+            for (int a = 0; a < nodeList.Length; a++)
             {
                 fn(nodeList[a]);
             }            
@@ -187,7 +187,7 @@ namespace SmartReader
             // Find img without source or attributes that might contains image, and remove it.
             // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
-            ForEachElement(imgs, (img) => {
+            ForEachElement(imgs, static img => {
                 for (var i = 0; i < img.Attributes.Length; i++)
                 {
                     var attr = img.Attributes[i]!;
@@ -208,18 +208,20 @@ namespace SmartReader
            
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
-            ForEachElement(noscripts, noscript => {               
+            ForEachElement(noscripts, static noscript => {
                 // Parse content of noscript and make sure it only contains image
+                var doc = (IHtmlDocument)noscript.GetRoot();
+
                 var tmp = doc.CreateElement("div");
                 tmp.InnerHtml = noscript.InnerHtml;
+
                 if (!IsSingleImage(tmp))
                     return;
 
                 // If noscript has previous sibling and it only contains image,
                 // replace it with noscript content. However we also keep old
                 // attributes that might contains image.
-                var prevElement = noscript.PreviousElementSibling;
-                if (prevElement != null && IsSingleImage(prevElement))
+                if (noscript.PreviousElementSibling is IElement prevElement && IsSingleImage(prevElement))
                 {
                     var prevImg = prevElement;
                     if (prevImg.TagName is not "IMG")
@@ -265,7 +267,7 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveScripts(IElement element)
         {
-            RemoveNodes(element.GetElementsByTagName("script"), scriptNode =>
+            RemoveNodes(element.GetElementsByTagName("script"), static scriptNode =>
             {
                 scriptNode.NodeValue = "";
                 scriptNode.RemoveAttribute("src");

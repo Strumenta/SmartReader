@@ -77,8 +77,10 @@ namespace SmartReader
 
             var links = articleContent.GetElementsByTagName("a");
 
-            NodeUtility.ForEachElement(links, link =>
+            for (int i = 0; i < links.Length; i++)
             {
+                var link = links[i];
+
                 var href = link.GetAttribute("href")!;
                 if (!string.IsNullOrWhiteSpace(href))
                 {
@@ -108,7 +110,7 @@ namespace SmartReader
                         link.SetAttribute("href", uri.ToAbsoluteURI(href));
                     }
                 }
-            });
+            }
 
             var medias = NodeUtility.GetAllNodesWithTag(articleContent, s_img_picture_figure_video_audio_source);
 
@@ -325,7 +327,7 @@ namespace SmartReader
             
             var scripts = doc.DocumentElement.GetElementsByTagName("script");
 
-            var jsonLdElement = scripts.FirstOrDefault(el => {
+            var jsonLdElement = scripts.FirstOrDefault(static el => {
                 return el?.GetAttribute("type") is "application/ld+json";
             });
 
@@ -447,16 +449,16 @@ namespace SmartReader
             // Match "description", or Twitter's "twitter:description" (Cards)
             // in name attribute.
             // name is a single value
-            var namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image|site_name)|name)\s*$";
+            const string namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image|site_name)|name)\s*$";
 
             // Match Facebook's Open Graph title & description properties.
             // property is a space-separated list of values
-            var propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)(\s+|$)";
+            const string propertyPattern = @"\s*(dc|dcterm|og|twitter|article)\s*:\s*(author|creator|description|title|published_time|image|site_name)(\s+|$)";
 
-            var itemPropPattern = @"\s*datePublished\s*";
+            const string itemPropPattern = @"\s*datePublished\s*";
 
             // Find description tags.
-            NodeUtility.ForEachElement(metaElements, (element) =>
+            foreach (var element in metaElements)
             {
                 var elementName = element.GetAttribute("name");
                 var elementProperty = element.GetAttribute("property");
@@ -466,7 +468,7 @@ namespace SmartReader
                 // avoid issues with no meta tags
                 if (content is null || content.Length == 0)
                 {
-                    return;
+                    continue;
                 }
                 MatchCollection? matches = null;
                 string name = "";
@@ -521,7 +523,7 @@ namespace SmartReader
                             values.Add(name, content.Trim());
                     }
                 }
-            });
+            }
 
             // Find the the description of the article
             IEnumerable<string?> DescriptionKeys()

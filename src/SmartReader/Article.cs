@@ -55,7 +55,7 @@ namespace SmartReader
 
         /// <summary>The function that will serialize the HTML content of the article</summary>
         /// <value>Default: return InnerHTML property</value>       
-        public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>((el) => { return el.InnerHtml; });
+        public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>(el => el.InnerHtml);
 
         /// <summary>The function that will extract the text from the HTML content</summary>
         /// <value>Default: return InnerHTML property</value>       

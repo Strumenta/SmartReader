@@ -143,8 +143,7 @@ namespace SmartReader
         private Regex RE_Videos               = G_RE_Videos;
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
-        private Regex RE_Whitespace           = G_RE_Whitespace;
-        private Regex RE_ShareElements        = G_RE_ShareElements;        
+        private Regex RE_ShareElements        = G_RE_ShareElements;
 
         //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -157,9 +156,10 @@ namespace SmartReader
         private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_NextLink = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
+        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION" };        
         
@@ -579,7 +579,7 @@ namespace SmartReader
             NodeUtility.ReplaceNodeTags(articleContent.GetElementsByTagName("h1"), "h2");
 
             // Remove extra paragraphs
-            NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
+            NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), static paragraph =>
             {
                 var imgCount = paragraph.GetElementsByTagName("img").Length;
                 var embedCount = paragraph.GetElementsByTagName("embed").Length;
@@ -591,7 +591,7 @@ namespace SmartReader
                 return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
-            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("br"), br =>
+            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("br"), static br =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
                 if (next is { TagName: "P" })
@@ -599,7 +599,7 @@ namespace SmartReader
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("table"), (tableEl) =>
+            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("table"), static tableEl =>
             {
                 var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild! : tableEl;
                 if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
@@ -1352,7 +1352,7 @@ namespace SmartReader
         /// <param name="tagName">Tag to check</param>
         /// <param name="maxDepth">Maximum depth of parent to search</param>
         /// <param name="filterFn">Filter to ignore some matching tags</param>
-        private bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
+        private static bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
         {
             var depth = 0;
 
@@ -1614,7 +1614,7 @@ namespace SmartReader
             // without effecting the traversal.
             //
             // TODO: Consider taking into account original contentScore here.
-            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), (node) =>
+            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), node =>
             {
                 var isList = tag is "ul" or "ol";
                 if (!isList)
