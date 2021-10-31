@@ -466,7 +466,7 @@ namespace SmartReader
                 // If we find a <br> chain, remove the <br>s until we hit another element
                 // or non-whitespace. This leaves behind the first <br> in the chain
                 // (which will be replaced with a <p> later).
-                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) != null && (((IElement)next).TagName is "BR"))
+                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) is { NodeName: "BR" })
                 {
                     replaced = true;
                     var brSibling = next.NextSibling;
@@ -489,7 +489,7 @@ namespace SmartReader
                         if ((next as IElement)?.TagName is "BR")
                         {
                             var nextElem = NodeUtility.NextElement(next.NextSibling, RE_Whitespace);
-                            if (nextElem != null && nextElem.TagName is "BR")
+                            if (nextElem is { TagName: "BR" })
                                 break;
                         }
 
@@ -594,7 +594,7 @@ namespace SmartReader
             NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
-                if (next != null && next.TagName is "P")
+                if (next is { TagName: "P" })
                     br.Parent!.RemoveChild(br);
             });
 
@@ -907,7 +907,7 @@ namespace SmartReader
                         continue;
 
                     // If this paragraph is less than 25 characters, don't even count it.
-                    string innerText = NodeUtility.GetInnerText((IElement)elementToScore);
+                    string innerText = NodeUtility.GetInnerText(elementToScore);
                     if (innerText.Length < 25)
                         continue;
 
@@ -1040,7 +1040,7 @@ namespace SmartReader
                                 topCandidate = parentOfTopCandidate;
                                 break;
                             }
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                            parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                         }
                     }
                     
@@ -1056,7 +1056,7 @@ namespace SmartReader
                     // lurking in other places that we want to unify in. The sibling stuff
                     // below does some of that - but only if we've looked high enough up the DOM
                     // tree.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                    parentOfTopCandidate = topCandidate.ParentElement!;
                     
                     var lastScore = GetReadabilityScore(topCandidate);
                     // The scores shouldn't get too low.
@@ -1065,7 +1065,7 @@ namespace SmartReader
                     {                        
                         if (GetReadabilityScore(parentOfTopCandidate).CompareTo(0.0) == 0)
                         {
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                            parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                             continue;
                         }
                         
@@ -1080,16 +1080,16 @@ namespace SmartReader
                         }
                         
                         lastScore = GetReadabilityScore(parentOfTopCandidate);
-                        parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                        parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                     }
 
                     // If the top candidate is the only child, use parent instead. This will help sibling
                     // joining logic when adjacent content is actually located in parent's sibling node.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                    parentOfTopCandidate = topCandidate.ParentElement!;
                     while (parentOfTopCandidate.TagName is not "BODY" && parentOfTopCandidate.Children.Length == 1)
                     {
                         topCandidate = parentOfTopCandidate;
-                        parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                        parentOfTopCandidate = topCandidate.ParentElement!;
                     }
                     
                     if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
@@ -1282,7 +1282,7 @@ namespace SmartReader
             var weight = 0;
 
             // Look for a special classname
-            if (e.ClassName != null && e.ClassName is not "")
+            if (!string.IsNullOrEmpty(e.ClassName))
             {
                 if (RE_Negative.IsMatch(e.ClassName))
                     weight -= 25;
