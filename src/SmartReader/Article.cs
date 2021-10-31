@@ -128,7 +128,7 @@ namespace SmartReader
         /// </returns>  
         public async Task<IReadOnlyList<Image>> GetImagesAsync(long minSize = 75_000)
         {
-            var imgs = _element?.QuerySelectorAll("img");
+            var imgs = _element?.GetElementsByTagName("img");
 
             if (imgs is null)
             {
@@ -188,7 +188,7 @@ namespace SmartReader
         {
             if (_element is null) return;
 
-            foreach (var img in _element.QuerySelectorAll("img"))
+            foreach (var img in _element.GetElementsByTagName("img"))
             {
                 if (img.GetAttribute("src") is string src)
                 {
