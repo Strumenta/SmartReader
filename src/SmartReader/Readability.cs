@@ -310,7 +310,7 @@ namespace SmartReader
         /// <returns>Whether the input string is a byline</returns>
         internal static bool IsValidByline(ReadOnlySpan<char> byline)
         {
-            return byline.Trim().Length is > 0 and < 100;            
+            return byline.Trim().Length is > 0 and < 100;
         }
 
         /// <summary>
@@ -325,7 +325,7 @@ namespace SmartReader
             
             var scripts = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "script");
 
-            var jsonLdElement = NodeUtility.FindNode(scripts, (el) => {
+            var jsonLdElement = scripts.FirstOrDefault(el => {
                 return el?.GetAttribute("type") is "application/ld+json";
             });
 

@@ -608,7 +608,7 @@ namespace SmartReader
                     if (NodeUtility.HasSingleTagInsideElement(row, "TD"))
                     {
                         var cell = row.FirstElementChild!;
-                        cell = NodeUtility.SetNodeTag(cell, NodeUtility.EveryNode(cell.ChildNodes, NodeUtility.IsPhrasingContent) ? "P" : "DIV");
+                        cell = NodeUtility.SetNodeTag(cell, cell.ChildNodes.All(NodeUtility.IsPhrasingContent) ? "P" : "DIV");
                         tableEl.Parent!.ReplaceChild(cell, tableEl);
                     }
                 }

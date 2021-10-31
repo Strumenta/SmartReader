@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 using AngleSharp.Css.Dom;
@@ -131,57 +132,15 @@ namespace SmartReader
             for (int a = 0; a < nodeList?.Length; a++)
             {
                 fn(nodeList[a]);
-            }
-            
+            }            
         }
 
         internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
         {
             foreach (var node in nodeList)
                 fn(node, level++);
-        }       
-
-        /// <summary>
-        /// <para>Iterate over a NodeList, and return the first node that passes
-        /// the supplied test function.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided test function.</para>
-        /// </summary>
-        /// <param name="elementList">The nodes to operate on</param>
-        /// <param name="fn">The test function</param>
-        /// <returns>INode</returns>
-        internal static IElement? FindNode(IHtmlCollection<IElement> elementList, Func<IElement, bool> fn)
-        {
-            foreach (var node in elementList)
-            {
-                if (fn(node))
-                    return node;
-            }
-
-            return null;
         }
-
-        /// <summary>
-        /// <para>Iterate over a NodeList, return true if all of the provided iterate
-        /// function calls return true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (!fn(node)) return false;
-            }
-           
-            return true;
-        }
-
+       
         /// <summary>        
         /// Concat all nodelists passed as arguments.
         /// </summary>
@@ -385,8 +344,7 @@ namespace SmartReader
         internal static bool IsPhrasingContent(INode node)
         {
             return node.NodeType == NodeType.Text || phrasingElems.Contains(node.NodeName) ||
-              ((node.NodeName is "A" or "DEL" or "INS") &&
-                EveryNode(node.ChildNodes, IsPhrasingContent));
+              (node.NodeName is "A" or "DEL" or "INS" && node.ChildNodes.All(IsPhrasingContent));
         }
 
         internal static bool IsWhitespace(INode node)
