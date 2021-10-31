@@ -142,26 +142,6 @@ namespace SmartReader
         }       
 
         /// <summary>
-        /// <para>Iterate over a NodeList, return true if any of the provided iterate
-        /// function calls returns true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool SomeNode(INodeList? nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (fn(node)) return true;
-            }
-
-            return false;
-        }
-        /// <summary>
         /// <para>Iterate over a NodeList, and return the first node that passes
         /// the supplied test function.</para>		
         /// <para>For convenience, the current object context is applied to the
@@ -357,11 +337,16 @@ namespace SmartReader
             }
 
             // And there should be no text nodes with real content
-            return !SomeNode(element.ChildNodes, (node) =>
+
+            foreach (var child in element.ChildNodes)
             {
-                return node.NodeType == NodeType.Text &&
-                       RE_HasContent.IsMatch(node.TextContent);
-            });
+                if (child.NodeType == NodeType.Text && RE_HasContent.IsMatch(child.TextContent))
+                {
+                    return false;
+                }
+            }
+
+            return true;           
         }
 
         internal static bool IsElementWithoutContent(IElement node)
@@ -379,16 +364,17 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool HasChildBlockElement(IElement? element)
         {
-            var b = SomeNode(element?.ChildNodes, (node) =>
+            if (element is null) return false;
+
+            foreach (var child in element.ChildNodes)
             {
-                var el = node as IElement;
+                if (child is Element el && (divToPElems.Contains(el.TagName) || HasChildBlockElement(el)))
+                {
+                    return true;
+                }
+            }
 
-                return el is not null && (divToPElems.Contains(el.TagName) || HasChildBlockElement(el));
-            });
-
-            var d = element?.TextContent;
-
-            return b;
+            return false;
         }
 
         /// <summary>
