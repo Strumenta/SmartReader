@@ -432,12 +432,12 @@ namespace SmartReader
             double linkLength = 0;
 
             // XXX implement _reduceNodeList?
-            ForEachElement(element.GetElementsByTagName("a"), (linkEl) =>
+            foreach (var linkEl in element.GetElementsByTagName("a"))
             {
                 var href = linkEl.GetAttribute("href");
                 var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
                 linkLength += GetInnerText(linkEl).Length * coefficient;
-            });
+            }
 
             return linkLength / textLength;
         }

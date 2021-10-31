@@ -1591,7 +1591,12 @@ namespace SmartReader
             }
             var childrenLength = 0;
             var children = NodeUtility.GetAllNodesWithTag(e, tags);
-            NodeUtility.ForEachElement(children, (child) => childrenLength += NodeUtility.GetInnerText(child, true).Length);
+
+            foreach (var child in children)
+            {
+                childrenLength += NodeUtility.GetInnerText(child, true).Length;
+            }
+
             return childrenLength / textLength;
         }
 
@@ -1616,7 +1621,11 @@ namespace SmartReader
                 {
                     var listLength = 0;
                     var listNodes = NodeUtility.GetAllNodesWithTag(node, s_ul_ol);
-                    NodeUtility.ForEachElement(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
+                    
+                    foreach (var list in listNodes)
+                    {
+                        listLength += NodeUtility.GetInnerText(list).Length;
+                    }
                     
                     if (NodeUtility.GetInnerText(node).Length > 0)
                         isList = listLength / NodeUtility.GetInnerText(node).Length > 0.9;
