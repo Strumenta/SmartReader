@@ -55,7 +55,7 @@ namespace SmartReader
 
         /// <summary>The function that will serialize the HTML content of the article</summary>
         /// <value>Default: return InnerHTML property</value>       
-        public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>((el) => { return el.InnerHtml; });
+        public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>(el => el.InnerHtml);
 
         /// <summary>The function that will extract the text from the HTML content</summary>
         /// <value>Default: return InnerHTML property</value>       
@@ -128,7 +128,7 @@ namespace SmartReader
         /// </returns>  
         public async Task<IReadOnlyList<Image>> GetImagesAsync(long minSize = 75_000)
         {
-            var imgs = _element?.QuerySelectorAll("img");
+            var imgs = _element?.GetElementsByTagName("img");
 
             if (imgs is null)
             {
@@ -188,7 +188,7 @@ namespace SmartReader
         {
             if (_element is null) return;
 
-            foreach (var img in _element.QuerySelectorAll("img"))
+            foreach (var img in _element.GetElementsByTagName("img"))
             {
                 if (img.GetAttribute("src") is string src)
                 {
