@@ -1949,16 +1949,21 @@ namespace SmartReader
                 throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
             }
 
-            var headLan = response.Headers.FirstOrDefault(x => x.Key.Equals("content-language", StringComparison.OrdinalIgnoreCase));
-            if (headLan.Value != null && headLan.Value.Any())
-                language = headLan.Value.ElementAt(0);
-
-            var headCont = response.Headers.FirstOrDefault(x => x.Key.Equals("content-type", StringComparison.OrdinalIgnoreCase));
-            if (headCont.Value != null && headCont.Value.Any())
+            if (response.Headers.TryGetValues("Content-Language", out var contentLanguageHeader))
             {
-                int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-                if (index != -1)
-                    charset = headCont.Value.ElementAt(0).Substring(index + 8);
+                language = contentLanguageHeader.First();
+            }
+
+            if (response.Headers.TryGetValues("Content-Type", out var contentTypeHeader))
+            {
+                string contentType = contentTypeHeader.First();
+
+                int charSetIndex = contentType.IndexOf("charset=");
+
+                if (charSetIndex != -1)
+                {
+                    charset = contentType.Substring(charSetIndex + 8);
+                }
             }
 
             return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
