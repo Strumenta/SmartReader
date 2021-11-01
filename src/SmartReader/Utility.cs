@@ -574,7 +574,7 @@ namespace SmartReader
             return Tuple.Create(rows, columns);
         }
 
-        internal static IList<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
+        internal static List<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<IElement>();
@@ -588,7 +588,7 @@ namespace SmartReader
             return ancestors;
         }
 
-        internal static IList<INode> GetNodeAncestors(INode node, int maxDepth = 0)
+        internal static List<INode> GetNodeAncestors(INode node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<INode>();

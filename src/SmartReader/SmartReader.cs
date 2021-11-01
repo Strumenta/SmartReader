@@ -1015,7 +1015,7 @@ namespace SmartReader
                     // Find a better top candidate node if it contains (at least three) nodes which belong to `topCandidates` array
                     // and whose scores are quite closed with current `topCandidate` node.
   
-                    var alternativeCandidateAncestors = new List<IList<INode>>();
+                    var alternativeCandidateAncestors = new List<List<INode>>();
                     for (var i = 1; i < topCandidates.Count; i++)
                     {                        
                         if (GetReadabilityScore(topCandidates[i]) / GetReadabilityScore(topCandidate) >= 0.75)
