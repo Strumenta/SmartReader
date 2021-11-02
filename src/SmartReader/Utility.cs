@@ -291,21 +291,6 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// Removes script tags from the element
-        /// </summary>
-        /// <param name="element">The element to operate on</param>
-        internal static void RemoveScripts(IElement element)
-        {
-            RemoveNodes(element.GetElementsByTagName("script"), static scriptNode =>
-            {
-                scriptNode.NodeValue = "";
-                scriptNode.RemoveAttribute("src");
-                return true;
-            });
-            RemoveNodes(element.GetElementsByTagName("noscript"));
-        }
-
-        /// <summary>
         /// Check if this node has only whitespace and a single element with given tag
 	    /// Returns false if the DIV node contains non-empty text nodes
         /// or if it contains no element with given tag or more than 1 element.

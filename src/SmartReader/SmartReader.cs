@@ -435,8 +435,15 @@ namespace SmartReader
         /// </returns> 
         private void PrepDocument()
         {
-            // Remove all style tags in head
-            NodeUtility.RemoveNodes(doc.GetElementsByTagName("style"), null);
+            var nodesToRemove = doc.Descendents().Where(n => 
+                n.NodeType is NodeType.Comment ||               // Remove comment nodes
+                n.NodeName is "SCRIPT" or "NOSCRIPT" or "STYLE" // Remove script, noscript, and style elements
+            ).ToList();
+
+            foreach (var nodeToRemove in nodesToRemove)
+            {
+                nodeToRemove.Parent?.RemoveChild(nodeToRemove);
+            }
 
             if (doc.Body != null)
             {
@@ -1892,9 +1899,6 @@ namespace SmartReader
 
             // Extract JSON-LD metadata before removing scripts
             var jsonLd = DisableJSONLD ? new Dictionary<string, string>() : Readability.GetJSONLD(this.doc);
-
-            // Remove script tags from the document.            
-            NodeUtility.RemoveScripts(doc.DocumentElement);
 
             PrepDocument();
 
