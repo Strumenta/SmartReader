@@ -90,7 +90,37 @@ namespace SmartReader
 
         internal static bool IsHidden(IElement element)
         {
-            return element.GetAttribute("style") is string style && GetDisplayFromStyle(style).Equals("none".AsSpan(), StringComparison.Ordinal);
+            return element.GetAttribute("style") is string style && (GetDisplayFromStyle(style).Equals("none".AsSpan(), StringComparison.Ordinal) || GetVisibilityFromStyle(style).Equals("hidden".AsSpan(), StringComparison.Ordinal) || GetVisibilityFromStyle(style).Equals("collapse".AsSpan(), StringComparison.Ordinal));
+        }
+
+        internal static ReadOnlySpan<char> GetVisibilityFromStyle(string style)
+        {
+            int displayIndex = style.IndexOf("visibility", StringComparison.OrdinalIgnoreCase);
+
+            if (displayIndex > -1)
+            {
+                var value = style.AsSpan(displayIndex + 10).Trim();
+
+                int colonIndex = value.IndexOf(':');
+
+                if (colonIndex is -1)
+                {
+                    return null;
+                }
+
+                value = value.Slice(colonIndex + 1);
+
+                int semicolonIndex = value.IndexOf(';');
+
+                if (semicolonIndex > -1)
+                {
+                    value = value.Slice(0, semicolonIndex - colonIndex).Trim();
+                }
+
+                return value;
+            }
+
+            return null;
         }
 
         internal static ReadOnlySpan<char> GetDisplayFromStyle(string style)
