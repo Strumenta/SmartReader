@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
-using AngleSharp.Css.Dom;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 
@@ -76,22 +76,52 @@ namespace SmartReader
 
         internal static bool IsVisible(IElement element)
         {
-            if (element.GetStyle()?.GetDisplay() is "none")
-                return false;
-            else
-                return true;
+            return !IsHidden(element);
         }
 
         internal static bool IsProbablyVisible(IElement node)
         {
-            var style = node.GetStyle();
-
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
-            return (style is null || style.GetDisplay() is not "none")
+            return !IsHidden(node)
                 && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
                 && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.Contains("fallback-image")));
-        }           
+        }
+
+        internal static bool IsHidden(IElement element)
+        {
+            return element.GetAttribute("style") is string style && GetDisplayFromStyle(style).Equals("none".AsSpan(), StringComparison.Ordinal);
+        }
+
+        internal static ReadOnlySpan<char> GetDisplayFromStyle(string style)
+        {
+            int displayIndex = style.IndexOf("display", StringComparison.OrdinalIgnoreCase);
+
+            if (displayIndex > -1)
+            {
+                var value = style.AsSpan(displayIndex + 7).Trim();
+
+                int colonIndex = value.IndexOf(':');
+
+                if (colonIndex is -1)
+                {
+                    return null;
+                }
+
+                value = value.Slice(colonIndex + 1);
+
+                int semicolonIndex = value.IndexOf(';');
+
+                if (semicolonIndex > -1)
+                {
+                    value = value.Slice(0, semicolonIndex - colonIndex).Trim();
+                }
+
+                return value;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// <para>Iterates over a NodeList, calls <c>filterFn</c> for each node and removes node
@@ -128,80 +158,18 @@ namespace SmartReader
         /// <return>void</return>
         internal static void ForEachElement(IHtmlCollection<IElement> nodeList, Action<IElement> fn)
         {
-            for (int a = 0; a < nodeList?.Length; a++)
+            for (int a = 0; a < nodeList.Length; a++)
             {
                 fn(nodeList[a]);
-            }
-            
+            }            
         }
 
         internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
         {
             foreach (var node in nodeList)
                 fn(node, level++);
-        }       
-
-        /// <summary>
-        /// <para>Iterate over a NodeList, return true if any of the provided iterate
-        /// function calls returns true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool SomeNode(INodeList? nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (fn(node)) return true;
-            }
-
-            return false;
         }
-        /// <summary>
-        /// <para>Iterate over a NodeList, and return the first node that passes
-        /// the supplied test function.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided test function.</para>
-        /// </summary>
-        /// <param name="elementList">The nodes to operate on</param>
-        /// <param name="fn">The test function</param>
-        /// <returns>INode</returns>
-        internal static IElement? FindNode(IHtmlCollection<IElement> elementList, Func<IElement, bool> fn)
-        {
-            foreach (var node in elementList)
-            {
-                if (fn(node))
-                    return node;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// <para>Iterate over a NodeList, return true if all of the provided iterate
-        /// function calls return true, false otherwise.</para>		
-        /// <para>For convenience, the current object context is applied to the
-        /// provided iterate function.</para>
-        /// </summary>
-        /// <param name="nodeList">The nodes to operate on</param>
-        /// <param name="fn">The iterate function</param>
-        /// <returns>bool</returns>
-        internal static bool EveryNode(INodeList nodeList, Func<INode, bool> fn)
-        {
-            if (nodeList is null) return false;
-
-            foreach (var node in nodeList)
-            {
-                if (!fn(node)) return false;
-            }
-           
-            return true;
-        }
-
+       
         /// <summary>        
         /// Concat all nodelists passed as arguments.
         /// </summary>
@@ -222,11 +190,6 @@ namespace SmartReader
         internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string[] tagNames)
         {
             return node.QuerySelectorAll(string.Join(",", tagNames));
-        }
-
-        internal static IHtmlCollection<IElement> GetAllNodesWithTag(IElement node, string tagName)
-        {
-            return node.QuerySelectorAll(tagName);
         }
 
         /// <summary>
@@ -253,7 +216,7 @@ namespace SmartReader
             // Find img without source or attributes that might contains image, and remove it.
             // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
-            ForEachElement(imgs, (img) => {
+            ForEachElement(imgs, static img => {
                 for (var i = 0; i < img.Attributes.Length; i++)
                 {
                     var attr = img.Attributes[i]!;
@@ -274,18 +237,20 @@ namespace SmartReader
            
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
-            ForEachElement(noscripts, noscript => {               
+            ForEachElement(noscripts, static noscript => {
                 // Parse content of noscript and make sure it only contains image
+                var doc = (IHtmlDocument)noscript.GetRoot();
+
                 var tmp = doc.CreateElement("div");
                 tmp.InnerHtml = noscript.InnerHtml;
+
                 if (!IsSingleImage(tmp))
                     return;
 
                 // If noscript has previous sibling and it only contains image,
                 // replace it with noscript content. However we also keep old
                 // attributes that might contains image.
-                var prevElement = noscript.PreviousElementSibling;
-                if (prevElement != null && IsSingleImage(prevElement))
+                if (noscript.PreviousElementSibling is IElement prevElement && IsSingleImage(prevElement))
                 {
                     var prevImg = prevElement;
                     if (prevImg.TagName is not "IMG")
@@ -331,7 +296,7 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveScripts(IElement element)
         {
-            RemoveNodes(element.GetElementsByTagName("script"), scriptNode =>
+            RemoveNodes(element.GetElementsByTagName("script"), static scriptNode =>
             {
                 scriptNode.NodeValue = "";
                 scriptNode.RemoveAttribute("src");
@@ -357,11 +322,16 @@ namespace SmartReader
             }
 
             // And there should be no text nodes with real content
-            return !SomeNode(element.ChildNodes, (node) =>
+
+            foreach (var child in element.ChildNodes)
             {
-                return node.NodeType == NodeType.Text &&
-                       RE_HasContent.IsMatch(node.TextContent);
-            });
+                if (child.NodeType == NodeType.Text && RE_HasContent.IsMatch(child.TextContent))
+                {
+                    return false;
+                }
+            }
+
+            return true;           
         }
 
         internal static bool IsElementWithoutContent(IElement node)
@@ -379,16 +349,17 @@ namespace SmartReader
         /// <returns>bool</returns>
         internal static bool HasChildBlockElement(IElement? element)
         {
-            var b = SomeNode(element?.ChildNodes, (node) =>
+            if (element is null) return false;
+
+            foreach (var child in element.ChildNodes)
             {
-                var el = node as IElement;
+                if (child is Element el && (divToPElems.Contains(el.TagName) || HasChildBlockElement(el)))
+                {
+                    return true;
+                }
+            }
 
-                return el is not null && (divToPElems.Contains(el.TagName) || HasChildBlockElement(el));
-            });
-
-            var d = element?.TextContent;
-
-            return b;
+            return false;
         }
 
         /// <summary>
@@ -399,8 +370,7 @@ namespace SmartReader
         internal static bool IsPhrasingContent(INode node)
         {
             return node.NodeType == NodeType.Text || phrasingElems.Contains(node.NodeName) ||
-              ((node.NodeName is "A" or "DEL" or "INS") &&
-                EveryNode(node.ChildNodes, IsPhrasingContent));
+              (node.NodeName is "A" or "DEL" or "INS" && node.ChildNodes.All(IsPhrasingContent));
         }
 
         internal static bool IsWhitespace(INode node)
@@ -493,12 +463,12 @@ namespace SmartReader
             double linkLength = 0;
 
             // XXX implement _reduceNodeList?
-            ForEachElement(element.GetElementsByTagName("a"), (linkEl) =>
+            foreach (var linkEl in element.GetElementsByTagName("a"))
             {
                 var href = linkEl.GetAttribute("href");
                 var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
                 linkLength += GetInnerText(linkEl).Length * coefficient;
-            });
+            }
 
             return linkLength / textLength;
         }
@@ -605,7 +575,7 @@ namespace SmartReader
             return Tuple.Create(rows, columns);
         }
 
-        internal static IList<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
+        internal static List<IElement> GetElementAncestors(IElement node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<IElement>();
@@ -619,7 +589,7 @@ namespace SmartReader
             return ancestors;
         }
 
-        internal static IList<INode> GetNodeAncestors(INode node, int maxDepth = 0)
+        internal static List<INode> GetNodeAncestors(INode node, int maxDepth = 0)
         {
             var i = 0;
             var ancestors = new List<INode>();

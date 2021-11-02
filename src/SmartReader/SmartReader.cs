@@ -143,8 +143,7 @@ namespace SmartReader
         private Regex RE_Videos               = G_RE_Videos;
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
-        private Regex RE_Whitespace           = G_RE_Whitespace;
-        private Regex RE_ShareElements        = G_RE_ShareElements;        
+        private Regex RE_ShareElements        = G_RE_ShareElements;
 
         //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -157,9 +156,10 @@ namespace SmartReader
         private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_NextLink = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);        
+        private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION" };        
         
@@ -202,7 +202,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
                         
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(text);
 
@@ -221,7 +221,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
             
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(source);
 
@@ -304,7 +304,7 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             
             if (doc is null)
@@ -324,7 +324,7 @@ namespace SmartReader
                 
         public Article GetArticle()
         {
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             if (doc is null)
@@ -364,7 +364,7 @@ namespace SmartReader
             var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
             var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
-            var context = BrowsingContext.New(Configuration.Default.WithCss());
+            var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             smartReader.doc = parser.ParseDocument(stream);
@@ -455,7 +455,7 @@ namespace SmartReader
         /// </summary>
         private void ReplaceBrs(IElement elem)
         {
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(elem, "br"), (br) =>
+            NodeUtility.ForEachElement(elem.GetElementsByTagName("br"), br =>
             {
                 var next = br.NextSibling;
 
@@ -466,7 +466,7 @@ namespace SmartReader
                 // If we find a <br> chain, remove the <br>s until we hit another element
                 // or non-whitespace. This leaves behind the first <br> in the chain
                 // (which will be replaced with a <p> later).
-                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) != null && (((IElement)next).TagName is "BR"))
+                while ((next = NodeUtility.NextElement(next, RE_Whitespace)) is { NodeName: "BR" })
                 {
                     replaced = true;
                     var brSibling = next.NextSibling;
@@ -489,7 +489,7 @@ namespace SmartReader
                         if ((next as IElement)?.TagName is "BR")
                         {
                             var nextElem = NodeUtility.NextElement(next.NextSibling, RE_Whitespace);
-                            if (nextElem != null && nextElem.TagName is "BR")
+                            if (nextElem is { TagName: "BR" })
                                 break;
                         }
 
@@ -576,10 +576,10 @@ namespace SmartReader
             CleanConditionally(articleContent, "div");
 
             // replace H1 with H2 as H1 should be only title that is displayed separately
-            NodeUtility.ReplaceNodeTags(NodeUtility.GetAllNodesWithTag(articleContent, "h1"), "h2");
+            NodeUtility.ReplaceNodeTags(articleContent.GetElementsByTagName("h1"), "h2");
 
             // Remove extra paragraphs
-            NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), (paragraph) =>
+            NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), static paragraph =>
             {
                 var imgCount = paragraph.GetElementsByTagName("img").Length;
                 var embedCount = paragraph.GetElementsByTagName("embed").Length;
@@ -591,15 +591,15 @@ namespace SmartReader
                 return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "br"), (br) =>
+            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("br"), static br =>
             {
                 var next = NodeUtility.NextElement(br.NextSibling, RE_Whitespace);
-                if (next != null && next.TagName is "P")
+                if (next is { TagName: "P" })
                     br.Parent!.RemoveChild(br);
             });
 
             // Remove single-cell tables
-            NodeUtility.ForEachElement(NodeUtility.GetAllNodesWithTag(articleContent, "table"), (tableEl) =>
+            NodeUtility.ForEachElement(articleContent.GetElementsByTagName("table"), static tableEl =>
             {
                 var tbody = NodeUtility.HasSingleTagInsideElement(tableEl, "TBODY") ? tableEl.FirstElementChild! : tableEl;
                 if (NodeUtility.HasSingleTagInsideElement(tbody, "TR"))
@@ -608,7 +608,7 @@ namespace SmartReader
                     if (NodeUtility.HasSingleTagInsideElement(row, "TD"))
                     {
                         var cell = row.FirstElementChild!;
-                        cell = NodeUtility.SetNodeTag(cell, NodeUtility.EveryNode(cell.ChildNodes, NodeUtility.IsPhrasingContent) ? "P" : "DIV");
+                        cell = NodeUtility.SetNodeTag(cell, cell.ChildNodes.All(NodeUtility.IsPhrasingContent) ? "P" : "DIV");
                         tableEl.Parent!.ReplaceChild(cell, tableEl);
                     }
                 }
@@ -907,7 +907,7 @@ namespace SmartReader
                         continue;
 
                     // If this paragraph is less than 25 characters, don't even count it.
-                    string innerText = NodeUtility.GetInnerText((IElement)elementToScore);
+                    string innerText = NodeUtility.GetInnerText(elementToScore);
                     if (innerText.Length < 25)
                         continue;
 
@@ -1015,13 +1015,12 @@ namespace SmartReader
                     // Find a better top candidate node if it contains (at least three) nodes which belong to `topCandidates` array
                     // and whose scores are quite closed with current `topCandidate` node.
   
-                    var alternativeCandidateAncestors = new List<IElement>();
+                    var alternativeCandidateAncestors = new List<List<INode>>();
                     for (var i = 1; i < topCandidates.Count; i++)
                     {                        
                         if (GetReadabilityScore(topCandidates[i]) / GetReadabilityScore(topCandidate) >= 0.75)
                         {
-                            if (NodeUtility.GetNodeAncestors(topCandidates[i]) is IElement possibleAncestor)
-                                alternativeCandidateAncestors.Add(possibleAncestor);
+                            alternativeCandidateAncestors.Add(NodeUtility.GetNodeAncestors(topCandidates[i]));
                         }
                     }
                     const int MINIMUM_TOPCANDIDATES = 3;
@@ -1040,7 +1039,7 @@ namespace SmartReader
                                 topCandidate = parentOfTopCandidate;
                                 break;
                             }
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                            parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                         }
                     }
                     
@@ -1056,7 +1055,7 @@ namespace SmartReader
                     // lurking in other places that we want to unify in. The sibling stuff
                     // below does some of that - but only if we've looked high enough up the DOM
                     // tree.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                    parentOfTopCandidate = topCandidate.ParentElement!;
                     
                     var lastScore = GetReadabilityScore(topCandidate);
                     // The scores shouldn't get too low.
@@ -1065,7 +1064,7 @@ namespace SmartReader
                     {                        
                         if (GetReadabilityScore(parentOfTopCandidate).CompareTo(0.0) == 0)
                         {
-                            parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                            parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                             continue;
                         }
                         
@@ -1080,16 +1079,16 @@ namespace SmartReader
                         }
                         
                         lastScore = GetReadabilityScore(parentOfTopCandidate);
-                        parentOfTopCandidate = (IElement)parentOfTopCandidate.Parent!;
+                        parentOfTopCandidate = parentOfTopCandidate.ParentElement!;
                     }
 
                     // If the top candidate is the only child, use parent instead. This will help sibling
                     // joining logic when adjacent content is actually located in parent's sibling node.
-                    parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                    parentOfTopCandidate = topCandidate.ParentElement!;
                     while (parentOfTopCandidate.TagName is not "BODY" && parentOfTopCandidate.Children.Length == 1)
                     {
                         topCandidate = parentOfTopCandidate;
-                        parentOfTopCandidate = (IElement)topCandidate.Parent!;
+                        parentOfTopCandidate = topCandidate.ParentElement!;
                     }
                     
                     if (GetReadabilityScore(topCandidate).CompareTo(0.0) == 0)
@@ -1282,7 +1281,7 @@ namespace SmartReader
             var weight = 0;
 
             // Look for a special classname
-            if (e.ClassName != null && e.ClassName is not "")
+            if (!string.IsNullOrEmpty(e.ClassName))
             {
                 if (RE_Negative.IsMatch(e.ClassName))
                     weight -= 25;
@@ -1352,7 +1351,7 @@ namespace SmartReader
         /// <param name="tagName">Tag to check</param>
         /// <param name="maxDepth">Maximum depth of parent to search</param>
         /// <param name="filterFn">Filter to ignore some matching tags</param>
-        private bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
+        private static bool HasAncestorTag(IElement node, string tagName, int maxDepth = 3, Func<IElement, bool>? filterFn = null)
         {
             var depth = 0;
 
@@ -1591,7 +1590,12 @@ namespace SmartReader
             }
             var childrenLength = 0;
             var children = NodeUtility.GetAllNodesWithTag(e, tags);
-            NodeUtility.ForEachElement(children, (child) => childrenLength += NodeUtility.GetInnerText(child, true).Length);
+
+            foreach (var child in children)
+            {
+                childrenLength += NodeUtility.GetInnerText(child, true).Length;
+            }
+
             return childrenLength / textLength;
         }
 
@@ -1609,14 +1613,18 @@ namespace SmartReader
             // without effecting the traversal.
             //
             // TODO: Consider taking into account original contentScore here.
-            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), (node) =>
+            NodeUtility.RemoveNodes(e.GetElementsByTagName(tag), node =>
             {
                 var isList = tag is "ul" or "ol";
                 if (!isList)
                 {
                     var listLength = 0;
                     var listNodes = NodeUtility.GetAllNodesWithTag(node, s_ul_ol);
-                    NodeUtility.ForEachElement(listNodes, (list) => listLength += NodeUtility.GetInnerText(list).Length);
+                    
+                    foreach (var list in listNodes)
+                    {
+                        listLength += NodeUtility.GetInnerText(list).Length;
+                    }
                     
                     if (NodeUtility.GetInnerText(node).Length > 0)
                         isList = listLength / NodeUtility.GetInnerText(node).Length > 0.9;
@@ -1794,7 +1802,7 @@ namespace SmartReader
             //   <br>
             //   Sentences<br>
             // </div>
-            var brNodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, "div > br");
+            var brNodes = doc.DocumentElement.QuerySelectorAll("div > br");
             IEnumerable<IElement> totalNodes = nodes;
             if (brNodes.Length > 0)
             {
@@ -1940,16 +1948,21 @@ namespace SmartReader
                 throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
             }
 
-            var headLan = response.Headers.FirstOrDefault(x => x.Key.Equals("content-language", StringComparison.OrdinalIgnoreCase));
-            if (headLan.Value != null && headLan.Value.Any())
-                language = headLan.Value.ElementAt(0);
-
-            var headCont = response.Headers.FirstOrDefault(x => x.Key.Equals("content-type", StringComparison.OrdinalIgnoreCase));
-            if (headCont.Value != null && headCont.Value.Any())
+            if (response.Headers.TryGetValues("Content-Language", out var contentLanguageHeader))
             {
-                int index = headCont.Value.ElementAt(0).IndexOf("charset=");
-                if (index != -1)
-                    charset = headCont.Value.ElementAt(0).Substring(index + 8);
+                language = contentLanguageHeader.First();
+            }
+
+            if (response.Headers.TryGetValues("Content-Type", out var contentTypeHeader))
+            {
+                string contentType = contentTypeHeader.First();
+
+                int charSetIndex = contentType.IndexOf("charset=");
+
+                if (charSetIndex != -1)
+                {
+                    charset = contentType.Substring(charSetIndex + 8);
+                }
             }
 
             return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
