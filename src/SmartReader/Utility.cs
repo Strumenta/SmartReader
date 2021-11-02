@@ -83,6 +83,7 @@ namespace SmartReader
         {
             // Have to null-check node.style and node.className.indexOf to deal with SVG and MathML nodes.
             return !IsHidden(node)
+                && !node.HasAttribute("hidden")
                 // check for "fallback-image" so that wikimedia math images are displayed
                 && (!node.HasAttribute("aria-hidden") || node.GetAttribute("aria-hidden") is not "true" || (node?.ClassName != null && node.ClassName.Contains("fallback-image")));
         }
