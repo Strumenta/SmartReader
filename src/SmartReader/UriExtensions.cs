@@ -36,7 +36,11 @@ namespace SmartReader
         {
             var scheme = pageUri.Scheme;
             var prePath = GetBase(pageUri);
-            var pathBase = GetPathBase(pageUri);            
+            var pathBase = GetPathBase(pageUri);
+
+            // if the uri is empty, just return pathBase
+            if (uriToCheck.Length == 0)
+                return pathBase;
 
             // If this is already an absolute URI, return it.
             if (Uri.IsWellFormedUriString(uriToCheck, UriKind.Absolute))
