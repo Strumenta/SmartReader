@@ -368,6 +368,30 @@ namespace SmartReader
                     {
                         return jsonLDMetadata;
                     }
+                    
+                    if (root.TryGetProperty("name", out JsonElement name)
+                        && name.ValueKind == JsonValueKind.String
+                        && root.TryGetProperty("headline", out JsonElement headline)
+                        && headline.ValueKind == JsonValueKind.String)
+                    {
+                        // we have both name and headline element in the JSON-LD. They should both be the same but some websites like aktualne.cz
+                        // put their own name into "name" and the article title to "headline" which confuses Readability. So we try to check if either
+                        // "name" or "headline" closely matches the html title, and if so, use that one. If not, then we use "name" by default.
+
+                        var title = GetArticleTitle(doc);
+                        var nameMatches = TextSimilarity(name.GetString()!.Trim(), title) > 0.75;
+                        var headlineMatches = TextSimilarity(headline.GetString()!.Trim(), title) > 0.75;
+
+                        if (headlineMatches && !nameMatches)
+                        {
+                            
+                            jsonLDMetadata["jsonld:title"] = headline.GetString()!.Trim();
+                        }
+                        else
+                        {                            
+                            jsonLDMetadata["jsonld:title"] = name.GetString()!.Trim();
+                        }                        
+                    }
 
                     if (root.TryGetProperty("name", out value)
                         && value.ValueKind == JsonValueKind.String)
