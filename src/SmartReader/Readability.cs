@@ -323,134 +323,133 @@ namespace SmartReader
         /// <returns>Dictionary with any metadata that could be extracted (possibly none)</returns>
         internal static Dictionary<string, string> GetJSONLD(IHtmlDocument doc)
         {
-            var jsonLDMetadata = new Dictionary<string, string>();
+            var jsonLDMetadata = new Dictionary<string, string>();            
             
             var scripts = doc.DocumentElement.GetElementsByTagName("script");
 
-            var jsonLdElement = scripts.FirstOrDefault(static el => {
-                return el?.GetAttribute("type") is "application/ld+json";
-            });
-
-            if (jsonLdElement != null)
-            {              
-                // Strip CDATA markers if present
-                var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\$","");
-                try
+            NodeUtility.ForEachElement(scripts, jsonLdElement =>
+            {
+                if(jsonLDMetadata.Count == 0 && jsonLdElement?.GetAttribute("type") is "application/ld+json")
                 {
-                    using JsonDocument document = JsonDocument.Parse(content);
-
-                    var root = document.RootElement;
-
-                    // JsonLD can contain an array of elements inside property @graph
-                    if (!root.TryGetProperty("@type", out JsonElement value)
-                        && root.TryGetProperty("@graph", out value))
+                    try
                     {
-                        var graph = value.EnumerateArray();
-                        foreach (var obj in graph)
+                        // Strip CDATA markers if present
+                        var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\$", "");
+                        using JsonDocument document = JsonDocument.Parse(content);
+
+                        var root = document.RootElement;
+
+                        // JsonLD can contain an array of elements inside property @graph
+                        if (!root.TryGetProperty("@type", out JsonElement value)
+                            && root.TryGetProperty("@graph", out value))
                         {
-                            if (obj.TryGetProperty("@type", out value)
-                                && JsonLdArticleTypes.Contains(value.GetString()!))
+                            var graph = value.EnumerateArray();
+                            foreach (var obj in graph)
                             {
-                                root = obj;
-                                break;
+                                if (obj.TryGetProperty("@type", out value)
+                                    && JsonLdArticleTypes.Contains(value.GetString()!))
+                                {
+                                    root = obj;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (!root.TryGetProperty("@context", out value)
-                        || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))
-                    {
-                        return jsonLDMetadata;
-                    }
-
-                    if (!root.TryGetProperty("@type", out value)
-                        || !JsonLdArticleTypes.Contains(value.GetString()!))
-                    {
-                        return jsonLDMetadata;
-                    }
-                    
-                    if (root.TryGetProperty("name", out JsonElement name)
-                        && name.ValueKind == JsonValueKind.String
-                        && root.TryGetProperty("headline", out JsonElement headline)
-                        && headline.ValueKind == JsonValueKind.String)
-                    {
-                        // we have both name and headline element in the JSON-LD. They should both be the same but some websites like aktualne.cz
-                        // put their own name into "name" and the article title to "headline" which confuses Readability. So we try to check if either
-                        // "name" or "headline" closely matches the html title, and if so, use that one. If not, then we use "name" by default.
-
-                        var title = GetArticleTitle(doc);
-                        var nameMatches = TextSimilarity(name.GetString()!.Trim(), title) > 0.75;
-                        var headlineMatches = TextSimilarity(headline.GetString()!.Trim(), title) > 0.75;
-
-                        if (headlineMatches && !nameMatches)
+                        if (!root.TryGetProperty("@context", out value)
+                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))
                         {
-                            
-                            jsonLDMetadata["jsonld:title"] = headline.GetString()!.Trim();
+                            return;
                         }
-                        else
-                        {                            
-                            jsonLDMetadata["jsonld:title"] = name.GetString()!.Trim();
-                        }                        
-                    }
 
-                    if (root.TryGetProperty("name", out value)
-                        && value.ValueKind == JsonValueKind.String)
-                    {
-                        jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
-                    }
-                    if (root.TryGetProperty("headline", out value)
-                        && value.ValueKind == JsonValueKind.String)
-                    {
-                        jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
-                    }
-                    if (root.TryGetProperty("author", out value))
-                    {
-                        if (value.ValueKind == JsonValueKind.Object)
+                        if (!root.TryGetProperty("@type", out value)
+                            || !JsonLdArticleTypes.Contains(value.GetString()!))
                         {
-                            jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString()!.Trim();
+                            return;
                         }
-                        else if (value.ValueKind == JsonValueKind.Array
-                            && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
+
+                        if (root.TryGetProperty("name", out JsonElement name)
+                            && name.ValueKind == JsonValueKind.String
+                            && root.TryGetProperty("headline", out JsonElement headline)
+                            && headline.ValueKind == JsonValueKind.String)
                         {
-                            var authors = root.GetProperty("author").EnumerateArray();
-                            var byline = new List<string>();
-                            foreach (var author in authors)
+                            // we have both name and headline element in the JSON-LD. They should both be the same but some websites like aktualne.cz
+                            // put their own name into "name" and the article title to "headline" which confuses Readability. So we try to check if either
+                            // "name" or "headline" closely matches the html title, and if so, use that one. If not, then we use "name" by default.
+
+                            var title = GetArticleTitle(doc);
+                            var nameMatches = TextSimilarity(name.GetString()!.Trim(), title) > 0.75;
+                            var headlineMatches = TextSimilarity(headline.GetString()!.Trim(), title) > 0.75;
+
+                            if (headlineMatches && !nameMatches)
                             {
-                                if (author.TryGetProperty("name", out value)
-                                && value.ValueKind == JsonValueKind.String)
-                                    byline.Add(value.GetString()!.Trim());
-                            }
 
-                            jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
+                                jsonLDMetadata["jsonld:title"] = headline.GetString()!.Trim();
+                            }
+                            else
+                            {
+                                jsonLDMetadata["jsonld:title"] = name.GetString()!.Trim();
+                            }
+                        }
+                        else if (root.TryGetProperty("name", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
+                        }
+                        else if (root.TryGetProperty("headline", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:title"] = value.GetString()!.Trim();
+                        }
+                        if (root.TryGetProperty("author", out value))
+                        {
+                            if (value.ValueKind == JsonValueKind.Object)
+                            {
+                                jsonLDMetadata["jsonld:author"] = value.GetProperty("name").GetString()!.Trim();
+                            }
+                            else if (value.ValueKind == JsonValueKind.Array
+                                && value.EnumerateArray().ElementAt(0).GetProperty("name").ValueKind == JsonValueKind.String)
+                            {
+                                var authors = root.GetProperty("author").EnumerateArray();
+                                var byline = new List<string>();
+                                foreach (var author in authors)
+                                {
+                                    if (author.TryGetProperty("name", out value)
+                                    && value.ValueKind == JsonValueKind.String)
+                                        byline.Add(value.GetString()!.Trim());
+                                }
+
+                                jsonLDMetadata["jsonld:author"] = String.Join(", ", byline);
+                            }
+                        }
+
+                        if (root.TryGetProperty("description", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:description"] = value.GetString()!.Trim();
+                        }
+                        if (root.TryGetProperty("publisher", out value)
+                            && value.ValueKind == JsonValueKind.Object)
+                        {
+                            jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString()!.Trim();
+                        }
+                        if (root.TryGetProperty("datePublished", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString()!;
+                        }
+                        if (root.TryGetProperty("image", out value)
+                            && value.ValueKind == JsonValueKind.String)
+                        {
+                            jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString()!;
                         }
                     }
+                    catch (Exception e)
+                    {
 
-                    if (root.TryGetProperty("description", out value)
-                        && value.ValueKind == JsonValueKind.String)
-                    {
-                        jsonLDMetadata["jsonld:description"] = value.GetString()!.Trim();
-                    }
-                    if (root.TryGetProperty("publisher", out value)
-                        && value.ValueKind == JsonValueKind.Object)
-                    {
-                        jsonLDMetadata["jsonld:siteName"] = value.GetProperty("name").GetString()!.Trim();
-                    }
-                    if (root.TryGetProperty("datePublished", out value)
-                        && value.ValueKind == JsonValueKind.String)
-                    {
-                        jsonLDMetadata["jsonld:datePublished"] = value.GetProperty("datePublished").GetString()!;
-                    }
-                    if (root.TryGetProperty("image", out value)
-                        && value.ValueKind == JsonValueKind.String)
-                    {
-                        jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString()!;
                     }
                 }
-                catch(Exception e)
-                {
-                    
-                }
-            }
+            });            
+
             return jsonLDMetadata;
         }
 
