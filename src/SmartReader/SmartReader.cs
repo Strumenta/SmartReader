@@ -169,7 +169,7 @@ namespace SmartReader
 
         private readonly List<Action<IElement>> CustomOperationsEnd = new ();
 
-        private static readonly string[] s_p_pre = { "p", "pre" };
+        private static readonly string[] s_p_pre_article = { "p", "pre", "article" };
         private static readonly string[] s_img_picture_figure = { "img", "picture", "figure" };
         private static readonly string[] s_ul_ol = { "ul", "ol" };
         private static readonly string[] s_h1_h2 = { "h1", "h2" };
@@ -1797,7 +1797,7 @@ namespace SmartReader
         /// <returns>Whether or not we suspect parse method will suceeed at returning an article object.</returns>
         private bool IsProbablyReaderable()
         {            
-            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_p_pre);
+            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_p_pre_article);
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
             // Some articles' DOM structures might look like
