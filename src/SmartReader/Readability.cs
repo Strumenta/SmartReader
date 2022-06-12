@@ -98,9 +98,9 @@ namespace SmartReader
                         {
                             // if the link has multiple children, they should all be preserved
                             var container = doc.CreateElement("span");
-                            while (link.ChildNodes.Length > 0)
+                            while (link.FirstChild != null)
                             {
-                                container.AppendChild(link.ChildNodes[0]);
+                                container.AppendChild(link.FirstChild);
                             }
                             link.Parent!.ReplaceChild(container, link);
                         }

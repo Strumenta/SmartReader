@@ -1000,10 +1000,11 @@ namespace SmartReader
                     neededToCreateTopCandidate = true;
                     // Move everything (not just elements, also text nodes etc.) into the container
                     // so we even include text directly in the body:
-                    var kids = page.ChildNodes;
-                    while (kids.Length > 0)
+                    while (page.FirstChild != null)
                     {
-                        topCandidate.AppendChild(kids[0]);
+                        if (Debug || Logging == ReportLevel.Info)
+                            LoggerDelegate($"Moving child out: {page.FirstChild}");
+                        topCandidate.AppendChild(page.FirstChild);
                     }
 
                     page.AppendChild(topCandidate);
@@ -1160,6 +1161,9 @@ namespace SmartReader
                         }
 
                         articleContent.AppendChild(sibling);
+                        // Fetch children again to make it compatible
+                        // with DOM parsers without live collection support.
+                        siblings = parentOfTopCandidate.Children;
                         // siblings is a reference to the children array, and
                         // sibling is removed from the array when we call appendChild().
                         // As a result, we must revisit this index since the nodes
