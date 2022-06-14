@@ -99,16 +99,16 @@ namespace SmartReaderTests
             var jso = new JsonSerializerOptions {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-
+            
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
 
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
-
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
             
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
+
             AssertProperties(expected, found);
         }
 
