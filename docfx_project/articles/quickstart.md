@@ -44,7 +44,7 @@ On the `Article` object you can also call `ConvertImagesToDataUriAsync` to inlin
 
 This data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI.
 
-Notice that this method will not store other external elements that are not images,such as embedded videos.
+Notice that this method will not store other external elements that are not images, such as embedded videos.
 
 ## Examples
 
