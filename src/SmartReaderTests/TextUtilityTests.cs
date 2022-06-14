@@ -8,7 +8,7 @@ namespace SmartReaderTests
         [Fact]
         public void TestCountWordsSeperatedByComma()
         {
-            Assert.Equal(2, TextUtility.CountWordsSeperatedByComma("hello,world"));
+            Assert.Equal(2, TextUtility.CountWordsSeparatedByComma("hello,world"));
         }
     }
 }

@@ -224,7 +224,7 @@ namespace SmartReader
             var context = BrowsingContext.New(Configuration.Default);
             var parser = new HtmlParser(new HtmlParserOptions(), context);
             doc = parser.ParseDocument(source);
-
+            
             articleTitle = "";
         }
 
@@ -922,7 +922,7 @@ namespace SmartReader
                     contentScore += 1;
 
                     // Add points for any commas within this paragraph.
-                    contentScore += TextUtility.CountWordsSeperatedByComma(innerText.AsSpan());
+                    contentScore += TextUtility.CountWordsSeparatedByComma(innerText.AsSpan());
 
                     // For every 100 characters in this paragraph, add another point. Up to 3 points.
                     contentScore += Math.Min(Math.Floor(innerText.Length / 100.0), 3);

@@ -6,7 +6,7 @@ namespace SmartReader
 {
     internal static class TextUtility
     {
-        public static int CountWordsSeperatedByComma(ReadOnlySpan<char> text)
+        public static int CountWordsSeparatedByComma(ReadOnlySpan<char> text)
         {
             int commaCount = 0;
             int commaIndex;
@@ -20,5 +20,7 @@ namespace SmartReader
 
             return commaCount + 1;
         }
+
+
     }
 }
