@@ -168,7 +168,14 @@ This project has the following directory structure.
 
 You can see the [demo web live](https://smartreader-demo.herokuapp.com/). So you can test for yourself how effective the library can be for you. 
 
-There is also a Docker project for the web demo.
+There is also a Docker project for the web demo. You can build and run it with the usual docker commands.
+
+```
+docker build -t smartreader-webdemo .
+docker run -it -p 5000:5000 smartreader-webdemo
+```
+
+The second command will forward traffic from port 5000 on your local host to the port 5000 of the docker container. This means that you will be able to access the web demo by visiting http://localhost:5000.
 
 ##  Documentation
 
