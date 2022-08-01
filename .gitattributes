@@ -1,1 +1,1 @@
-src/SmartReaderTests/test-pages/* linguist-vendored
+*.html linguist-detectable=false
