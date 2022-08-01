@@ -10,14 +10,14 @@ using AngleSharp.Html.Dom;
 namespace SmartReader
 {
     internal static class NodeUtility
-    {                  
+    {
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
         private static readonly Regex RE_HasContent      = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex RE_HashUrl         = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
-        
+
         private static readonly string[] presentationalAttributes = { "align", "background", "bgcolor", "border", "cellpadding", "cellspacing", "frame", "hspace", "rules", "style", "valign", "vspace" };
 
         private static readonly string[] deprecatedSizeAttributeElems = { "TABLE", "TH", "TD", "HR", "PRE" };
@@ -89,32 +89,15 @@ namespace SmartReader
 
         internal static ReadOnlySpan<char> GetVisibilityFromStyle(string style)
         {
-            int displayIndex = style.IndexOf("visibility", StringComparison.OrdinalIgnoreCase);
+            var visibility = style.Split(';')
+                .Select(x => x.Split(':'))
+                .Where(x => x.Length is 2)
+                .Select(x => new { key = x[0].Trim(), value = x[1].Trim() })
+                .Where(x => x.key == "visibility")
+                .Select(x => x.value)
+                .FirstOrDefault();
 
-            if (displayIndex > -1)
-            {
-                var value = style.AsSpan(displayIndex + 10).Trim();
-
-                int colonIndex = value.IndexOf(':');
-
-                if (colonIndex is -1)
-                {
-                    return null;
-                }
-
-                value = value.Slice(colonIndex + 1);
-
-                int semicolonIndex = value.IndexOf(';');
-
-                if (semicolonIndex > -1)
-                {
-                    value = value.Slice(0, semicolonIndex - colonIndex).Trim();
-                }
-
-                return value;
-            }
-
-            return null;
+            return visibility is null ? null : visibility.AsSpan();
         }
 
         internal static ReadOnlySpan<char> GetDisplayFromStyle(string style)
@@ -185,7 +168,7 @@ namespace SmartReader
             for (int a = 0; a < nodeList.Length; a++)
             {
                 fn(nodeList[a]);
-            }            
+            }
         }
 
         internal static void ForEachNode(IEnumerable<INode> nodeList, Action<INode, int> fn, int level)
@@ -193,7 +176,7 @@ namespace SmartReader
             foreach (var node in nodeList)
                 fn(node, level++);
         }
-       
+
         /// <summary>        
         /// Concat all nodelists passed as arguments.
         /// </summary>
@@ -240,7 +223,8 @@ namespace SmartReader
             // Find img without source or attributes that might contains image, and remove it.
             // This is done to prevent a placeholder img is replaced by img from noscript in next step.           
             var imgs = doc.GetElementsByTagName("img");
-            ForEachElement(imgs, static img => {
+            ForEachElement(imgs, static img =>
+            {
                 for (var i = 0; i < img.Attributes.Length; i++)
                 {
                     var attr = img.Attributes[i]!;
@@ -256,12 +240,13 @@ namespace SmartReader
                     }
                 }
 
-                img.Parent!.RemoveChild(img);                
+                img.Parent!.RemoveChild(img);
             });
-           
+
             // Next find noscript and try to extract its image
             var noscripts = doc.GetElementsByTagName("noscript");
-            ForEachElement(noscripts, static noscript => {
+            ForEachElement(noscripts, static noscript =>
+            {
                 // Parse content of noscript and make sure it only contains image
                 var doc = (IHtmlDocument)noscript.GetRoot();
 
@@ -310,7 +295,7 @@ namespace SmartReader
                     }
 
                     noscript.Parent!.ReplaceChild(tmp.FirstElementChild!, prevElement);
-                }                
+                }
             });
         }
 
@@ -355,7 +340,7 @@ namespace SmartReader
                 }
             }
 
-            return true;           
+            return true;
         }
 
         internal static bool IsElementWithoutContent(IElement node)
@@ -448,7 +433,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="el">Element to operate on</param>
         internal static void CleanStyles(IElement? el = null)
-        {            
+        {
             if (el is null || el.TagName.Equals("svg", StringComparison.OrdinalIgnoreCase))
                 return;
 
@@ -490,7 +475,7 @@ namespace SmartReader
             foreach (var linkEl in element.GetElementsByTagName("a"))
             {
                 var href = linkEl.GetAttribute("href");
-                var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1; 
+                var coefficient = href is { Length: > 0 } && RE_HashUrl.IsMatch(href) ? 0.3 : 1;
                 linkLength += GetInnerText(linkEl).Length * coefficient;
             }
 
@@ -642,6 +627,6 @@ namespace SmartReader
                 next = next.NextSibling;
             }
             return next as IElement;
-        }       
-    }    
+        }
+    }
 }
