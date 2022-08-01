@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.8.2
+- Improved recognition of visibility in style attribute (thanks to [Sander Schutten](https://github.com/sschutten))
+
 ## 0.8.1 - 2022/06/29
 - Fixes issue #41, SmartReader.UriExtensions.ToAbsoluteURI throws exception when uriToCheck = "" (Thanks to [mininmaxim](https://github.com/mininmaxim))
 - Parse other JSON-LD elements if the first one is not of a recognized type
