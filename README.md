@@ -122,6 +122,7 @@ The following settings on the `Reader` class can be modified.
 - `int` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful)<br> *Default: 140*
 - `int` **MinScoreReaderable** <br> The minumum cumulated 'score' used to determine if the document is readerable<br> *Default: 20*
 - `Func<IElement, bool>` **IsNodeVisible** <br> The function used to determine if a node is visible. Used in the process of determinting if the document is readerable<br> *Default: NodeUtility.IsProbablyVisible*
+- `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header.<br>*Default: false*
 
 ##  Article Model
 
