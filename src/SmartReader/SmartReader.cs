@@ -4,10 +4,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using AngleSharp;
+using AngleSharp.Browser;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
@@ -129,6 +131,13 @@ namespace SmartReader
         /// <summary>The function used to determine if a node is visible. Used in the process of determinting if the document is readerable.</summary>
         /// <value>Default: NodeUtility.IsProbablyVisible</value>        
         public Func<IElement, bool> IsNodeVisible { get; set; } = NodeUtility.IsProbablyVisible;
+
+        /// <summary>
+        /// Whether to force the encoding provided in the response header
+        /// </summary>
+        /// <value>Default: false</value>
+        public bool ForceHeaderEncoding { get; set; } = false;
+
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -304,12 +313,23 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
-            var context = BrowsingContext.New(Configuration.Default);
+            var stream = await GetStreamAsync(uri).ConfigureAwait(false);
+            var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
+                                                        : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
             var parser = new HtmlParser(new HtmlParserOptions(), context);
-            
+
             if (doc is null)
             {
-                doc = parser.ParseDocument(await GetStreamAsync(uri).ConfigureAwait(false));
+                // this is necessary because AngleSharp consider the encoding set in BrowsingContext
+                // just as a suggestion. It can ignore it, if it believes it is wrong.
+                // In case it ignores, it uses the default UTF8 encoding
+                if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                {
+                    var bytes = Encoding.Convert(Encoding.GetEncoding(charset), Encoding.UTF8, ((MemoryStream)stream).ToArray());
+                    stream = new MemoryStream(bytes);
+                }
+                
+                doc = parser.ParseDocument(stream);
             }
 
             return Parse();
@@ -324,12 +344,21 @@ namespace SmartReader
                 
         public Article GetArticle()
         {
-            var context = BrowsingContext.New(Configuration.Default);
+            var stream = GetStreamAsync(uri).GetAwaiter().GetResult();            
+            var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default) 
+                                                        : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
             var parser = new HtmlParser(new HtmlParserOptions(), context);
 
             if (doc is null)
             {
-                var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
+                // this is necessary because AngleSharp consider the encoding set in BrowsingContext
+                // just as a suggestion. It can ignore it, if it believes it is wrong.
+                // In case it ignores, it uses the default UTF8 encoding
+                if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                {
+                    var bytes = Encoding.Convert(Encoding.GetEncoding("iso-8859-1"), Encoding.UTF8, ((MemoryStream)stream).ToArray());
+                    stream = new MemoryStream(bytes);
+                }
 
                 doc = parser.ParseDocument(stream);
             }
@@ -1952,14 +1981,14 @@ namespace SmartReader
                 throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
             }
 
-            if (response.Headers.TryGetValues("Content-Language", out var contentLanguageHeader))
+            if (response.Content.Headers.TryGetValues("Content-Language", out var contentLanguageHeader))
             {
                 language = contentLanguageHeader.First();
-            }
+            }            
 
-            if (response.Headers.TryGetValues("Content-Type", out var contentTypeHeader))
+            if (response.Content.Headers.TryGetValues("Content-Type", out var contentTypeHeader))
             {
-                string contentType = contentTypeHeader.First();
+                string contentType = contentTypeHeader.First().ToLower();
 
                 int charSetIndex = contentType.IndexOf("charset=");
 
