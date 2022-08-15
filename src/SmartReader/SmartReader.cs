@@ -312,14 +312,14 @@ namespace SmartReader
         /// An async Task Article object with all the data extracted
         /// </returns>    
         public async Task<Article> GetArticleAsync()
-        {
-            var stream = await GetStreamAsync(uri).ConfigureAwait(false);
-            var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
-                                                        : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-            var parser = new HtmlParser(new HtmlParserOptions(), context);
-
+        {            
             if (doc is null)
             {
+                var stream = await GetStreamAsync(uri).ConfigureAwait(false);
+                var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
+                                                            : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
+                var parser = new HtmlParser(new HtmlParserOptions(), context);
+
                 // this is necessary because AngleSharp consider the encoding set in BrowsingContext
                 // just as a suggestion. It can ignore it, if it believes it is wrong.
                 // In case it ignores, it uses the default UTF8 encoding
@@ -343,14 +343,14 @@ namespace SmartReader
         /// </returns>    
                 
         public Article GetArticle()
-        {
-            var stream = GetStreamAsync(uri).GetAwaiter().GetResult();            
-            var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default) 
-                                                        : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-            var parser = new HtmlParser(new HtmlParserOptions(), context);
-
+        {            
             if (doc is null)
             {
+                var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
+                var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
+                                                            : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
+                var parser = new HtmlParser(new HtmlParserOptions(), context);
+
                 // this is necessary because AngleSharp consider the encoding set in BrowsingContext
                 // just as a suggestion. It can ignore it, if it believes it is wrong.
                 // In case it ignores, it uses the default UTF8 encoding
