@@ -26,7 +26,7 @@ namespace SmartReader
             { "Spanish", 1025 },
             { "Russian", 986 },
             { "Turkish", 1054 }
-        };
+        };  
 
         // based on http://iovs.arvojournals.org/article.aspx?articleid=2166061
 

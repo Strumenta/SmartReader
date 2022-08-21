@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using AngleSharp;
 using AngleSharp.Browser;
+using AngleSharp.Common;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
@@ -120,9 +121,14 @@ namespace SmartReader
         /// <value>Default: false</value>          
         public bool DisableJSONLD { get; set; } = false;        
 
-        /// <summary>The minimum node content length used to decide if the document is readerable.</summary>
+        /// <summary>The minimum node content length used to decide if the document is readerable.
+        /// You can set language-based values.</summary>
         /// <value>Default: 140</value>        
-        public int MinContentLengthReadearable { get; set; } = 140;
+        public Dictionary<string, int> MinContentLengthReadearable { get; set; } = new()
+        {
+            { "Default", 140 },
+            { "English", 140 }
+        };
 
         /// <summary>The minumum cumulated 'score' used to determine if the document is readerable.</summary>
         /// <value>Default: 20</value>        
@@ -154,7 +160,7 @@ namespace SmartReader
         private Regex RE_PrevLink             = G_RE_PrevLink;
         private Regex RE_ShareElements        = G_RE_ShareElements;
 
-        //Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
+        // Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_OkMaybeItsACandidate = new Regex(@"and|article|body|column|content|main|shadow", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Positive = new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -1888,12 +1894,12 @@ namespace SmartReader
                 }
 
                 var textContentLength = node.TextContent.AsSpan().Trim().Length;
-                if (textContentLength < MinContentLengthReadearable)
+                if (textContentLength < GetMinContentLengthBasedOnLanguage())
                 {
                     return false;
                 }
 
-                score += Math.Sqrt(textContentLength - MinContentLengthReadearable);
+                score += Math.Sqrt(textContentLength - GetMinContentLengthBasedOnLanguage());
 
                 if (score > MinScoreReaderable)
                 {                    
@@ -2145,6 +2151,27 @@ namespace SmartReader
         public static void SetBaseHttpClientHandler(HttpMessageHandler clientHandler)
         {
             _httpClientHandler = new Lazy<HttpMessageHandler>(() => clientHandler);
+        }
+
+        /// <summary>Simple method to safely get minimum content length based on language</summary>        
+        private int GetMinContentLengthBasedOnLanguage()
+        {
+            if (string.IsNullOrEmpty(this.language))
+                return MinContentLengthReadearable.GetOrDefault("Default", 140);
+            
+            CultureInfo culture = CultureInfo.InvariantCulture;
+                        
+            try
+            {
+                culture = new CultureInfo(this.language);
+            }
+            catch (CultureNotFoundException)
+            { }
+            
+
+            var length = MinContentLengthReadearable.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key, StringComparison.Ordinal));            
+
+            return length.Value > 0 ? length.Value : MinContentLengthReadearable.GetOrDefault("Default", 140);
         }
     }
 }
