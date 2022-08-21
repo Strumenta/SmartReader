@@ -103,7 +103,7 @@ if(article.IsReadable)
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article. <br>*Default: ["page"]*
 - `bool` **DisableJSONLD** <br> The library look first at JSON-LD to determine metadata. This setting gives you the option of disabling it<br> *Default: false*
-- `int` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful)<br> *Default: 140*
+- `Dictionary<string, int>` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful).<br> You can provide a dictionary with values based on language.<br> *Default: 140*
 - `int` **MinScoreReaderable** <br> The minumum cumulated 'score' used to determine if the document is readerable<br> *Default: 20*
 - `Func<IElement, bool>` **IsNodeVisible** <br> The function used to determine if a node is visible. Used in the process of determining if the document is readerable<br> *Default: NodeUtility.IsProbablyVisible*
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header. This will convert the stream to the encoding set in the header before passing it to the HTML parser<br>*Default: false*
@@ -161,7 +161,7 @@ SmartReader does not perform any security check on the input. If you are using S
 The Readability team suggests using a sanitizer library. On .NET you could the [HTML Sanitizer](https://github.com/mganss/HtmlSanitizer) library. They also recommend using
 [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to add further defense-in-depth restrictions to what you allow the resulting content to do.
 
-### Potential Thread Issues when Using Synchronous Methods
+### Potential Thread Issues When Using Synchronous Methods
 
 There are potential issues in using synchronous methods. That is because the underlying methods to request HTTP content provided by .NET are all asynchronous. So when you call a synchronous method of SmartReader, behind the scene we actually have still to call an asynchronous method to download the content and wait for the call to finish. 
 
@@ -169,6 +169,20 @@ As [pointed out by theolivenbaum](https://github.com/Strumenta/SmartReader/pull/
 
 > you can easily get on thread starvation issues when using synchronous methods over asynchronous.
 >
+
+### Keys and Values for MinContentLengthReaderable
+
+The keys of `MinContentLengthReaderable` should be the English name of languages, as defined for the `CultureInfo` class. The dictionary should also contain a `Default` key. For example, something like the following.
+
+```
+{
+    { "Default", 140 },
+	{ "English", 140 },
+	{ "Italian", 160 }
+};
+```
+
+If you need to provide language-specific minimum content length, a good starting point may be the characters per minute settings in the `TimeToReadCalculator` class. These values represent how many characters per minute a reader of the language is typically able to read. We do not provide default values ourselves, because we do not have example articles to calculate meaningful values for each language.
 
 ## License
 

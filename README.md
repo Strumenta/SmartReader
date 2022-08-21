@@ -59,6 +59,8 @@ The advantage of using an object, instead of the static method, is that it gives
 There is also the option to parse directly a `String` or `Stream` that you have obtained by some other way. This is available either with one of the `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
 
 If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
+                
+If fetching the resource fails, the library will throw an `HttpRequestException`, you should handle the exception.
 
 The content of the article is unstyled, but it is wrapped in a `div` with the id `readability-content` that you can style yourself.
 
@@ -74,6 +76,8 @@ On the `Article` object you can also call `ConvertImagesToDataUriAsync` to inlin
 The data URI scheme is not efficient, because is using [Base64](https://en.wikipedia.org/wiki/Base64) to encode the bytes of the image. Base64 encoded data is approximately 33% larger than the original data. The purpose of this method is to provide an offline article that can be fully stored long term. This is useful in case the original article is not accessible anymore. The method only converts the images that are bigger than the specified size. The size by default is 75KB. This is done to exclude things such as images used in the UI.
 
 Notice that this method will not store other external elements that are not images, such as embedded videos.
+
+If fetching an image fails, the library will throw an `HttpRequestException`, you should handle the exception.
 
 ##  Examples
 
@@ -119,9 +123,9 @@ The following settings on the `Reader` class can be modified.
 - `bool` **KeepClasses** <br>Whether to preserve or clean CSS classes.<br>*Default: false*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article, if we opt to not keep all of them.<br>*Default: ["page"]*
 - `bool` **DisableJSONLD** <br> The library look first at JSON-LD to determine metadata. This setting gives you the option of disabling it<br> *Default: false*
-- `int` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful)<br> *Default: 140*
+- `Dictionary<string, int>` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful)<br> You can provide a dictionary with values based on language.<br> *Default: 140*
 - `int` **MinScoreReaderable** <br> The minumum cumulated 'score' used to determine if the document is readerable<br> *Default: 20*
-- `Func<IElement, bool>` **IsNodeVisible** <br> The function used to determine if a node is visible. Used in the process of determinting if the document is readerable<br> *Default: NodeUtility.IsProbablyVisible*
+- `Func<IElement, bool>` **IsNodeVisible** <br> The function used to determine if a node is visible. Used in the process of determining if the document is readerable<br> *Default: NodeUtility.IsProbablyVisible*
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header.<br>*Default: false*
 
 ##  Article Model
@@ -151,6 +155,14 @@ The **TimeToRead** calculation is based on the research found in [Standardized A
 The **FeaturedImage** property holds the image indicated by the Open Graph or Twitter meta tags. If neither of these is present, and you called the `GetImagesAsync` method, it will be set with the first image found. 
 
 The **TextContent** property is based on the pure text content of the HTML (i.e., the concatenations of [text nodes](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType). Then we apply some basic formatting, like removing double spaces or the newlines left by the formatting of the HTML code. We also add meaningful newlines for P and BR nodes.
+
+## Exceptions
+
+The library could throw some exceptions, that you should handle.
+
+If you set a value for `MaxElemsToParse` larger than 0, the library will throw a standard `Exception` if the threshold is passed.
+
+If fetching an HTTP resource fails, the library will throw an `HttpRequestException`. This will happen both when trying to fetch the whole article and when trying to fetch an image.
 
 ##  Project Structure
 

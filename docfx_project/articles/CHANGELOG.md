@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## 0.8.2
 - Improved recognition of visibility in style attribute (thanks to [Sander Schutten](https://github.com/sschutten))
+- Added use of suggested encoding/charset set in the responde header. Added setting to force the encoding/charset, thus overcoming the AngleSharp heuristics, that could ignore the setting
+- Changed setting MinContentLengthReaderable from simple integer field to Dictionary with language-based keys
 
 ## 0.8.1 - 2022/06/29
 - Fixes issue #41, SmartReader.UriExtensions.ToAbsoluteURI throws exception when uriToCheck = "" (Thanks to [mininmaxim](https://github.com/mininmaxim))
