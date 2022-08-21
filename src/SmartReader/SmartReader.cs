@@ -238,6 +238,23 @@ namespace SmartReader
         }
 
         /// <summary>
+        /// Inizialize Reader with provided IHtmlDocument. It needs the uri to make some checks.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI of the article.</param>
+        /// <param name="html">An existing IHtmlDocument created with AngleSharp.</param>
+        /// <returns>
+        /// An initialized SmartReader object
+        /// </returns>        
+        public Reader(string uri, IHtmlDocument html)
+        {
+            this.uri = new Uri(uri);
+
+            doc = html;
+
+            articleTitle = "";
+        }
+
+        /// <summary>
         /// Add a custom operation to be performed before the article is parsed
         /// </summary>
         /// <param name="operation">The operation that will receive the HTML content before any operation</param>
