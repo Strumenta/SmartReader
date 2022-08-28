@@ -1,10 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.8.2
+## 0.9.0 - 2022/08/28
 - Improved recognition of visibility in style attribute (thanks to [Sander Schutten](https://github.com/sschutten))
-- Added use of suggested encoding/charset set in the responde header. Added setting to force the encoding/charset, thus overcoming the AngleSharp heuristics, that could ignore the setting
-- Changed setting MinContentLengthReaderable from simple integer field to Dictionary with language-based keys
+- Added use of suggested encoding/charset set in the response header. Added setting to force the encoding/charset, thus overcoming the AngleSharp heuristics, that could ignore the setting (thanks to [marhyno](https://github.com/marhyno))
+- Changed setting MinContentLengthReaderable from simple integer field to Dictionary with language-based keys (thanks to [Ivan Icin](https://github.com/ivanicin))
+- Fixes issue #45, error when parsing articles with noscript tag in head (thanks to [Ward Boumans](https://github.com/wardboumans))
 
 ## 0.8.1 - 2022/06/29
 - Fixes issue #41, SmartReader.UriExtensions.ToAbsoluteURI throws exception when uriToCheck = "" (Thanks to [mininmaxim](https://github.com/mininmaxim))
