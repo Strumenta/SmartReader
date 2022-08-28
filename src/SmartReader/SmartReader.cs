@@ -218,7 +218,7 @@ namespace SmartReader
             this.uri = new Uri(uri);
                         
             var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
             doc = parser.ParseDocument(text);
 
             articleTitle = "";
@@ -237,7 +237,7 @@ namespace SmartReader
             this.uri = new Uri(uri);
             
             var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
             doc = parser.ParseDocument(source);
             
             articleTitle = "";
@@ -341,7 +341,7 @@ namespace SmartReader
                 var stream = await GetStreamAsync(uri).ConfigureAwait(false);
                 var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
                                                             : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-                var parser = new HtmlParser(new HtmlParserOptions(), context);
+                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
 
                 // this is necessary because AngleSharp consider the encoding set in BrowsingContext
                 // just as a suggestion. It can ignore it, if it believes it is wrong.
@@ -372,7 +372,7 @@ namespace SmartReader
                 var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
                 var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
                                                             : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-                var parser = new HtmlParser(new HtmlParserOptions(), context);
+                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
 
                 // this is necessary because AngleSharp consider the encoding set in BrowsingContext
                 // just as a suggestion. It can ignore it, if it believes it is wrong.
@@ -417,7 +417,7 @@ namespace SmartReader
 
             var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
             var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions(), context);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
 
             smartReader.doc = parser.ParseDocument(stream);
 

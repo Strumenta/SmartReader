@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
 using SmartReader;
 
 namespace SmartReaderConsole
@@ -12,7 +11,8 @@ namespace SmartReaderConsole
     {
         static void AddInfo(AngleSharp.Dom.IElement element)
         {       
-            element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
+            if(element.QuerySelector("div")?.LastElementChild != null)
+                element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
         }
 
         static void RemoveElement(AngleSharp.Dom.IElement element)
@@ -22,7 +22,7 @@ namespace SmartReaderConsole
 
         static string RemoveSpace(AngleSharp.Dom.IElement element)
         {
-            return Regex.Replace(Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><((?!pre).)*?>)\s+", "${endBefore}");
+            return Regex.Replace(Regex.Replace(element?.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><((?!pre).)*?>)\s+", "${endBefore}");
         }
 
         static void RunRandomExample(int num = -1)
@@ -40,7 +40,7 @@ namespace SmartReaderConsole
             string sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
             Reader reader = new Reader("https://localhost/", sourceContent);
-
+            
             reader.ClassesToPreserve = new string[] { "info" };
 
             reader.Debug = true;
