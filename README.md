@@ -179,7 +179,7 @@ This project has the following directory structure.
 
 ## Demo
 
-You can see the [demo web live](https://smartreader-demo.herokuapp.com/). So you can test for yourself how effective the library can be for you. 
+You can see the [demo web live](https://smartreader-demo.inre.me/). So you can test for yourself how effective the library can be for you. 
 
 There is also a Docker project for the web demo. You can build and run it with the usual docker commands.
 
