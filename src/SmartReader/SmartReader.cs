@@ -22,7 +22,7 @@ namespace SmartReader
 	/// <para>This code is based on a port of the readability library of Firefox Reader View
     /// available at: https://github.com/mozilla/readability. Which is heavily based on Arc90's readability.js (1.7f.1) script available at: http://code.google.com/p/arc90labs-readability </para>
     /// </remarks>
-    public class Reader
+    public class Reader : IDisposable
     {
         private static Lazy<HttpMessageHandler> _httpClientHandler = new Lazy<HttpMessageHandler>(() => new HttpClientHandler());
         private string? _userAgent = "SmartReader Library";
@@ -159,6 +159,7 @@ namespace SmartReader
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
         private Regex RE_ShareElements        = G_RE_ShareElements;
+        private bool disposedValue;
 
         // Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -2172,6 +2173,25 @@ namespace SmartReader
             var length = MinContentLengthReadearable.FirstOrDefault(x => culture.EnglishName.StartsWith(x.Key, StringComparison.Ordinal));            
 
             return length.Value > 0 ? length.Value : MinContentLengthReadearable.GetOrDefault("Default", 140);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    doc.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }        
+
+        public void Dispose()
+        {            
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
