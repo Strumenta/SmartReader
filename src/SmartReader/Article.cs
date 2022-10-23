@@ -270,6 +270,8 @@ namespace SmartReader
             // replace multiple newlines with max two
             text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
 
+            writer.Dispose();
+
             return text;
         }
 
