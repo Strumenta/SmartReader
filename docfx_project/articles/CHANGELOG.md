@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.9.1 - 2022/10/23
+- Fixed memory leaks (thanks to [Joshua Waring](https://github.com/Joshhua5))
+
 ## 0.9.0 - 2022/08/28
 - Improved recognition of visibility in style attribute (thanks to [Sander Schutten](https://github.com/sschutten))
 - Added use of suggested encoding/charset set in the response header. Added setting to force the encoding/charset, thus overcoming the AngleSharp heuristics, that could ignore the setting (thanks to [marhyno](https://github.com/marhyno))

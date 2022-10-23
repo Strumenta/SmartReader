@@ -158,8 +158,7 @@ namespace SmartReader
         private Regex RE_Videos               = G_RE_Videos;
         private Regex RE_NextLink             = G_RE_NextLink;
         private Regex RE_PrevLink             = G_RE_PrevLink;
-        private Regex RE_ShareElements        = G_RE_ShareElements;
-        private bool disposedValue;
+        private Regex RE_ShareElements        = G_RE_ShareElements;        
 
         // Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -191,6 +190,9 @@ namespace SmartReader
         private static readonly string[] s_h1_h2 = { "h1", "h2" };
         private static readonly string[] s_h1_h2_h3_h4_h5_h6 = { "h1", "h2", "h3", "h4", "h5", "h6" };
         private static readonly string[] s_IMG_PICTURE = { "IMG", "PICTURE" };
+
+        // internal flag for standard dispose implementation
+        private bool disposedValue;
 
         /// <summary>
         /// Reads content from the given URI.
@@ -2175,6 +2177,10 @@ namespace SmartReader
             return length.Value > 0 ? length.Value : MinContentLengthReadearable.GetOrDefault("Default", 140);
         }
 
+        /// The following methods implement the standard dispose pattern
+        ~Reader() => Dispose(false);
+
+        /// <summary>Protected implementation of Dispose pattern.</summary>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -2186,8 +2192,9 @@ namespace SmartReader
 
                 disposedValue = true;
             }
-        }        
+        }
 
+        /// <summary>Public implementation of Dispose pattern callable by consumers.</summary> 
         public void Dispose()
         {            
             Dispose(disposing: true);
