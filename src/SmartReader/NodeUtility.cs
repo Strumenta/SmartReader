@@ -498,24 +498,24 @@ namespace SmartReader
         /// <param name="node">Node to operate on</param>  
         /// <param name="ignoreSelfAndKids">Whether to ignore this node and his kids</param>  
         /// <returns>The next node</returns>
-        internal static IElement? GetNextNode(IElement node, bool ignoreSelfAndKids = false)
+        internal static IElement? GetNextNode(IElement? node, bool ignoreSelfAndKids = false)
         {
             // First check for kids if those aren't being ignored
-            if (!ignoreSelfAndKids && node.FirstElementChild != null)
+            if (!ignoreSelfAndKids && node?.FirstElementChild != null)
             {
                 return node.FirstElementChild;
             }
             // Then for siblings...
-            if (node.NextElementSibling != null)
+            if (node?.NextElementSibling != null)
             {
-                return node.NextElementSibling;
+                return node?.NextElementSibling;
             }
             // And finally, move up the parent chain *and* find a sibling
             // (because this is depth-first traversal, we will have already
             // seen the parent nodes themselves).
             do
             {
-                node = node.ParentElement;
+                node = node?.ParentElement;
             } while (node != null && node.NextElementSibling is null);
 
             return node?.NextElementSibling;

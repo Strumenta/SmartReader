@@ -28,7 +28,7 @@ namespace SmartReader
         private string? _userAgent = "SmartReader Library";
 
         private readonly Uri uri;
-        private IHtmlDocument doc;
+        private IHtmlDocument? doc;
         private string articleTitle;
         private string? articleByline;
         private string? articleDir;
@@ -465,7 +465,7 @@ namespace SmartReader
         private void PostProcessContent(IElement articleContent)
         {
             // Readability cannot open relative uris so we convert them to absolute uris.
-            Readability.FixRelativeUris(articleContent, this.uri, this.doc);
+            Readability.FixRelativeUris(articleContent, this.uri, this.doc!);
 
             Readability.SimplifyNestedElements(articleContent);
 
@@ -491,7 +491,7 @@ namespace SmartReader
         private void PrepDocument()
         {
             // Remove all style tags in head
-            NodeUtility.RemoveNodes(doc.GetElementsByTagName("style"), null);
+            NodeUtility.RemoveNodes(doc!.GetElementsByTagName("style"), null);
 
             if (doc.Body != null)
             {
@@ -534,7 +534,7 @@ namespace SmartReader
                 // chain.
                 if (replaced)
                 {
-                    var p = doc.CreateElement("p");
+                    var p = doc!.CreateElement("p");
                     br.Parent!.ReplaceChild(p, br);
 
                     next = p.NextSibling;
@@ -570,14 +570,14 @@ namespace SmartReader
         /// <summary>
         /// Remove attributes Reader added to store values.
         /// </summary>
-        private void CleanReaderAttributes(IElement node, string attribute)
+        private void CleanReaderAttributes(IElement? node, string attribute)
         {            
-            if (!string.IsNullOrEmpty(node.GetAttribute(attribute)))
+            if (!string.IsNullOrEmpty(node?.GetAttribute(attribute)))
             {
-                node.RemoveAttribute(attribute);
+                node?.RemoveAttribute(attribute);
             }
 
-            for (node = node.FirstElementChild; node != null; node = node.NextElementSibling)
+            for (node = node?.FirstElementChild; node != null; node = node?.NextElementSibling)
             {
                 CleanReaderAttributes(node, attribute);
             }
@@ -820,7 +820,7 @@ namespace SmartReader
                 // class name "comment", etc), and turn divs into P tags where they have been
                 // used inappropriately (as in, where they contain no other block level elements.)
                 var elementsToScore = new List<IElement>();
-                var node = this.doc.DocumentElement;
+                var node = this.doc!.DocumentElement;
 
                 var shouldRemoveTitleHeader = true;
 
@@ -910,7 +910,7 @@ namespace SmartReader
                                 }
                                 else if (!NodeUtility.IsWhitespace(childNode))
                                 {
-                                    p = doc.CreateElement("p");
+                                    p = doc!.CreateElement("p");
                                     node.ReplaceChild(p, childNode);
                                     p.AppendChild(childNode);
                                 }                               
@@ -1051,7 +1051,7 @@ namespace SmartReader
                 if (topCandidate is null || topCandidate.TagName is "BODY")
                 {
                     // Move all of the page's children into topCandidate
-                    topCandidate = doc.CreateElement("DIV");
+                    topCandidate = doc!.CreateElement("DIV");
                     neededToCreateTopCandidate = true;
                     // Move everything (not just elements, also text nodes etc.) into the container
                     // so we even include text directly in the body:
@@ -1156,7 +1156,7 @@ namespace SmartReader
                 // Now that we have the top candidate, look through its siblings for content
                 // that might also be related. Things like preambles, content split by ads
                 // that we removed, etc.
-                var articleContent = doc.CreateElement("DIV");
+                var articleContent = doc!.CreateElement("DIV");
                 if (isPaging)
                     articleContent.Id = "readability-content";
 
@@ -1628,7 +1628,7 @@ namespace SmartReader
                         {
                             //if the item is a <figure> that does not contain an image or picture, create one and place it inside the figure
                             //see the nytimes-3 testcase for an example
-                            var img = doc.CreateElement("img");
+                            var img = doc!.CreateElement("img");
                             img.SetAttribute(copyTo, attr.Value);
                             elem.AppendChild(img);
                         }
@@ -1852,7 +1852,7 @@ namespace SmartReader
         /// <returns>Whether or not we suspect parse method will suceeed at returning an article object.</returns>
         private bool IsProbablyReaderable()
         {            
-            var nodes = NodeUtility.GetAllNodesWithTag(doc.DocumentElement, s_p_pre_article);
+            var nodes = NodeUtility.GetAllNodesWithTag(doc!.DocumentElement, s_p_pre_article);
 
             // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
             // Some articles' DOM structures might look like
@@ -1921,6 +1921,9 @@ namespace SmartReader
         /// </returns> 
         private Article Parse()
         {
+            if (doc == null)
+                throw new Exception("No document found");
+
             // Avoid parsing too large documents, as per configuration option
             if (MaxElemsToParse > 0)
             {
@@ -1961,7 +1964,7 @@ namespace SmartReader
                 LoggerDelegate("<h2>Pre-GrabArticle:</h2>" + doc.DocumentElement.InnerHtml);
 
             var metadata = Readability.GetArticleMetadata(this.doc, this.uri, this.language, jsonLd);
-            articleTitle = metadata.Title;
+            articleTitle = metadata.Title ?? "";
 
             var articleContent = GrabArticle();
             if (articleContent is null)
@@ -2187,7 +2190,7 @@ namespace SmartReader
             {
                 if (disposing)
                 {
-                    doc.Dispose();
+                    doc?.Dispose();
                 }
 
                 disposedValue = true;
