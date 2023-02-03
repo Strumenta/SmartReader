@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.9.2
+- Added fixes from latest updates of Readability up until January 2023
+- Allow lists of images to remain
+
 ## 0.9.1 - 2022/10/23
 - Fixed memory leaks (thanks to [Joshua Waring](https://github.com/Joshhua5))
 

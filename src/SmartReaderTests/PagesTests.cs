@@ -31,7 +31,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata.Language) ? null : metadata.Language.ToString());
             mockArticle.Setup(x => x.Excerpt).Returns(metadata.Excerpt ?? "");
             mockArticle.Setup(x => x.SiteName).Returns(metadata.SiteName ?? "");
-            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata.TimeToRead));
+            mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata.TimeToRead ?? "0"));
             mockArticle.Setup(x => x.Content).Returns(content);
             mockArticle.Setup(x => x.FeaturedImage).Returns(metadata.FeaturedImage ?? "");
 
@@ -96,11 +96,11 @@ namespace SmartReaderTests
         [Theory]
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
-        {
+        {                 
             var jso = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
+            };            
 
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
 
