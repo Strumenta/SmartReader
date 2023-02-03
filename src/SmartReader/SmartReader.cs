@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using AngleSharp;
-using AngleSharp.Browser;
 using AngleSharp.Common;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
@@ -965,6 +964,7 @@ namespace SmartReader
 				 * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
 				*/
                 var candidates = new List<IElement>();
+
                 foreach (var elementToScore in elementsToScore)
                 {
                     if (elementToScore.Parent is null)
@@ -977,7 +977,7 @@ namespace SmartReader
 
                     // Exclude nodes with no ancestor.
                     var ancestors = NodeUtility.GetNodeAncestors(elementToScore, 5);
-                    if (ancestors.Count is 0)
+                    if (ancestors?.Count is 0)
                         continue;
 
                     double contentScore = 0;
