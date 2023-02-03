@@ -3,7 +3,7 @@
 namespace SmartReader
 {
     internal sealed class Metadata
-    {        
+    {
         internal string? Title { get; set; }
 
         internal string? Excerpt { get; set; }

@@ -23,13 +23,13 @@ namespace SmartReader
         private static readonly Regex RE_Tokenize = new Regex(@"\W+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         // See: https://schema.org/Article
-        private static readonly HashSet<string> JsonLdArticleTypes = new (new[] {
+        private static readonly HashSet<string> JsonLdArticleTypes = new(new[] {
             "Article", "AdvertiserContentArticle", "NewsArticle", "AnalysisNewsArticle", "AskPublicNewsArticle",
             "BackgroundNewsArticle", "OpinionNewsArticle", "ReportageNewsArticle", "ReviewNewsArticle", "Report",
             "SatiricalArticle", "ScholarlyArticle", "MedicalScholarlyArticle", "SocialMediaPosting", "BlogPosting",
-            "LiveBlogPosting", "DiscussionForumPosting", "TechArticle", "APIReference" 
+            "LiveBlogPosting", "DiscussionForumPosting", "TechArticle", "APIReference"
         });
-     
+
         private static readonly char[] s_space = { ' ' };
         private static readonly string[] s_img_picture_figure_video_audio_source = { "img", "picture", "figure", "video", "audio", "source" };
 
@@ -128,14 +128,14 @@ namespace SmartReader
                 }
 
                 if (media.GetAttribute("srcset") is string srcset)
-                {                        
+                {
                     var newSrcset = RE_SrcSetUrl.Replace(srcset, (input) =>
                     {
                         return uri.ToAbsoluteURI(input.Groups[1].Value) + (input.Groups[2]?.Value ?? "") + input.Groups[3].Value;
-                    });                                 
+                    });
 
                     media.SetAttribute("srcset", newSrcset);
-                }                          
+                }
             }
         }
 
@@ -302,8 +302,8 @@ namespace SmartReader
             {
                 return 0;
             }
-            var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));            
-            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;            
+            var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
+            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
             return 1 - distanceB;
         }
 
@@ -327,13 +327,13 @@ namespace SmartReader
         /// <returns>Dictionary with any metadata that could be extracted (possibly none)</returns>
         internal static Dictionary<string, string> GetJSONLD(IHtmlDocument doc)
         {
-            var jsonLDMetadata = new Dictionary<string, string>();            
-            
+            var jsonLDMetadata = new Dictionary<string, string>();
+
             var scripts = doc.DocumentElement.GetElementsByTagName("script");
 
             NodeUtility.ForEachElement(scripts, jsonLdElement =>
             {
-                if(jsonLDMetadata.Count == 0 && jsonLdElement?.GetAttribute("type") is "application/ld+json")
+                if (jsonLDMetadata.Count == 0 && jsonLdElement?.GetAttribute("type") is "application/ld+json")
                 {
                     try
                     {
@@ -452,7 +452,7 @@ namespace SmartReader
 
                     }
                 }
-            });            
+            });
 
             return jsonLDMetadata;
         }
@@ -470,7 +470,7 @@ namespace SmartReader
         internal static Metadata GetArticleMetadata(IHtmlDocument doc, Uri uri, string? language, Dictionary<string, string> jsonLD)
         {
             var metadata = new Metadata();
-            Dictionary<string, string> values = jsonLD;            
+            Dictionary<string, string> values = jsonLD;
             var metaElements = doc.GetElementsByTagName("meta");
 
             // Match "description", or Twitter's "twitter:description" (Cards)
@@ -501,7 +501,7 @@ namespace SmartReader
                 string name = "";
 
                 if (elementName is "author" || elementProperty is "author" || itemProp is "author")
-                {                    
+                {
                     values["author"] = content;
                 }
 
@@ -509,13 +509,13 @@ namespace SmartReader
                 {
                     matches = Regex.Matches(elementProperty, propertyPattern);
                     if (matches.Count > 0)
-                    {                        
+                    {
                         // Convert to lowercase, and remove any whitespace
                         // so we can match below.
                         name = Regex.Replace(matches[0].Value.ToLowerInvariant(), @"\s+", "");
 
                         // multiple authors
-                        values[name] = content.Trim();                        
+                        values[name] = content.Trim();
                     }
                 }
 
@@ -523,7 +523,7 @@ namespace SmartReader
                   && elementName is { Length: > 0 } && Regex.IsMatch(elementName, namePattern, RegexOptions.IgnoreCase))
                 {
                     name = elementName;
-                    
+
                     // Convert to lowercase, remove any whitespace, and convert dots
                     // to colons so we can match below.
                     name = Regex.Replace(Regex.Replace(name.ToLowerInvariant(), @"\s+", ""), @"\.", ":");
@@ -569,7 +569,7 @@ namespace SmartReader
 
             IEnumerable<string?> SiteNameKeys()
             {
-                yield return values.GetValueOrDefault("jsonld:siteName") ;
+                yield return values.GetValueOrDefault("jsonld:siteName");
                 yield return values.GetValueOrDefault("og:site_name");
             }
 
@@ -582,14 +582,14 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("jsonld:title");
                 yield return values.GetValueOrDefault("dc:title");
                 yield return values.GetValueOrDefault("dcterm:title");
-                yield return values.GetValueOrDefault("og:title") ;
+                yield return values.GetValueOrDefault("og:title");
                 yield return values.GetValueOrDefault("weibo:article:title");
                 yield return values.GetValueOrDefault("weibo:webpage:title");
                 yield return values.GetValueOrDefault("twitter:title");
                 yield return values.GetValueOrDefault("title");
             }
 
-            metadata.Title = FirstNonEmptyValueOrDefault(TitleKeys()) ?? ""; 
+            metadata.Title = FirstNonEmptyValueOrDefault(TitleKeys()) ?? "";
 
             // Let's try to eliminate the site name from the title
             metadata.Title = CleanTitle(metadata.Title, metadata.SiteName);
@@ -633,7 +633,7 @@ namespace SmartReader
             }
 
             metadata.FeaturedImage = FirstNonEmptyValueOrDefault(FeaturedImageKeys()) ?? "";
-            
+
             // We try to find a meta tag for the author.
             // Note that there is Open Grapg tag for an author,
             // but it usually contains a profile URL of the author.
@@ -683,7 +683,7 @@ namespace SmartReader
 
             if (metadata.PublicationDate is null)
             {
-                var times = doc.GetElementsByTagName("time");               
+                var times = doc.GetElementsByTagName("time");
 
                 foreach (var time in times)
                 {
@@ -709,7 +709,7 @@ namespace SmartReader
 
             // in many sites the meta value is escaped with HTML entities,
             // so here we need to unescape it    
-            metadata.Title = HttpUtility.HtmlDecode(metadata.Title).Trim();            
+            metadata.Title = HttpUtility.HtmlDecode(metadata.Title).Trim();
             metadata.Excerpt = HttpUtility.HtmlDecode(metadata.Excerpt).Trim();
             metadata.SiteName = HttpUtility.HtmlDecode(metadata.SiteName).Trim();
 

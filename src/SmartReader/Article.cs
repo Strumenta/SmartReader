@@ -104,7 +104,7 @@ namespace SmartReader
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
             IsReadable = readable;
-            FeaturedImage = metadata.FeaturedImage;          
+            FeaturedImage = metadata.FeaturedImage;
         }
 
         /// <summary>
@@ -207,14 +207,14 @@ namespace SmartReader
                         else
                         {
                             img.Remove();
-                        }                            
+                        }
                     }
-                    catch { }                                                
+                    catch { }
                 }
             }
 
             // we update the affected properties
-            Content = _element.InnerHtml;            
+            Content = _element.InnerHtml;
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace SmartReader
 
             string text = ConvertToText(doc, writer);
 
-            bool previousSpace = false;            
+            bool previousSpace = false;
             bool previousNewline = false;
             int index = 0;
 
@@ -261,7 +261,7 @@ namespace SmartReader
                     index++;
 
                 previousSpace = isSpace;
-                previousNewline = isNewline;                
+                previousNewline = isNewline;
             }
 
             // we trim all whitespace
@@ -284,7 +284,7 @@ namespace SmartReader
             {
                 text.Write(text.NewLine);
             }
-            
+
             if (doc.HasChildNodes)
             {
                 foreach (INode el in doc.ChildNodes)

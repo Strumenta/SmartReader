@@ -16,18 +16,18 @@ namespace SmartReaderTests
         private readonly ITestOutputHelper _output;
         public BasicTests(ITestOutputHelper output)
         {
-            _output = output;            
+            _output = output;
         }
 
         [Fact]
         public void TestCleanTitleNoSitename()
-        {           
+        {
             Assert.Equal("Big title ", Readability.CleanTitle("Big title ", "Wikipedia"));
         }
 
         [Fact]
         public void TestCleanTitlePipe()
-        {            
+        {
             Assert.Equal("Big title", Readability.CleanTitle("Big title | Wikipedia", "Wikipedia"));
         }
 
@@ -63,7 +63,7 @@ namespace SmartReaderTests
                <head><title>An article with a complex idea</title></head>
                <body></body>
                </html>");
-           
+
             Assert.Equal("An article with a complex idea", Readability.GetArticleTitle(doc));
         }
 
@@ -304,7 +304,7 @@ namespace SmartReaderTests
             Reader.SetBaseHttpClientHandler(mockHttp);
 
             var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
-            
+
             article.ConvertImagesToDataUriAsync().Wait();
 
             // check that there is one image
@@ -333,11 +333,11 @@ namespace SmartReaderTests
             var reader = new Reader("https://localhost/article");
 
             var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
-           
+
             // check that the text returned is correct
             Assert.Equal("This is a paragraph with some text.\r\n" +
                          "\r\nThis is a paragraph with some other text and lots of whitespace .\r\n" +
-                         "\r\nThis is a paragraph with different\r\nother text.", article.TextContent);           
+                         "\r\nThis is a paragraph with different\r\nother text.", article.TextContent);
         }
 
         [Fact]
@@ -366,7 +366,7 @@ namespace SmartReaderTests
             Article.Serializer = serializer;
 
             var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
-            
+
             // restore standard serializer
             Article.Serializer = (AngleSharp.Dom.IElement element) =>
             {
@@ -374,7 +374,7 @@ namespace SmartReaderTests
             };
 
             // check that the text returned is correct
-            Assert.Equal(@"<p></p><p>This is a paragraph with some text.</p><p>This  	 is a paragraph   with some other text and lots of whitespace  .</p><p>This is 			a paragraph with different<br>other text.</p><pre>   Space inside here is       magic</pre>", article.Content);            
+            Assert.Equal(@"<p></p><p>This is a paragraph with some text.</p><p>This  	 is a paragraph   with some other text and lots of whitespace  .</p><p>This is 			a paragraph with different<br>other text.</p><pre>   Space inside here is       magic</pre>", article.Content);
         }
 
         [Fact]
@@ -406,7 +406,7 @@ namespace SmartReaderTests
             Assert.Equal(@"********** is a great language for system programming.", article.TextContent);
 
             // restore standard converter
-            Article.Converter = oldConverter;      
+            Article.Converter = oldConverter;
         }
 
         [Fact]

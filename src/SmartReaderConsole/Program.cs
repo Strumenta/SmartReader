@@ -10,8 +10,8 @@ namespace SmartReaderConsole
     class Program
     {
         static void AddInfo(AngleSharp.Dom.IElement element)
-        {       
-            if(element.QuerySelector("div")?.LastElementChild != null)
+        {
+            if (element.QuerySelector("div")?.LastElementChild != null)
                 element.QuerySelector("div").LastElementChild.InnerHtml += "<p>Article parsed by SmartReader</p>";
         }
 
@@ -40,7 +40,7 @@ namespace SmartReaderConsole
             string sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
 
             Reader reader = new Reader("https://localhost/", sourceContent);
-            
+
             reader.ClassesToPreserve = new string[] { "info" };
 
             reader.Debug = true;
@@ -89,16 +89,16 @@ namespace SmartReaderConsole
 
         static void AddFieldToMetadataJsonForTests(string field)
         {
-            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");            
-            foreach(var p in pages)
+            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
+            foreach (var p in pages)
             {
-                string sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));               
+                string sourceContent = File.ReadAllText(Path.Combine(p, "source.html"));
 
-                Reader reader = new Reader("https://localhost/", sourceContent);               
+                Reader reader = new Reader("https://localhost/", sourceContent);
 
                 // get the article
-                Article article = reader.GetArticle();        
-                
+                Article article = reader.GetArticle();
+
                 List<string> lines;
 
                 lines = File.ReadAllLines(Path.Combine(p, "expected-metadata.json")).ToList();
@@ -111,7 +111,7 @@ namespace SmartReaderConsole
                 lines.Insert(lines.Count - 1, $"  \"{field.First().ToString().ToLower() + field.Substring(1)}\": \"{article.GetType().GetProperty(field).GetValue(article)}\"");
 
                 File.WriteAllLines(Path.Combine(p, "expected-metadata.json"), lines);
-            }                       
+            }
         }
 
         static void Main(string[] args)

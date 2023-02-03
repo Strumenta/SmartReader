@@ -19,7 +19,7 @@ namespace SmartReader
             sb.Append(startUri.Host);
 
             if (!startUri.IsDefaultPort)
-            { 
+            {
                 sb.Append(':');
                 sb.Append(startUri.Port.ToString(CultureInfo.InvariantCulture));
             }
@@ -49,7 +49,7 @@ namespace SmartReader
             // Ignore hash URIs
             if (uriToCheck[0] == '#')
                 return uriToCheck;
-            
+
             // Scheme-rooted relative URI.
             if (uriToCheck.StartsWith("//", StringComparison.Ordinal))
                 return scheme + "://" + uriToCheck.Substring(2);

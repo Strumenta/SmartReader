@@ -13,8 +13,8 @@ namespace SmartReader
     {
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
-        private static readonly Regex RE_HasContent      = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex RE_HashUrl         = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_HasContent = new Regex(@"\S$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex RE_HashUrl    = new Regex(@"^#.+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly string[] divToPElems = { "BLOCKQUOTE", "DL", "DIV", "IMG", "OL", "P", "PRE", "TABLE", "UL" };
 

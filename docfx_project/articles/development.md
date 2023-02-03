@@ -22,7 +22,13 @@ The command must be issued inside the `src/SmartReader` folder.
 
 The project contains a `docfx_project` folder that set up the static documentation website. It uses [DocFx](https://dotnet.github.io/docfx/index.html) to generated documentation that contains automatically generated API reference with comments from the source code.
 
-If you need to build the documentation just run the following command inside the directory.
+If you need to build the documentation, you must first ensure that you have installed docfx. You can install it using any recent .NET SDK.
+
+```
+dotnet tool update -g docfx
+```
+
+Them you just run the following command inside the `docfx_project` folder.
 
 ```
  docfx build
