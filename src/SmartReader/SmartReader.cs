@@ -1794,6 +1794,26 @@ namespace SmartReader
                       (weight >= 25f && linkDensity > 0.5f) ||
                       ((embedCount == 1 && contentLength < 75) || embedCount > 1);
 
+                    // Allow simple lists of images to remain in pages
+                    if (isList && haveToRemove)
+                    {
+                        for (var x = 0; x < node.Children.Length; x++)
+                        {
+                            var child = node.Children[x];
+                            // Don't filter in lists with li's that contain more than one child
+                            if (child.Children.Length > 1)
+                            {
+                                return haveToRemove;
+                            }
+                        }
+                        var li_count = node.GetElementsByTagName("li").Length;
+                        // Only allow the list to remain if every li contains an image
+                        if (img == li_count)
+                        {
+                            return false;
+                        }
+                    }
+
                     return haveToRemove;
                 }
                 return false;
