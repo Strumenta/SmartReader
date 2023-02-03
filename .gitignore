@@ -3,3 +3,4 @@ nupkgs/
 packages/
 .vs/
 src/SmartReader/SmartReader.xml
+src/SmartReaderDemo/obj/
