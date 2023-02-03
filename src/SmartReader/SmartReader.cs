@@ -838,6 +838,13 @@ namespace SmartReader
                         continue;
                     }
 
+                    // User is not able to see elements applied with both "aria-modal = true" and "role = dialog"
+                    if (node.GetAttribute("aria-modal") == "true" && node.GetAttribute("role") == "dialog")
+                    {
+                        node = NodeUtility.RemoveAndGetNext(node);
+                        continue;
+                    }
+
                     // Check to see if this node is a byline, and remove it if it is.
                     if (CheckByline(node, matchString))
                     {
