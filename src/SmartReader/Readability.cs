@@ -269,7 +269,7 @@ namespace SmartReader
                     curTitle = NodeUtility.GetInnerText(hOnes[0]);
             }
 
-            curTitle = curTitle.Trim();
+            curTitle = RE_Normalize.Replace(curTitle.Trim(), " ");
 
             // If we now have 4 words or fewer as our title, and either no
             // 'hierarchical' separators (\, /, > or ») were found in the original
@@ -294,7 +294,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="textA">first text to compare</param>
         /// <param name="textb">second text to compare</param>
-        internal static int TextSimilarity(string textA, string textB)
+        internal static float TextSimilarity(string textA, string textB)
         {
             var tokensA = RE_Tokenize.Split(textA.ToLowerInvariant()).Where(x => x.Length != 0).ToArray();
             var tokensB = RE_Tokenize.Split(textB.ToLowerInvariant()).Where(x => x.Length != 0).ToArray();
@@ -303,7 +303,7 @@ namespace SmartReader
                 return 0;
             }
             var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
-            var distanceB = string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
+            var distanceB = (float) string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
             return 1 - distanceB;
         }
 

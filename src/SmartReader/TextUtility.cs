@@ -7,7 +7,7 @@ namespace SmartReader
 {
     internal static class TextUtility
     {
-        public static int CountWordsSeparatedByComma(ReadOnlySpan<char> text)
+        internal static int CountWordsSeparatedByComma(ReadOnlySpan<char> text)
         {
             int commaCount = 0;
             int commaIndex;
@@ -22,7 +22,7 @@ namespace SmartReader
             return commaCount + 1;
         }
 
-        public static String CleanXmlName(this String str)
+        internal static string CleanXmlName(this string str)
         {
             if (str.Length > 0)
             {
@@ -42,6 +42,6 @@ namespace SmartReader
             }
             else
                 return str;
-        }
+        }        
     }
 }

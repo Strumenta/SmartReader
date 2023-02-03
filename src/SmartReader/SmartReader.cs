@@ -839,7 +839,7 @@ namespace SmartReader
                     }
 
                     // User is not able to see elements applied with both "aria-modal = true" and "role = dialog"
-                    if (node.GetAttribute("aria-modal") == "true" && node.GetAttribute("role") == "dialog")
+                    if (node.GetAttribute("aria-modal") is "true" && node.GetAttribute("role") is "dialog")
                     {
                         node = NodeUtility.RemoveAndGetNext(node);
                         continue;
