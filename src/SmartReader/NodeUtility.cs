@@ -102,7 +102,7 @@ namespace SmartReader
 
         internal static ReadOnlySpan<char> GetDisplayFromStyle(string style)
         {
-            int displayIndex = style.IndexOf("display", StringComparison.OrdinalIgnoreCase);
+            int displayIndex = style.IndexOf("display:", StringComparison.OrdinalIgnoreCase);
 
             if (displayIndex > -1)
             {
@@ -596,7 +596,7 @@ namespace SmartReader
         {
             var i = 0;
             var ancestors = new List<INode>();
-            while (node.Parent != null)
+            while (node?.Parent != null)
             {
                 ancestors.Add(node.Parent);
                 if (maxDepth != 0 && ++i == maxDepth)
