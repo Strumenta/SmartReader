@@ -7,6 +7,6 @@ WORKDIR /app
 RUN ["dotnet", "build", "src/SmartReader/SmartReader.csproj"]
 RUN ["dotnet", "build", "src/SmartReader.WebDemo/SmartReader.WebDemo.csproj"]
 
-EXPOSE 5000/tcp
+EXPOSE ${PORT:-5000}/tcp
 
-ENTRYPOINT [ "dotnet", "run", "--project", "src/SmartReader.WebDemo/SmartReader.WebDemo.csproj", "--no-restore", "--urls", "http://0.0.0.0:5000"]
+ENTRYPOINT [ "dotnet", "run", "--project", "src/SmartReader.WebDemo/SmartReader.WebDemo.csproj", "--no-restore", "--urls", "http://0.0.0.0:${PORT:-5000}"]
