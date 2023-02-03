@@ -305,13 +305,7 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveScripts(IElement element)
         {
-            RemoveNodes(element.GetElementsByTagName("script"), static scriptNode =>
-            {
-                scriptNode.NodeValue = "";
-                scriptNode.RemoveAttribute("src");
-                return true;
-            });
-            RemoveNodes(element.GetElementsByTagName("noscript"));
+            RemoveNodes(GetAllNodesWithTag(element, new string[] { "script", "noscript" }));
         }
 
         /// <summary>
