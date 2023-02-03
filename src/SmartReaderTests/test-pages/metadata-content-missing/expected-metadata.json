@@ -1,12 +1,9 @@
 {
   "title": "My title",
   "byline": "Creator Name",
-  "dir": null,
   "excerpt": "Preferred description",
   "readerable": true,
-  "language": null,
   "timeToRead": "00:01:00",
-  "publicationDate": null,
   "author": "Creator Name",
   "siteName": "",
   "featuredImage": ""
