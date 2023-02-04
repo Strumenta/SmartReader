@@ -57,5 +57,6 @@ You can also use the option --serve to launch a demo of the site on localhost:80
 - [theolivenbaum](https://github.com/theolivenbaum)
 - [Daniel Egbers](https://github.com/DanielEgbers)
 - [Sander Schutten](https://github.com/sschutten)
+- [sucrose](https://github.com/sucrose0413 )
 
 Thanks to all the people involved.

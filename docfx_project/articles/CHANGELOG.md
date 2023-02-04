@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 - Added fixes from latest updates of Readability up until January 2023
 - Allow lists of images to remain
 - Fix articles showing cookie information in reader mode
-- Fixed bug in TextSimilarity method
+- Fix bug in TextSimilarity method
+- Fix issue #53, error when parsing certain Style attributes (thanks to [Ian Smirlis](https://github.com/iansmirlis))
 
 ## 0.9.1 - 2022/10/23
 - Fixed memory leaks (thanks to [Joshua Waring](https://github.com/Joshhua5))
