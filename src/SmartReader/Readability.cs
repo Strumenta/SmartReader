@@ -188,10 +188,7 @@ namespace SmartReader
                         var child = node.Children[0];
                         for (var i = 0; i < node.Attributes.Length; i++)
                         {
-                            if (node.Attributes[i]!.Name.IsXmlName())
-                                child.SetAttribute(node.Attributes[i]!.Name, node.Attributes[i]!.Value);
-                            else
-                                child.SetAttribute(node.Attributes[i]!.Name.CleanXmlName(), node.Attributes[i]!.Value);
+                            NodeUtility.SafeSetAttribute(child, node.Attributes[i]);                            
                         }
                         node.Parent.ReplaceChild(child, node);
                         node = child;

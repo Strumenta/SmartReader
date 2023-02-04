@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using AngleSharp.Text;
 
 namespace SmartReader
 {
@@ -59,11 +60,7 @@ namespace SmartReader
             {
                 var attr = node.Attributes[i]!;
 
-                // the possible result of malformed HTML
-                if (!attr.Name.Contains("<") && !attr.Name.Contains(">"))
-                {
-                    replacement.SetAttribute(attr.Name, attr.Value);
-                }
+                NodeUtility.SafeSetAttribute(replacement, attr);                
             }
             return replacement;
         }
@@ -621,6 +618,18 @@ namespace SmartReader
                 next = next.NextSibling;
             }
             return next as IElement;
+        }
+
+        /// <summary>
+        /// This is a safe method to write attributes
+        /// because AngleSharp cannot handle attribute names that would be invalid in XML
+        /// </summary>  
+        internal static void SafeSetAttribute(this IElement child, IAttr attribute)
+        {
+            if (attribute.Name.IsXmlName())
+                child.SetAttribute(attribute.Name, attribute.Value);
+            else
+                child.SetAttribute(attribute.Name.CleanXmlName(), attribute.Value);
         }
     }
 }

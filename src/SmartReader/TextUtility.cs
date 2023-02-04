@@ -42,6 +42,6 @@ namespace SmartReader
             }
             else
                 return str;
-        }        
+        }
     }
 }
