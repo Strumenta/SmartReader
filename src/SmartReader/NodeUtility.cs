@@ -629,7 +629,10 @@ namespace SmartReader
             if (attribute.Name.IsXmlName())
                 child.SetAttribute(attribute.Name, attribute.Value);
             else
-                child.SetAttribute(attribute.Name.CleanXmlName(), attribute.Value);
+            {
+                if(!String.IsNullOrEmpty(attribute.Name.CleanXmlName()))
+                    child.SetAttribute(attribute.Name.CleanXmlName(), attribute.Value);
+            }                
         }
     }
 }
