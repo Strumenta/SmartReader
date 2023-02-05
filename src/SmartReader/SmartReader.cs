@@ -67,6 +67,19 @@ namespace SmartReader
         /// <value>Default: 500</value>
         public int CharThreshold { get; set; } = 500;
 
+        /// <summary>
+        /// The default level of depth a node must have to be used for scoring
+        /// Nodes without as many ancestors as this level are not counted
+        /// </summary>
+        /// <value>Default: 5</value>
+        public int AncestorsDepth { get; set; } = 5;
+
+        /// <summary>
+        /// The default number of characters a paragraph must have in order to be used for scoring
+        /// </summary>
+        /// <value>Default: 25</value>
+        public int ParagraphThreshold { get; set; } = 25;
+
         private static readonly IEnumerable<string> s_page = new string[] { "page" };
 
         private string[] classesToPreserve = { "page" };
@@ -972,11 +985,11 @@ namespace SmartReader
 
                     // If this paragraph is less than 25 characters, don't even count it.
                     string innerText = NodeUtility.GetInnerText(elementToScore);
-                    if (innerText.Length < 25)
+                    if (innerText.Length < ParagraphThreshold)
                         continue;
 
                     // Exclude nodes with no ancestor.
-                    var ancestors = NodeUtility.GetNodeAncestors(elementToScore, 5);
+                    var ancestors = NodeUtility.GetNodeAncestors(elementToScore, AncestorsDepth);
                     if (ancestors?.Count is 0)
                         continue;
 
