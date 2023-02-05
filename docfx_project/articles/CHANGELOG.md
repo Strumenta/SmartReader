@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Fix articles showing cookie information in reader mode
 - Fix bug in TextSimilarity method
 - Fix issue #53, error when parsing certain Style attributes (thanks to [Ian Smirlis](https://github.com/iansmirlis))
+- Fix issue #54, error when cleaning certain invalid attributes name (thanks to [Ian Smirlis](https://github.com/iansmirlis))
 
 ## 0.9.1 - 2022/10/23
 - Fixed memory leaks (thanks to [Joshua Waring](https://github.com/Joshhua5))

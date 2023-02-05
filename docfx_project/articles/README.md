@@ -107,6 +107,16 @@ if(article.IsReadable)
 - `int` **MinScoreReaderable** <br> The minumum cumulated 'score' used to determine if the document is readerable<br> *Default: 20*
 - `Func<IElement, bool>` **IsNodeVisible** <br> The function used to determine if a node is visible. Used in the process of determining if the document is readerable<br> *Default: NodeUtility.IsProbablyVisible*
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header. This will convert the stream to the encoding set in the header before passing it to the HTML parser<br>*Default: false*
+- `int` **AncestorsDepth** <br>The default level of depth a node must have to be used for scoring.Nodes without as many ancestors as this level are not counted<br>*Default: 5*
+- `int` **ParagraphThreshold** <br>The default number of characters a node must have in order to be used for scoring<br>*Default: 25*
+
+### Settings Notes
+
+The settings <code>MinScoreReaderable</code>, <code>CharThreshold</code> and <code>MinContentLengthReadearable</code> are used in the process of determining if an article is readerable or if the result found is valid.
+
+The algorithm for scoring assign some score to each valid node, then it determines the best node depending on their relationships, i.e., what score ancestors and descendants of the node have. The settings <code>NTopCandidates</code>, <code>AncestorsDepth</code> and <code>ParagraphThreshold</code> can help you customize this process. It makes sense to change them if you are interested in some sites that uses a particular style or design of coding.
+
+The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable</code> and <code>CharThreshold</code> should be customized for content written in non-alphabetical languages.
 
 ## Article Model
 
