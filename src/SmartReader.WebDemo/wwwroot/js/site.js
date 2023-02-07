@@ -22,7 +22,7 @@ function analyze() {
             $("#language").text(data.article.language);
             $("#length").text(data.article.length);
             $("#excerpt").text(data.article.excerpt);
-            $("#timeToRead").text(data.article.timeToRead.minutes + " minutes");
+            $("#timeToRead").text(data.article.timeToRead);
             $("#images").text(data.images);
         });
 }
