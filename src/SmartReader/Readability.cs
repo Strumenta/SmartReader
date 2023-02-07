@@ -188,7 +188,7 @@ namespace SmartReader
                         var child = node.Children[0];
                         for (var i = 0; i < node.Attributes.Length; i++)
                         {
-                            NodeUtility.SafeSetAttribute(child, node.Attributes[i]);                            
+                            NodeUtility.SafeSetAttribute(child, node.Attributes[i]!);                            
                         }
                         node.Parent.ReplaceChild(child, node);
                         node = child;

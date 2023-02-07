@@ -900,7 +900,6 @@ namespace SmartReader
                     }
 
                     // Remove DIV, SECTION, and HEADER nodes without any content(e.g. text, image, video, or iframe).
-
                     if ((node.TagName is "DIV" or "SECTION" or "HEADER"
                         or "H1" or "H2" or "H3" or "H4" or "H5" or "H6") &&
                         NodeUtility.IsElementWithoutContent(node))
@@ -990,7 +989,7 @@ namespace SmartReader
 
                     // Exclude nodes with no ancestor.
                     var ancestors = NodeUtility.GetNodeAncestors(elementToScore, AncestorsDepth);
-                    if (ancestors?.Count is 0)
+                    if (ancestors.Count is 0)
                         continue;
 
                     double contentScore = 0;

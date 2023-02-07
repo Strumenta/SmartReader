@@ -1,13 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.9.2
+## 0.9.2 - 2023/02/05
 - Added fixes from latest updates of Readability up until January 2023
 - Allow lists of images to remain
 - Fix articles showing cookie information in reader mode
 - Fix bug in TextSimilarity method
 - Fix issue #53, error when parsing certain Style attributes (thanks to [Ian Smirlis](https://github.com/iansmirlis))
 - Fix issue #54, error when cleaning certain invalid attributes name (thanks to [Ian Smirlis](https://github.com/iansmirlis))
+- Add settings AncestorsDepth and ParagraphThreshold to customize algorithm
 
 ## 0.9.1 - 2022/10/23
 - Fixed memory leaks (thanks to [Joshua Waring](https://github.com/Joshhua5))
