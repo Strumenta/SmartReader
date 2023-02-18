@@ -154,9 +154,8 @@ namespace SmartReader
             // eliminate any text after a separator
             if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(titleSeperators) != -1)
             {
-
                 // we eliminate the text after the separator only if it is the site name
-                title = Regex.Replace(title, $"(.*) [\\|\\-\\\\/>»] {siteName}.*", "$1", RegexOptions.IgnoreCase);
+                title = Regex.Replace(title, $"(.*) [\\|\\-\\\\/>»] {Regex.Escape(siteName)}.*", "$1", RegexOptions.IgnoreCase);
             }
 
             title = RE_Normalize.Replace(title, " ");
