@@ -56,6 +56,13 @@ namespace SmartReaderTests
         }
 
         [Fact]
+        public void TestCleanTitleDoesNotBreakWithRegexCharacters()
+        {
+            Assert.Equal("* No longer! *", Readability.CleanTitle("* No longer! *", "This is a *** problem"));
+            Assert.Equal("Maybe ?", Readability.CleanTitle("Maybe ?", "Is this a problem?"));
+        }
+
+        [Fact]
         public void TestGetArticleTitleIdTitle()
         {
             var parser = new HtmlParser(new HtmlParserOptions());
