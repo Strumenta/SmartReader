@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.9.3
+- Fix issue #55, error when parsing certain urls for date detection (thanks to [Ian Smirlis](https://github.com/iansmirlis))
+
 ## 0.9.2 - 2023/02/05
 - Added fixes from latest updates of Readability up until January 2023
 - Allow lists of images to remain

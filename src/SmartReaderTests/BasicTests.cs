@@ -272,7 +272,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21/"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/37"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2010, 10, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2010/10/change_of_plans.html"), "", new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]

@@ -695,12 +695,23 @@ namespace SmartReader
             if (metadata.PublicationDate is null)
             {
                 // as a last resort check the URL for a date
-                Match maybeDate = Regex.Match(uri.PathAndQuery, "/(?<year>[0-9]{4})/(?<month>[0-9]{2})/(?<day>[0-9]{2})?");
+                Match maybeDate = Regex.Match(uri.PathAndQuery, "/(?<year>[0-9]{4})/(?<month>[0-9]{2})/((?<day>[0-9]{2})/)?");                
+
                 if (maybeDate.Success)
                 {
-                    metadata.PublicationDate = new DateTime(int.Parse(maybeDate.Groups["year"].Value, CultureInfo.InvariantCulture),
-                        int.Parse(maybeDate.Groups["month"].Value, CultureInfo.InvariantCulture),
-                        !string.IsNullOrEmpty(maybeDate.Groups["day"].Value) ? int.Parse(maybeDate.Groups["day"].Value, CultureInfo.InvariantCulture) : 1);
+                    int month = int.Parse(maybeDate.Groups["month"].Value, CultureInfo.InvariantCulture);
+                    int year = int.Parse(maybeDate.Groups["year"].Value, CultureInfo.InvariantCulture);
+
+                    // the number that we think represents a day can also represents some other things
+                    int numberForDay = 1;
+                    if (!string.IsNullOrEmpty(maybeDate.Groups["day"].Value))
+                    {                        
+                        numberForDay = int.Parse(maybeDate.Groups["day"].Value, CultureInfo.InvariantCulture);
+                        if (DateTime.DaysInMonth(year, month) < numberForDay)
+                            numberForDay = 1;
+                    }                    
+                                            
+                    metadata.PublicationDate = new DateTime(year, month, numberForDay);
                 }
             }
 
