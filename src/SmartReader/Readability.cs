@@ -217,7 +217,7 @@ namespace SmartReader
                 if (typeof(string) != curTitle.GetType())
                     curTitle = origTitle = NodeUtility.GetInnerText(doc.GetElementsByTagName("title")[0]);
             }
-            catch (Exception e) {/* ignore exceptions setting the title. */}
+            catch (Exception) {/* ignore exceptions setting the title. */}
 
             var titleHadHierarchicalSeparators = false;
             static int wordCount(string str)
@@ -289,7 +289,7 @@ namespace SmartReader
         /// the result is given by the lower length of unique parts
         /// </summary>
         /// <param name="textA">first text to compare</param>
-        /// <param name="textb">second text to compare</param>
+        /// <param name="textB">second text to compare</param>
         internal static float TextSimilarity(string textA, string textB)
         {
             var tokensA = RE_Tokenize.Split(textA.ToLowerInvariant()).Where(x => x.Length != 0).ToArray();
@@ -443,10 +443,7 @@ namespace SmartReader
                             jsonLDMetadata["jsonld:image"] = value.GetProperty("image").GetString()!;
                         }
                     }
-                    catch (Exception e)
-                    {
-
-                    }
+                    catch (Exception) { }
                 }
             });
 
