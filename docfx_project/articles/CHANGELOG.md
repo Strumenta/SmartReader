@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.9.3
+## 0.9.3 - 2023/04/15
 - Fix issue #55, error when parsing certain urls for date detection (thanks to [Ian Smirlis](https://github.com/iansmirlis))
 
 ## 0.9.2 - 2023/02/05

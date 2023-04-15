@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Copyright>Strumenta</Copyright>
     <AssemblyTitle>SmartReader</AssemblyTitle>
-    <Version>0.9.2</Version>
+    <Version>0.9.3</Version>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
