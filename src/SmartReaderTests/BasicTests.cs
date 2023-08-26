@@ -325,6 +325,25 @@ namespace SmartReaderTests
         }
 
         [Fact]
+        public void TestCheckSVGDataURIIsPreserved()
+        {
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>
+                    <p>This is a paragraph with an image <img src=""data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E""></img>.</p>
+               </body>
+               </html>");
+
+            Readability.FixRelativeUris(doc.Body, new Uri("https://localhost/article"), doc);
+
+            if (doc.Body.GetElementsByTagName("img")[0].GetAttribute("src") is string src)
+                Assert.False(src.StartsWith("https://localhost"));
+        }
+
+        [Fact]
         public void TestPlaintextConversion()
         {
             // creating element
