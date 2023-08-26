@@ -62,6 +62,12 @@ namespace SmartReader
             if (uriToCheck.StartsWith("./", StringComparison.Ordinal))
                 return pathBase + uriToCheck.Substring(2);
 
+            // Ignore data URI.
+            // Note that data URI encoded in base64 are already ignored by the
+            // IsWellFormedUriString check. This check is necessary for dataURI in UTF-8
+            if (uriToCheck.StartsWith("data:", StringComparison.Ordinal))
+                return uriToCheck;
+
             // Standard relative URI; add entire path. pathBase already includes a
             // trailing "/".
             return pathBase + uriToCheck;
