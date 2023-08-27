@@ -306,8 +306,17 @@ namespace SmartReader
         }
 
         /// <summary>
+        /// Removes comments from the element
+        /// </summary>
+        /// <param name="element">The element to operate on</param>
+        internal static void RemoveComments(IElement element)
+        {
+            element.Descendents<IComment>().ToList().ForEach(el => el.Remove());
+        }            
+
+        /// <summary>
         /// Check if this node has only whitespace and a single element with given tag
-	    /// Returns false if the DIV node contains non-empty text nodes
+        /// Returns false if the DIV node contains non-empty text nodes
         /// or if it contains no element with given tag or more than 1 element.
         /// </summary>
         /// <param name="element">Element to operate on</param>
