@@ -1,8 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.9.4 - 2023/08/27
+- Fix issue #58, data URIs in IMG SRC not preserved, treated as relative URL (thanks to [Acidus](https://github.com/acidus99))
+- Added fixes from latest updates of Readability up until August 2023
+- Expanded comma detection to non-Latin commas
+
 ## 0.9.3 - 2023/04/15
 - Fix issue #55, error when parsing certain urls for date detection (thanks to [Ian Smirlis](https://github.com/iansmirlis))
+- Fix issue #56, error Readability.CleanTitle() should properly escape string variable siteName with Regex.Escape() before it's applied  (thanks to [Ian Smirlis](https://github.com/iansmirlis))
 
 ## 0.9.2 - 2023/02/05
 - Added fixes from latest updates of Readability up until January 2023

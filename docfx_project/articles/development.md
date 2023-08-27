@@ -31,7 +31,7 @@ dotnet tool update -g docfx
 Them you just run the following command inside the `docfx_project` folder.
 
 ```
- docfx build
+docfx build
 ```
 
 This will generate a static website inside the `docfx_project/_site` folder.
@@ -39,7 +39,7 @@ This will generate a static website inside the `docfx_project/_site` folder.
 You can also use the option --serve to launch a demo of the site on localhost:8080.
 
 ```
- docfx --serve
+docfx --serve
 ```
 
 ## Contributors

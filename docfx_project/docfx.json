@@ -69,7 +69,8 @@
 		"cleanupCacheHistory": false,
 		"disableGitFeatures": false,
 		"sitemap": {
-			"baseUrl": "https://smartreader.inre.me"
+			"baseUrl": "https://smartreader.inre.me",
+			"changefreq": "monthly"
 		}
 	}
 }
