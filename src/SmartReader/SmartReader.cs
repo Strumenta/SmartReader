@@ -185,6 +185,9 @@ namespace SmartReader
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_B64DataUrl = new Regex(@"^data:\s*([^\s;,]+)\s*;\s*base64\s*,", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // Commas as used in Latin, Sindhi, Chinese and various other scripts.
+        // see: https://en.wikipedia.org/wiki/Comma#Comma_variants
+        private static readonly Regex G_RE_Commas = new Regex(@"\u002C|\u060C|\uFE50|\uFE10|\uFE11|\u2E41|\u2E34|\u2E32|\uFF0C", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -998,7 +1001,7 @@ namespace SmartReader
                     contentScore += 1;
 
                     // Add points for any commas within this paragraph.
-                    contentScore += TextUtility.CountWordsSeparatedByComma(innerText.AsSpan());
+                    contentScore += G_RE_Commas.Split(innerText).Length;
 
                     // For every 100 characters in this paragraph, add another point. Up to 3 points.
                     contentScore += Math.Min(Math.Floor(innerText.Length / 100.0), 3);
