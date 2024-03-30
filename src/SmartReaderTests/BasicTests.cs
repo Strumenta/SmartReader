@@ -8,6 +8,8 @@ using RichardSzalay.MockHttp;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 
 namespace SmartReaderTests
 {
@@ -510,6 +512,32 @@ namespace SmartReaderTests
                </html>");
 
             Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+        }
+
+        [Fact]
+        public void TestForbiddenUrl()
+        {
+            // creating element
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>                    
+               </body>
+               </html>");
+
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+
+            mockHttp.When("https://localhost/article")
+                    .Respond(HttpStatusCode.Forbidden);           
+
+            var reader = new Reader("https://localhost/article");
+
+            Reader.SetBaseHttpClientHandler(mockHttp);
+            
+            Assert.Throws<HttpRequestException>(() => reader.GetArticle());            
         }
     }
 }
