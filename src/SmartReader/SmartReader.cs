@@ -354,26 +354,35 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
-            if (doc is null)
+            try
             {
-                var stream = await GetStreamAsync(uri).ConfigureAwait(false);
-                var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
-                                                            : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
-
-                // this is necessary because AngleSharp consider the encoding set in BrowsingContext
-                // just as a suggestion. It can ignore it, if it believes it is wrong.
-                // In case it ignores, it uses the default UTF8 encoding
-                if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                if (doc is null)
                 {
-                    var bytes = Encoding.Convert(Encoding.GetEncoding(charset), Encoding.UTF8, ((MemoryStream)stream).ToArray());
-                    stream = new MemoryStream(bytes);
+                    var stream = await GetStreamAsync(uri).ConfigureAwait(false);
+                    var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
+                                                                : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
+                    var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+
+                    // this is necessary because AngleSharp consider the encoding set in BrowsingContext
+                    // just as a suggestion. It can ignore it, if it believes it is wrong.
+                    // In case it ignores, it uses the default UTF8 encoding
+                    if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                    {
+                        var bytes = Encoding.Convert(Encoding.GetEncoding(charset), Encoding.UTF8, ((MemoryStream)stream).ToArray());
+                        stream = new MemoryStream(bytes);
+                    }
+
+                    doc = parser.ParseDocument(stream);
                 }
 
-                doc = parser.ParseDocument(stream);
+            
+                return Parse();
             }
-
-            return Parse();
+            catch (Exception ex)
+            {
+                return new Article(uri, articleTitle, ex);
+            }
+            
         }
 
         /// <summary>
@@ -385,26 +394,33 @@ namespace SmartReader
 
         public Article GetArticle()
         {
-            if (doc is null)
+            try
             {
-                var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
-                var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
-                                                            : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
-                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
-
-                // this is necessary because AngleSharp consider the encoding set in BrowsingContext
-                // just as a suggestion. It can ignore it, if it believes it is wrong.
-                // In case it ignores, it uses the default UTF8 encoding
-                if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                if (doc is null)
                 {
-                    var bytes = Encoding.Convert(Encoding.GetEncoding("iso-8859-1"), Encoding.UTF8, ((MemoryStream)stream).ToArray());
-                    stream = new MemoryStream(bytes);
+                    var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
+                    var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
+                                                                : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
+                    var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+
+                    // this is necessary because AngleSharp consider the encoding set in BrowsingContext
+                    // just as a suggestion. It can ignore it, if it believes it is wrong.
+                    // In case it ignores, it uses the default UTF8 encoding
+                    if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
+                    {
+                        var bytes = Encoding.Convert(Encoding.GetEncoding("iso-8859-1"), Encoding.UTF8, ((MemoryStream)stream).ToArray());
+                        stream = new MemoryStream(bytes);
+                    }
+
+                    doc = parser.ParseDocument(stream);
                 }
 
-                doc = parser.ParseDocument(stream);
+                return Parse();
             }
-
-            return Parse();
+            catch(Exception ex)
+            {
+                return new Article(uri, articleTitle, ex);
+            }
         }
 
         /// <summary>
@@ -431,15 +447,22 @@ namespace SmartReader
 
         public static Article ParseArticle(string uri, string? userAgent = null)
         {
-            var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
+            try
+            {
+                var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
-            var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
-            var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+                var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
+                var context = BrowsingContext.New(Configuration.Default);
+                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
 
-            smartReader.doc = parser.ParseDocument(stream);
+                smartReader.doc = parser.ParseDocument(stream);
 
-            return smartReader.Parse();
+                return smartReader.Parse();
+            }
+            catch(Exception ex)
+            {
+                return new Article(new Uri(uri), "", ex);
+            }
         }
 
         /// <summary>

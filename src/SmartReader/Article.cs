@@ -53,6 +53,18 @@ namespace SmartReader
         /// <value>It indicates whether an article was actually found</value>
         public bool IsReadable { get; }
 
+        /// <value>It indicates whether an article was actually found</value>
+        public List<Exception> Errors { get; } = new List<Exception>();
+
+        /// <value>It indicates whether an article was actually found</value>
+        public bool Success
+        {
+            get
+            {
+                return Errors.Count == 0;
+            }
+        }
+
         /// <summary>The function that will serialize the HTML content of the article</summary>
         /// <value>Default: return InnerHTML property</value>       
         public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>(el => el.InnerHtml);
@@ -117,6 +129,19 @@ namespace SmartReader
             Title = title;
             Content = "";
             PublicationDate = new DateTime();
+        }
+
+        /// <summary>
+        /// The constructor used when we fail to find an actual article because of an exception
+        /// </summary>
+        internal Article(Uri uri, string title, Exception exception)
+        {
+            IsReadable = false;
+            Uri = uri;
+            Title = title;
+            Content = "";
+            PublicationDate = new DateTime();
+            Errors.Add(exception);
         }
 
         /// <summary>
