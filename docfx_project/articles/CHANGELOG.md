@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.9.5
+- Added fixes from latest updates of Readability up until April 2024
+- Fix parsing of JSON-LD element
+- Fix issue #60, unexpected exception thrown for forbidden content (thanks to [doggy8088 ](https://github.com/doggy8088))
+
 ## 0.9.4 - 2023/08/27
 - Fix issue #58, data URIs in IMG SRC not preserved, treated as relative URL (thanks to [Acidus](https://github.com/acidus99))
 - Added fixes from latest updates of Readability up until August 2023
