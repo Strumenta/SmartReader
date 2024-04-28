@@ -113,7 +113,7 @@ namespace SmartReaderTests
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
 
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);            
 
             AssertProperties(expected, found);
         }

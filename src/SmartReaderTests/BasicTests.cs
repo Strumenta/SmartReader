@@ -515,7 +515,7 @@ namespace SmartReaderTests
         }
 
         [Fact]
-        public void TestForbiddenUrl()
+        public void TestForbiddenUrlLeadToFailureButNotException()
         {
             // creating element
             var parser = new HtmlParser(new HtmlParserOptions());
@@ -535,9 +535,8 @@ namespace SmartReaderTests
 
             var reader = new Reader("https://localhost/article");
 
-            Reader.SetBaseHttpClientHandler(mockHttp);
-            
-            Assert.Throws<HttpRequestException>(() => reader.GetArticle());            
+            Reader.SetBaseHttpClientHandler(mockHttp);            
+            Assert.False(reader.GetArticle().Success);                        
         }
     }
 }

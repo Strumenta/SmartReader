@@ -334,7 +334,7 @@ namespace SmartReader
                     try
                     {
                         // Strip CDATA markers if present
-                        var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\$", "");
+                        var content = Regex.Replace(jsonLdElement.TextContent, @"^\s*<!\[CDATA\[|\]\]>\s*$", "");
                         using JsonDocument document = JsonDocument.Parse(content);
 
                         var root = document.RootElement;
@@ -356,7 +356,7 @@ namespace SmartReader
                         }
 
                         if (!root.TryGetProperty("@context", out value)
-                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org$"))
+                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org\/?$"))
                         {
                             return;
                         }
