@@ -23,7 +23,7 @@
 
 This library supports the .NET Standard 2.0. The core algorithm is a port of the [Mozilla Readability library](https://github.com/mozilla/readability). The original library is stable and used in production inside Firefox. This way we can piggyback on the hard and well-tested work of Mozilla.
 
-SmartReader also add some improvements on the original library, getting more and better metadata: 
+SmartReader also added some improvements on the original library, getting more and better metadata: 
 
 - site name
 - an author and publication date
@@ -32,6 +32,8 @@ SmartReader also add some improvements on the original library, getting more and
 - the featured image
 - a list of images found (it can optionally also download them and store as data URI)
 - an estimate of the time needed to read the article
+
+Some of these fields are now present in the original library.
 
 It also allows to perform custom operations before and after extracting the article.
 
@@ -58,9 +60,9 @@ The advantage of using an object, instead of the static method, is that it gives
 
 There is also the option to parse directly a `String` or `Stream` that you have obtained by some other way. This is available either with one of the `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
 
-If the extraction fails, the returned `Article` object will have the field `IsReadable` set to `false`.
+If the extraction fails to extract an article, the returned `Article` object will have the field `IsReadable` set to `false`.
                 
-If fetching the resource fails, the library will throw an `HttpRequestException`, you should handle the exception.
+If fetching the resource fails, the library will catch the `HttpRequestException`, set `IsReadable` to `false`, `Completed` to `false` and add an Exception to the list of `Errors`.
 
 The content of the article is unstyled, but it is wrapped in a `div` with the id `readability-content` that you can style yourself.
 
@@ -138,8 +140,6 @@ The algorithm for scoring assign some score to each valid node, then it determin
 
 The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable</code> and <code>CharThreshold</code> should be customized for content written in non-alphabetical languages.
 
-
-
 ##  Article Model
 
 A brief overview of the Article model returned by the library.
@@ -159,6 +159,8 @@ A brief overview of the Article model returned by the library.
 - `TimeSpan` **TimeToRead**<br>Average time needed to read the article
 - `DateTime?` **PublicationDate**<br>Date of publication of the article
 - `bool` **IsReadable**<br>Indicate whether we successfully find an article
+- `bool` **Completed**<br>Indicate whether we completed the process without getting an Exception (for instance, the HTTP request returned 403 Forbidden)
+- `List<Exception>` **Errors**<br>The list of errors generated during the process
 
 It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
 
@@ -168,9 +170,11 @@ The **FeaturedImage** property holds the image indicated by the Open Graph or Tw
 
 The **TextContent** property is based on the pure text content of the HTML (i.e., the concatenations of [text nodes](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType). Then we apply some basic formatting, like removing double spaces or the newlines left by the formatting of the HTML code. We also add meaningful newlines for P and BR nodes.
 
+The **IsReadable** property will be false if no article was extracted, whatever the reason (i.e., the algorithm did not found anything valuable or the request failed). The property **Completed** just indicated whether the process completed correctly or not. Previously we left to the user of the library to manage exceptions, but now we try to handle them ourselves.
+
 ## Exceptions
 
-The library could throw some exceptions, that you should handle.
+The library could throw some exceptions, that should be caught and reported in the `Errors` property and set `Completed` to false.
 
 If you set a value for `MaxElemsToParse` larger than 0, the library will throw a standard `Exception` if the threshold is passed.
 
