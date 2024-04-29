@@ -350,15 +350,21 @@ namespace SmartReaderTests
         {
             // creating element
             var parser = new HtmlParser(new HtmlParserOptions());
-            var doc = parser.ParseDocument(@"<html>
-               <head></head>
-               <body>
-                    <p> </p>
-                    <p>This is a paragraph with some text.</p>
-                    <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>
-                    <p>This is 			a paragraph with different<br> other text.</p>
-               </body>
-               </html>");
+            var text = "<html>\r\n" +
+               "<head></head>\r\n" +
+               "<body>\r\n" +
+               "     <p> </p>\r\n" +
+               "     <p>This is a paragraph with some text.</p>\r\n" +
+               "\r\n" +
+               "     <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>\r\n" +
+               "\r\n" +
+               "\r\n" +
+               "\r\n" +
+               "     <p>This is 			a paragraph with different<br> other text.</p>\r\n" +
+               "</body>\r\n" +
+               "</html>";
+
+            var doc = parser.ParseDocument(text);
 
             var reader = new Reader("https://localhost/article");
 

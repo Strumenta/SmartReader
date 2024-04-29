@@ -70,7 +70,7 @@ namespace SmartReader
         public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>(el => el.InnerHtml);
 
         /// <summary>The function that will extract the text from the HTML content</summary>
-        /// <value>Default: return InnerHTML property</value>       
+        /// <value>Default: the ConvertToPlaintext method</value>       
         public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
         private readonly IElement? _element = null;
@@ -98,6 +98,9 @@ namespace SmartReader
 
         /// <value>The length in chars of <c>TextContent</c></value>
         public int Length => TextContent.Length;
+
+        private static readonly Regex RE_EliminateTabs = new Regex("\t+", RegexOptions.Compiled);
+        private static readonly Regex RE_NormalizeNewLines = new Regex("(\\r?\\n){3,}", RegexOptions.Compiled);
 
 
         internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
@@ -250,22 +253,18 @@ namespace SmartReader
         /// </returns>  
         private static string ConvertToPlaintext(IElement doc)
         {
-            var writer = new StringWriter();
+            var sb = new StringBuilder();           
 
-            var sb = new StringBuilder();
-
-            string text = ConvertToText(doc, sb);
+            ConvertToText(doc, sb);
 
             bool previousSpace = false;
             bool previousNewline = false;
             int index = 0;
 
+            string text = sb.ToString();
             // fix whitespace 
             // replace tabs with one space
-            text = Regex.Replace(text, "\t+", " ");
-
-            // replace multiple newlines with max two
-            text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
+            text = RE_EliminateTabs.Replace(text, " ");            
 
             var stringBuilder = new StringBuilder(text);
 
@@ -295,9 +294,7 @@ namespace SmartReader
             text = stringBuilder.ToString().Trim();
 
             // replace multiple newlines with max two
-            text = Regex.Replace(text, "(\\r?\\n){3,}", $"{writer.NewLine}{writer.NewLine}");
-
-            writer.Dispose();
+            text = RE_NormalizeNewLines.Replace(text, $"{Environment.NewLine}{Environment.NewLine}");
 
             return text;
         }
@@ -305,11 +302,11 @@ namespace SmartReader
         /// <summary>
         /// The function that converts HTML markup to text
         /// </summary>
-        public static string ConvertToText(IElement doc, StringBuilder text)
+        private static void ConvertToText(IElement doc, StringBuilder text)
         {            
             if (doc.NodeType == NodeType.Element && doc.NodeName is "P" or "BR")
             {
-                text.AppendLine();              
+                text.AppendLine();
             }
 
             if (doc.HasChildNodes)
@@ -332,8 +329,6 @@ namespace SmartReader
 
             if (doc.NodeType is NodeType.Element && doc.NodeName is "P")
                 text.AppendLine();
-
-            return text.ToString();
         }
     }
 }
