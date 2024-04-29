@@ -476,7 +476,14 @@ namespace SmartReader
         /// </returns>    
         public static Article ParseArticle(string uri, string text, string? userAgent = null)
         {
-            return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse();
+            try
+            {
+                return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse();
+            }
+            catch (Exception ex)
+            {
+                return new Article(new Uri(uri), "", ex);
+            }
         }
 
         /// <summary>
@@ -489,7 +496,14 @@ namespace SmartReader
         /// </returns>    
         public static Article ParseArticle(string uri, Stream source)
         {
-            return new Reader(uri, source).Parse();
+            try
+            {
+                return new Reader(uri, source).Parse();
+            }
+            catch (Exception ex)
+            {
+                return new Article(new Uri(uri), "", ex);
+            }
         }
 
 

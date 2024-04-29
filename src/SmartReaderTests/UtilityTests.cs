@@ -28,6 +28,6 @@ namespace SmartReaderTests
             var style = "border:0;vertical-align:middle;font-family:PFDinDisplayProLight;font-size:13px;font-style:normal;font-weight:normal;letter-spacing:normal;text-align:start;text-indent:0;text-transform:none;text-decoration:none";
 
             Assert.Equal("", NodeUtility.GetDisplayFromStyle(style).ToString());
-        }        
+        }
     }
 }

@@ -53,11 +53,11 @@ namespace SmartReader
         /// <value>It indicates whether an article was actually found</value>
         public bool IsReadable { get; }
 
-        /// <value>It indicates whether an article was actually found</value>
+        /// <value>It contains the list of errors/exceptions</value>
         public List<Exception> Errors { get; } = new List<Exception>();
 
-        /// <value>It indicates whether an article was actually found</value>
-        public bool Success
+        /// <value>It indicates whether the process completed correctly</value>
+        public bool Completed
         {
             get
             {
@@ -252,7 +252,9 @@ namespace SmartReader
         {
             var writer = new StringWriter();
 
-            string text = ConvertToText(doc, writer);
+            var sb = new StringBuilder();
+
+            string text = ConvertToText(doc, sb);
 
             bool previousSpace = false;
             bool previousNewline = false;
@@ -303,11 +305,11 @@ namespace SmartReader
         /// <summary>
         /// The function that converts HTML markup to text
         /// </summary>
-        private static string ConvertToText(IElement doc, StringWriter text)
-        {
+        public static string ConvertToText(IElement doc, StringBuilder text)
+        {            
             if (doc.NodeType == NodeType.Element && doc.NodeName is "P" or "BR")
             {
-                text.Write(text.NewLine);
+                text.AppendLine();              
             }
 
             if (doc.HasChildNodes)
@@ -323,13 +325,13 @@ namespace SmartReader
                     // if the element has children text nodes we extract the text
                     else if (el.NodeType == NodeType.Text)
                     {
-                        text.Write(el.TextContent);
+                        text.Append(el.TextContent);
                     }
                 }
             }
 
             if (doc.NodeType is NodeType.Element && doc.NodeName is "P")
-                text.Write(text.NewLine);
+                text.AppendLine();
 
             return text.ToString();
         }

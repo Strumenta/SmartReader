@@ -523,7 +523,7 @@ namespace SmartReaderTests
                <head></head>
                <body>
                     <p>This is a paragraph with some text.</p>
-                    <p>This is a paragraph with some other text.</p>                    
+                    <p>This is a paragraph with some other text.</p>
                </body>
                </html>");
 
@@ -536,7 +536,32 @@ namespace SmartReaderTests
             var reader = new Reader("https://localhost/article");
 
             Reader.SetBaseHttpClientHandler(mockHttp);            
-            Assert.False(reader.GetArticle().Success);                        
+            Assert.False(reader.GetArticle().Completed);                        
+        }
+
+        [Fact]
+        public void TestMaxElemsToParseThrowException()
+        {                        
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+
+            mockHttp.When("https://localhost/article")                    
+                    .Respond("text/html", @"<html>
+               <head></head>
+               <body>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>
+               </body>
+               </html>");
+
+            var reader = new Reader("https://localhost/article");
+            reader.MaxElemsToParse = 1;
+
+            Reader.SetBaseHttpClientHandler(mockHttp);
+            Article article = reader.GetArticle();
+
+            Assert.False(article.Completed);
+            Assert.Equal("Aborting parsing document; 5 elements found", article.Errors[0].Message);
         }
     }
 }
