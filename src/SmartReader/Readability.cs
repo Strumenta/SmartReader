@@ -469,7 +469,7 @@ namespace SmartReader
             // Match "description", or Twitter's "twitter:description" (Cards)
             // in name attribute.
             // name is a single value
-            const string namePattern = @"^\s*((?:(dc|dcterm|og|twitter|weibo:(article|webpage))\s*[\.:]\s*)?(author|creator|description|title|image|site_name)|name)\s*$";
+            const string namePattern = @"^\s*((?:(dc|dcterm|og|twitter|parsely|weibo:(article|webpage))\s*[-\.:]\s*)?(author|creator|pub-date|description|title|image|image-url|site_name)|name)\s*$";
 
             // Match Facebook's Open Graph title & description properties.
             // property is a space-separated list of values
@@ -579,6 +579,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("weibo:article:title");
                 yield return values.GetValueOrDefault("weibo:webpage:title");
                 yield return values.GetValueOrDefault("twitter:title");
+                yield return values.GetValueOrDefault("parsely-title");
                 yield return values.GetValueOrDefault("title");
             }
 
@@ -623,6 +624,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("twitter:image");
                 yield return values.GetValueOrDefault("weibo:article:image");
                 yield return values.GetValueOrDefault("weibo:webpage:image");
+                yield return values.GetValueOrDefault("parsely-image-url");
             }
 
             metadata.FeaturedImage = FirstNonEmptyValueOrDefault(FeaturedImageKeys()) ?? "";
@@ -637,6 +639,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("dc:creator");
                 yield return values.GetValueOrDefault("dcterm:creator");
                 yield return values.GetValueOrDefault("author");
+                yield return values.GetValueOrDefault("parsely-author");
             }
 
             metadata.Author = FirstNonEmptyValueOrDefault(AuthorKeys()) ?? "";
@@ -669,6 +672,10 @@ namespace SmartReader
 
                 yield return values.TryGetValue("weibo:webpage:create_at", out var weiboWebPageCreateAt)
                   && DateTime.TryParse(weiboWebPageCreateAt, out date) ?
+                  date : DateTime.MinValue;
+
+                yield return values.TryGetValue("parsely-pub-date", out var parselyPubDate)
+                  && DateTime.TryParse(parselyPubDate, out date) ?
                   date : DateTime.MinValue;
             }
 
