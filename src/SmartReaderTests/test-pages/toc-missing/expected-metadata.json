@@ -4,7 +4,7 @@
   "excerpt": "Many developers think that having a critical bug in their code is the worse thing that can happen. Well, there is something much worst than that: Having a critical bug in your code and not knowing about it! Using some high school level statistics and a fair knowledge of SQL, I implemented a very simple anomaly detection system.",
   "readerable": true,
   "language": "en",
-  "timeToRead": "00:24:00",
+  "timeToRead": "00:26:00",
   "author": "Haki Benita",
   "siteName": "Haki Benita",
   "featuredImage": "https://hakibenita.com/images/00-sql-anomaly-detection-scatter-plot.png"

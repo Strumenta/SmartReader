@@ -4,7 +4,7 @@
   "excerpt": "Google’s SRE teams have some basic principles and best practices for building successful monitoring and alerting systems. This chapter offers guidelines for what issues should interrupt a human via a page, and how to deal with issues that aren’t serious enough to trigger a page.",
   "readerable": true,
   "language": "en",
-  "timeToRead": "00:21:00",
+  "timeToRead": "00:23:00",
   "siteName": "",
   "featuredImage": ""
 }

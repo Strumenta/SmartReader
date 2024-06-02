@@ -20,7 +20,72 @@
                         <summary>
                             Table of Contents
                         </summary>
-                        
+                        <div>
+                            <ul>
+                                <li>
+                                    <a href="#detecting-anomalies">Detecting Anomalies</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#understanding-z-score">Understanding Z-Score</a>
+                                        </li>
+                                        <li>
+                                            <a href="#optimizing-z-score">Optimizing Z-Score</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#analyzing-a-server-log">Analyzing a Server Log</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#preparing-the-data">Preparing the Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="#getting-a-sense-of-the-data">Getting a Sense of the Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="#identifying-anomalies">Identifying Anomalies</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#backtesting">Backtesting</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#finding-past-anomalies">Finding Past Anomalies</a>
+                                        </li>
+                                        <li>
+                                            <a href="#adding-thresholds">Adding Thresholds</a>
+                                        </li>
+                                        <li>
+                                            <a href="#eliminating-repeating-alerts">Eliminating Repeating Alerts</a>
+                                        </li>
+                                        <li>
+                                            <a href="#experiment-with-different-values">Experiment With Different Values</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#improving-accuracy">Improving Accuracy</a>
+                                    <ul>
+                                        <li>
+                                            <a href="#use-weighted-mean">Use Weighted Mean</a>
+                                        </li>
+                                        <li>
+                                            <a href="#use-median">Use Median</a>
+                                        </li>
+                                        <li>
+                                            <a href="#use-mad">Use MAD</a>
+                                        </li>
+                                        <li>
+                                            <a href="#use-different-measures">Use Different Measures</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a href="#conclusion">Conclusion</a>
+                                </li>
+                            </ul>
+                        </div>
                     </details>
                     <hr>
                     <div>
@@ -268,7 +333,12 @@
                     <p>
                         Let's see what we got:
                     </p>
-                    
+                    <ul>
+                        <li>When we decreased the z-score threshold to 0.5, we identified the value 2 as an anomaly in addition to the value 12.
+                        </li>
+                        <li>When we increased the z-score threshold to 3 we did not identify any anomaly.
+                        </li>
+                    </ul>
                     <p>
                         The quality of our results are directly related to the parameters we set for the query. Later we'll see how using backtesting can help us identify ideal values.
                     </p>
@@ -282,7 +352,20 @@
                     <p>
                         We are going to analyze logs of a web application, so the data we are most interested in is the timestamp and the status code of every response from the server. To illustrate the type of insight we can draw from just this data:
                     </p>
-                    
+                    <ul>
+                        <li>
+                            <strong>A sudden increase in 500 status code</strong>: You may have a problem in the server. Did you just push a new version? Is there an external service you're using that started failing in unexpected ways?
+                        </li>
+                        <li>
+                            <strong>A sudden increase in 400 status code</strong>: You may have a problem in the client. Did you change some validation logic and forgot to update the client? Did you make a change and forgot to handle backward compatibility?
+                        </li>
+                        <li>
+                            <strong>A sudden increase in 404 status code</strong>: You may have an SEO problem. Did you move some pages and forgot to set up redirects? Is there some script kiddy running a scan on your site?
+                        </li>
+                        <li>
+                            <strong>A sudden increase in 200 status code</strong>: You either have some significant legit traffic coming in, or you are under a DOS attack. Either way, you probably want to check where it's coming from.
+                        </li>
+                    </ul>
                     <h3 id="preparing-the-data">
                         <a href="#preparing-the-data">Preparing the Data</a>
                     </h3>
@@ -368,7 +451,14 @@
                     <p>
                         First we generate an axis using a cartesian join between the status codes we want to track, and the times we want to monitor. To generate the axis we used two nice features of PostgreSQL:
                     </p>
-                    
+                    <ul>
+                        <li>
+                            <a href="https://www.postgresql.org/docs/current/functions-srf.html" rel="noopener"><code>generate_series</code></a>: function that generates a range of values.
+                        </li>
+                        <li>
+                            <a href="https://www.postgresql.org/docs/current/queries-values.html" rel="noopener"><code>VALUES</code> list</a>: special clause that can generate "constant tables", as the documentation calls it. You might be familiar with the <code>VALUES</code> clause from <code>INSERT</code> statements. In the old days, to generate data we had to use a bunch of <code>SELECT ... UNION ALL</code>... using <code>VALUES</code> is much nicer.
+                        </li>
+                    </ul>
                     <p>
                         After generating the axis, we left join the actual data into it to get a complete series for each status code. The resulting data has no gaps, and is ready for analysis.
                     </p>
@@ -933,7 +1023,17 @@
                     <p>
                         In the process so far we’ve used several constants in our calculations:
                     </p>
-                    
+                    <ul>
+                        <li>
+                            <strong>Lookback period</strong>: How far back we calculate the mean and standard deviation for each status code. The value we used is 60 minutes.
+                        </li>
+                        <li>
+                            <strong>Entries Threshold</strong>: The least amount of entries we want to get an alert for. The value we used is 10.
+                        </li>
+                        <li>
+                            <strong>Z-Score Threshold</strong>: The z-score after which we classify the value as an anomaly. The value we used is 6.
+                        </li>
+                    </ul>
                     <p>
                         Now that we have a working query to backtest, we can experiment with different values.
                     </p>
@@ -1099,7 +1199,12 @@
                     <p>
                         We used the number of entries per minute as an indicator. However, depending on the use case, there might be other things you can measure that can yield better results. For example:
                     </p>
-                    
+                    <ul>
+                        <li>To try and identify DOS attacks you can monitor the ratio between unique IP addresses to HTTP requests.
+                        </li>
+                        <li>To reduce the amount of false positives, you can normalize the number of responses to the proportion of the total responses. This way, for example, if you're using a flaky remote service that fails once after every certain amount of requests, using the proportion may not trigger an alert when the increase in errors correlates with an increase in overall traffic.
+                        </li>
+                    </ul>
                     <hr>
                     <h2 id="conclusion">
                         <a href="#conclusion">Conclusion</a>
