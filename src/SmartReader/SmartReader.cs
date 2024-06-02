@@ -189,6 +189,10 @@ namespace SmartReader
         // see: https://en.wikipedia.org/wiki/Comma#Comma_variants
         private static readonly Regex G_RE_Commas = new Regex(@"\u002C|\u060C|\uFE50|\uFE10|\uFE11|\u2E41|\u2E34|\u2E32|\uFF0C", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        // used to see if a node's content matches words commonly used for ad blocks or loading indicators
+        private static readonly Regex G_AdWords = new Regex(@"^(ad(vertising|vertisement)?|pub(licité)?|werb(ung)?|广告|Реклама|Anuncio|pubblicità)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_LoadingWords = new Regex(@"^((loading|正在加载|Загрузка|chargement|cargando|caricamento)(…|\.\.\.)?)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private static readonly Regex RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION" };
@@ -205,7 +209,7 @@ namespace SmartReader
         private static readonly string[] s_h1_h2 = { "h1", "h2" };
         private static readonly string[] s_h1_h2_h3_h4_h5_h6 = { "h1", "h2", "h3", "h4", "h5", "h6" };
         private static readonly string[] s_IMG_PICTURE = { "IMG", "PICTURE" };
-
+        
         // internal flag for standard dispose implementation
         private bool disposedValue;
 
@@ -528,7 +532,7 @@ namespace SmartReader
             // Remove attributes we set
             if (!Debug)
             {
-                CleanReaderAttributes(articleContent, "datatable");
+                CleanReaderAttributes(articleContent, "dataTable");
                 CleanReaderAttributes(articleContent, "readability-score");
             }
         }
@@ -1490,7 +1494,7 @@ namespace SmartReader
 
         private static bool IsDataTable(IElement node)
         {
-            return node.GetAttribute("datatable") is { Length: > 0 } datatable && datatable.Contains("true");
+            return node.GetAttribute("dataTable") is { Length: > 0 } datatable && datatable.Contains("true");
         }
 
         /// <summary>
@@ -1548,7 +1552,7 @@ namespace SmartReader
                     continue;
                 }
 
-                if (table.GetAttribute("datatable") is "0")
+                if (table.GetAttribute("dataTable") is "0")
                 {
                     table.SetAttribute("dataTable", "false");
                     continue;
@@ -1776,7 +1780,7 @@ namespace SmartReader
                 }
 
                 // keep element if it has a data tables
-                if (node.GetElementsByTagName("table").Any(tbl => tbl.GetAttribute("dataTable") == "true"))
+                if (node.GetElementsByTagName("table").Any(tbl => IsDataTable(tbl)))
                 {
                     return false;
                 }
@@ -1855,17 +1859,74 @@ namespace SmartReader
                         embedCount++;
                     }
 
+                    var innerText = NodeUtility.GetInnerText(node);
+
+                    // toss any node whose inner text contains nothing but suspicious words
+                    if (G_AdWords.IsMatch(innerText) || G_LoadingWords.IsMatch(innerText))
+                    {
+                        return true;
+                    }
+                    
                     double linkDensity = NodeUtility.GetLinkDensity(node);
                     var contentLength = NodeUtility.GetInnerText(node).Length;
+                    var textishTags = NodeUtility.TextishTags;
+                    var textDensity = GetTextDensity(node, textishTags);
+                    var isFigureChild = HasAncestorTag(node, "figure");
 
-                    bool haveToRemove =
-                      (img > 1 && p / img < 0.5 && !HasAncestorTag(node, "figure")) ||
-                      (!isList && li > p) ||
-                      (input > Math.Floor(p / 3)) ||
-                      (!isList && headingDensity < 0.9f && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && !HasAncestorTag(node, "figure")) ||
-                      (!isList && weight < 25 && linkDensity > 0.2f) ||
-                      (weight >= 25f && linkDensity > 0.5f) ||
-                      ((embedCount == 1 && contentLength < 75) || embedCount > 1);
+                    Func<bool> shouldRemoveNode = () => {
+                        List<string> errs = new List<string>();
+
+                        if (!isFigureChild && img > 1 && p / img < 0.5f)
+                        {
+                            errs.Add($"Bad p to img ratio (img={img}, p={p})");
+                        }
+
+                        if (!isList && li > p)
+                        {
+                            errs.Add($"Too many li's outside of a list. (li={li} > p={p})");
+                        }
+
+                        if (input > Math.Floor(p / 3))
+                        {
+                            errs.Add($"Too many inputs per p. (input={input}, p={p})");
+                        }
+
+                        if (!isList && !isFigureChild && headingDensity < 0.9f && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && linkDensity > 0)
+                        {
+                            errs.Add($"Suspiciously short. (headingDensity={headingDensity}, img={img}, linkDensity={linkDensity})");
+                        }
+
+                        if (!isList && weight < 25 && linkDensity > 0.2f)
+                        {
+                            errs.Add($"Low weight and a little linky. (linkDensity={linkDensity})");
+                        }
+
+                        if (weight >= 25f && linkDensity > 0.5f)
+                        {
+                            errs.Add($"High weight and mostly links. (linkDensity={linkDensity})");
+                        }
+
+                        if ((embedCount == 1 && contentLength < 75) || embedCount > 1)
+                        {
+                            errs.Add($"Suspicious embed. (embedCount={embedCount}, contentLength={contentLength})");
+                        }
+
+                        if (img.CompareTo(0) == 0 && textDensity.CompareTo(0) == 0)
+                        {
+                            errs.Add($"No useful content. (img={img}, textDensity={textDensity})");
+                        }
+
+                        if (errs.Count > 0)
+                        {
+                            if (Debug || Logging == ReportLevel.Info)
+                                LoggerDelegate($"Checks failed: {errs}");
+                            return true;
+                        }
+
+                        return false;
+                    };
+
+                    bool haveToRemove = shouldRemoveNode();
 
                     // Allow simple lists of images to remain in pages
                     if (isList && haveToRemove)

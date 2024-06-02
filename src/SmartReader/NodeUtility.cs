@@ -34,6 +34,8 @@ namespace SmartReader
             "SUP", "TEXTAREA", "TIME", "VAR", "WBR"
         };
 
+        public static readonly string[] TextishTags = new [] { "SPAN", "LI", "TD" }.Concat(divToPElems).ToArray();
+
         internal static void ReplaceNodeTags(IHtmlCollection<IElement> nodeList, string newTagName)
         {
             foreach (var node in nodeList)
