@@ -1496,7 +1496,7 @@ namespace SmartReader
         /// <summary>
         /// Return an object indicating how many rows and columns this table has.
         /// </summary>
-        private Tuple<int, int> GetRowAndColumnCount(IElement table)
+        private (int Rows, int Columns) GetRowAndColumnCount(IElement table)
         {
             var rows = 0;
             var columns = 0;
@@ -1525,7 +1525,7 @@ namespace SmartReader
                 }
                 columns = Math.Max(columns, columnsInThisRow);
             }
-            return Tuple.Create(rows, columns);
+            return (rows, columns);
         }
 
         private static readonly string[] dataTableDescendantTagNames = { "col", "colgroup", "tfoot", "thead", "th" };
@@ -1589,13 +1589,21 @@ namespace SmartReader
                 }
 
                 var sizeInfo = GetRowAndColumnCount(table);
-                if (sizeInfo.Item1 >= 10 || sizeInfo.Item2 > 4)
+
+                if (sizeInfo.Columns == 1 || sizeInfo.Rows == 1)
+                {
+                    // single colum/row tables are commonly used for page layout purposes.
+                    table.SetAttribute("dataTable", "false");
+                    continue;
+                }
+
+                if (sizeInfo.Rows >= 10 || sizeInfo.Columns > 4)
                 {
                     table.SetAttribute("dataTable", "true");
                     continue;
                 }
                 // Now just go by size entirely:
-                if (sizeInfo.Item1 * sizeInfo.Item2 > 10)
+                if (sizeInfo.Rows * sizeInfo.Columns > 10)
                     table.SetAttribute("dataTable", "true");
             }
         }
@@ -1763,6 +1771,12 @@ namespace SmartReader
                 }
 
                 if (HasAncestorTag(node, "code"))
+                {
+                    return false;
+                }
+
+                // keep element if it has a data tables
+                if (node.GetElementsByTagName("table").Any(tbl => tbl.GetAttribute("dataTable") == "true"))
                 {
                     return false;
                 }
