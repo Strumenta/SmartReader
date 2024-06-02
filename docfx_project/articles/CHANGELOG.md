@@ -1,9 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.9.5
-- Added fixes from latest updates of Readability up until April 2024
+## 0.9.5 - 2024/06/02
+- Added fixes from latest updates of Readability up until May 2024
 - Fix parsing of JSON-LD element
+- Add support for Parsely metadata
+- Ensure short links of legitimate contents are preserved
+- Make sure elements are not deleted if they contain a data table
 - Fix issue #60, unexpected exception thrown for forbidden content (thanks to [doggy8088 ](https://github.com/doggy8088))
 - Added performance improvements suggested to conversion to plain text (thanks to [malv007](https://github.com/malv007))
 
