@@ -1713,7 +1713,7 @@ namespace SmartReader
         /// <summary>
         /// <para>Calculate text density.</para>
         /// </summary>
-        private int GetTextDensity(IElement e, string[] tags)
+        private double GetTextDensity(IElement e, string[] tags)
         {
             var textLength = NodeUtility.GetInnerText(e, true).Length;
             if (textLength is 0)
@@ -1728,7 +1728,7 @@ namespace SmartReader
                 childrenLength += NodeUtility.GetInnerText(child, true).Length;
             }
 
-            return childrenLength / textLength;
+            return (double) childrenLength / textLength;
         }
 
         /// <summary>
@@ -1800,10 +1800,10 @@ namespace SmartReader
                 if (NodeUtility.GetCharCount(node, ',') < 10)
                 {
                     // Readability.js algorithm
-                    var p = 0f;                         // var p = node.getElementsByTagName("p").length;
-                    var img = 0f;                       // var img = node.getElementsByTagName("img").length;
-                    var li = -100f;                     // var li = node.getElementsByTagName("li").length - 100;
-                    var input = 0f;                     // var input = node.getElementsByTagName("input").length;
+                    var p = 0d;                         // var p = node.getElementsByTagName("p").length;
+                    var img = 0d;                       // var img = node.getElementsByTagName("img").length;
+                    var li = -100d;                     // var li = node.getElementsByTagName("li").length - 100;
+                    var input = 0d;                     // var input = node.getElementsByTagName("input").length;
                     var embeds = new List<IElement>();  // this._getAllNodesWithTag(node, ["object", "embed", "iframe"]);
 
                     foreach (var descendentNode in node.Descendents())
@@ -1835,7 +1835,7 @@ namespace SmartReader
                     // non-paragraph elements is more than paragraphs or other
                     // ominous signs, remove the element.
 
-                    float headingDensity = GetTextDensity(node, s_h1_h2_h3_h4_h5_h6);
+                    double headingDensity = GetTextDensity(node, s_h1_h2_h3_h4_h5_h6);
 
                     var embedCount = 0;
 
@@ -1876,7 +1876,7 @@ namespace SmartReader
                     Func<bool> shouldRemoveNode = () => {
                         List<string> errs = new List<string>();
 
-                        if (!isFigureChild && img > 1 && p / img < 0.5f)
+                        if (!isFigureChild && img > 1 && p / img < 0.5)
                         {
                             errs.Add($"Bad p to img ratio (img={img}, p={p})");
                         }
@@ -1891,17 +1891,17 @@ namespace SmartReader
                             errs.Add($"Too many inputs per p. (input={input}, p={p})");
                         }
 
-                        if (!isList && !isFigureChild && headingDensity < 0.9f && contentLength < 25 & (img.CompareTo(0) == 0 || img > 2) && linkDensity > 0)
+                        if (!isList && !isFigureChild && headingDensity < 0.9f && contentLength < 25 && (img.CompareTo(0) == 0 || img > 2) && linkDensity > 0)
                         {
                             errs.Add($"Suspiciously short. (headingDensity={headingDensity}, img={img}, linkDensity={linkDensity})");
                         }
 
-                        if (!isList && weight < 25 && linkDensity > 0.2f)
+                        if (!isList && weight < 25 && linkDensity > 0.2)
                         {
                             errs.Add($"Low weight and a little linky. (linkDensity={linkDensity})");
                         }
 
-                        if (weight >= 25f && linkDensity > 0.5f)
+                        if (weight >= 25 && linkDensity > 0.5)
                         {
                             errs.Add($"High weight and mostly links. (linkDensity={linkDensity})");
                         }
@@ -1927,6 +1927,7 @@ namespace SmartReader
                     };
 
                     bool haveToRemove = shouldRemoveNode();
+
 
                     // Allow simple lists of images to remain in pages
                     if (isList && haveToRemove)
