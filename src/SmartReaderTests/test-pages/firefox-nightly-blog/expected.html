@@ -61,27 +61,11 @@
                             <h4>
                                 Fixed more than one bug
                             </h4>
-                            <ul>
-                                <li>Masatoshi Kimura [:emk]
-                                </li>
-                                <li>Michelle Goossens [:masterwayz]
-                                </li>
-                                <li>Sonia
-                                </li>
-                                <li>Tim Nguyen :ntim
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 New contributors (🌟 = first patch)
                             </h4>
-                            <ul>
-                                <li>🌟 Ankush Dua <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1671579">fixed an issue with revoked devtools_page permissions for WebExtensions</a>
-                                </li>
-                                <li>🌟 gero <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1674806">removed the windowtype attribute</a> from dialogs where we didn’t need it anymore
-                                </li>
-                                <li>manekenpix <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1664768">converted some DevTools code</a> to use DOM Promises instead of the defer library
-                                </li>
-                            </ul>
+                            
                             <h3>
                                 Project Updates
                             </h3>
@@ -95,25 +79,12 @@
                                 <li>Starting from Firefox 85, Mozilla-signed privileged addons can be installed from a third party website without triggering the “third party addon install doorhanger” (and without having to add new “install” site permission for those hosts, <a href="https://searchfox.org/mozilla-central/rev/23c25cd32a1e87095301273937b4ee162f41e860/browser/app/permissions#24-25">e.g. as we had to do for fpn.firefox.com</a>) – <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1681331">Bug 1681331</a>
                                 </li>
                             </ul>
-                            <ul>
-                                <li>Fixed addon startup issue when an extension sideloaded in the profile is updated on disk (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1664144">Bug 1664144</a>)
-                                </li>
-                                <li>Some more small about:addons cleanup from ntim (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678173">Bug 1678173</a>, <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678865">Bug 1678865</a>, <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678866">Bug 1678866</a>). Thanks a lot, ntim!
-                                </li>
-                            </ul>
+                            
                             
                             <h5>
                                 WebExtensions Framework
                             </h5>
-                            <ul>
-                                <li>
-                                    <b>Ankush Dua</b> <i>contributed a fix for the devtools optional_permission</i> (the devtools optional_permission can be used by extension, like ABP, that provides a devtools panel as a secondary feature of the addon) – <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1671579">Bug 1671579</a>
-                                </li>
-                                <li>Fixed content scripts applied to webpages loaded as subframes of an extension browserAction/pageAction popup when Fission is enabled – <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1680877">Bug 1680877</a>
-                                </li>
-                                <li>Fixed addon startup issue when webRequest is moved from permissions to optional_permissions in an addon update (regression from <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1624235">Bug 1624235</a>) – <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1637059">Bug 1637059</a>
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 Developer Tools
                             </h4>
@@ -162,135 +133,29 @@
                             </h4>
                             <ul>
                                 <li>We’re running three experiments:
-                                    <ul>
-                                        <li>Newtab Pocket stories in AU and NZ
-                                        </li>
-                                        <li>New signup/login call-to-action in the Pocket doorhanger
-                                        </li>
-                                        <li>We’re testing some changes to newtab story personalization
-                                        </li>
-                                    </ul>
+                                    
                                 </li>
                             </ul>
                             <h4>
                                 <a href="https://wiki.mozilla.org/Toolkit:Password_Manager">Password Manager</a>
                             </h4>
-                            <ul>
-                                <li>Dimi fixed <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1677710">Bug 1677710</a> The password manager code triggers main thread sqlite disk I/O off of the gather-telemetry notification
-                                </li>
-                                <li>And <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678200">Bug 1678200</a> Remove or update probes expiring in Firefox 86: pwmgr.doorhanger_submitted#doorhanger_submitted
-                                </li>
-                                <li>Thanks for Kenrick95 for fixing <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678616">Bug 1678616</a> about:logins menu problem
-                                </li>
-                                <li>2021 Planning underway
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 PDFs &amp; Printing
                             </h4>
-                            <ul>
-                                <li>mstriemer put a Printing… message in the dialog and hid the popup dialog which showed progress, the cancel button on that dialog caused problems and it looked dated <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1679133">Bug 1679133</a>
-                                </li>
-                                <li>mstriemer hid the print setting that don’t relate to PDFs when a PDF is being printed <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1669725">Bug 1669725</a>
-                                </li>
-                                <li>mstriemer updated the form to be disabled when loading a printer’s settings. Sometimes loading a physical printer’s settings can take a few settings and changes could be lost in this time <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1676388">Bug 1676388</a>
-                                </li>
-                                <li>emalysz made a change to avoid updating the preview for some settings that can’t change the preview output <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1676199">Bug 1676199</a>
-                                </li>
-                                <li>sfoster added a paginator to the preview when it’s hovered to show current page, next/prev/first/last buttons <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1654684">Bug 1654684</a>
-                                </li>
-                                <li>emalysz added support for non-contiguous page ranges (ex: 1-3, 6, 7) <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=499640">Bug 499640</a>
-                                </li>
-                                <li>emalysz fixed an issue where the form could get disabled with custom margins interactions <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1674106">Bug 1674106</a>
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 Performance
                             </h4>
-                            <ul>
-                                <li>emalysz continues to make progress leading the charge migrating us from OS.File to IOUtils
-                                    <ul>
-                                        <li>Shout out to barret for landing necessary changes to IOUtils to support the migration!
-                                        </li>
-                                        <li>Currently investigating <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1679252">a bizarre ts_paint_webext regression</a> caused by one of these conversions
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>emalysz <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1664444">fixed a performance issue with the Screenshots feature</a>, and made it more compatible with Fission
-                                </li>
-                                <li>bigiri has <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1649610">a patch to move SharedDataMap.jsm off of OSFile</a>
-                                </li>
-                                <li>florian’s team has <a href="https://firefox-source-docs.mozilla.org/tools/profiler/markers-guide.html">landed some great documentation</a> for the new profiler marker API
-                                </li>
-                                <li>florian has some new visualization variations up for the BHR dashboard
-                                    <ul>
-                                        <li>
-                                            <a href="http://queze.net/bhr/test/#showFrames=1">showFrames</a>
-                                        </li>
-                                        <li>
-                                            <a href="http://queze.net/bhr/test/#showFrames=1&amp;onlyXulLeaf=1">onlyXulLeaf</a>
-                                        </li>
-                                        <li>
-                                            <a href="http://queze.net/bhr/test/#showFrames=1&amp;onlyXulLeaf=1&amp;skipKnownBugs=1">skipKnownBugs</a>
-                                        </li>
-                                        <li>This BHR dashboard helped identify a hang caused by the password manager code, <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1677710">which has been recently fixed</a>! Thanks, dimi!
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>Gijs <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1667237">made the Bookmarks Toolbar initialization occur later in the startup window</a>
-                                </li>
-                                <li>Gijs <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1681169">fixed some flicker</a> that occurred when launching the browser with the Bookmarks Toolbar enabled
-                                </li>
-                                <li>mconley fixed <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1673716">an AsyncShutdown hang caused by the about:home startup cache</a>
-                                </li>
-                                <li>mconley <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1651311">re-enabled TART</a>
-                                </li>
-                                <li>dthayer has <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1672789">some fixes</a> and <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678488">polish</a> for <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1680258">the pre-XUL skeleton UI</a>
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 Picture-in-Picture
                             </h4>
-                            <ul>
-                                <li>We’ve got the green light for another round of MSU students hacking on Picture-in-Picture next semester! mhowell and mtigley will be mentoring them.
-                                </li>
-                                <li>In progress:
-                                    <ul>
-                                        <li>
-                                            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1677080">Bug 1677080 – Fullscreen PiP window is affected by switching video source</a>
-                                        </li>
-                                        <li>
-                                            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1677107">Bug 1677107 – Add Telemetry for tracking multiple PiP support usage</a>
-                                        </li>
-                                        <li>
-                                            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1681796">Bug 1681796 – Prevent superfluous PictureInPictureParent actors from being associated with each tab</a>
-                                        </li>
-                                        <li>
-                                            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1680796">Bug 1680796 – Ensure that the tab’s Toolkit:PictureInPicture actor is destroyed before moving to next test</a>
-                                        </li>
-                                        <li>
-                                            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678390">Bug 1678390 – Prevent Picture-in-Picture windows from opening on top of one another</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
+                            
                             <h4>
                                 Search and Navigation
                             </h4>
-                            <ul>
-                                <li>Fixed regressions related to Input Method Editor, in particular loss of the last token (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1673669">Bug 1673669</a>) and race conditions causing the wrong search engine to be used or Search Mode to be lost (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1679697">Bug 1679697</a>, <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1678647">Bug 1678647</a>)
-                                </li>
-                                <li>Introduced a new advanced preference to keep the Address Bar results panel open during IME composition. This provides a better experience for keyboard layouts that don’t open a picker panel. In the future we hope to be able to auto-detect that situation, but in the meanwhile, you can flip <i>browser.urlbar.imeCompositionClosesPanel</i> to false and test the alternative behavior (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1673971">Bug 1673971</a>)
-                                </li>
-                                <li>URL canonization (<a href="about:blank">www.*.com</a>) now uses https by default, the protocol can be customized through the <i>browser.fixup.alternate.protocol</i> advanced pref (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1638215">Bug 1638215</a>)
-                                </li>
-                                <li>Work continued on the weather QuickSuggest experiment, but its release has been moved to January.
-                                </li>
-                                <li>Region.jsm now can use a Geolocation monitor to update without hitting the network (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1663501">Bug 1663501</a>)
-                                </li>
-                                <li>Fixed a bug where search engines were being re-added on startup after their removal, when using a language pack (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1675624">Bug 1675624</a>)
-                                </li>
-                            </ul>
+                            
                         </div>
                         
                     </article><!-- #post -->
@@ -337,12 +202,6 @@
                                 </p>
                             </li><!-- #comment-## -->
                         </ol>
-                        <div id="respond">
-                            <h3 id="reply-title">
-                                Leave a Reply
-                            </h3>
-                            
-                            
-                        </div><!-- #respond -->
+                        <!-- #respond -->
                     </div>
             </div></div>

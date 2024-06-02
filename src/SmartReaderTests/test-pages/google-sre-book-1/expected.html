@@ -57,12 +57,7 @@
                                     <p>
                                         <a data-type="indexterm" data-primary="machines" data-secondary="defined" id="id-XmC9SkSlfnI1hK"></a>Used interchangeably to indicate a single instance of a running kernel in either a physical server, virtual machine, or container. There might be multiple <em>services</em> worth monitoring on a single machine. The services may either be:
                                     </p>
-                                    <ul>
-                                        <li>Related to each other: for example, a caching server and a web server
-                                        </li>
-                                        <li>Unrelated services sharing hardware: for example, a code repository and a master for a configuration system like <a href="https://puppetlabs.com/puppet/puppet-open-source" target="_blank">Puppet</a> or <a href="https://www.chef.io/chef/" target="_blank">Chef</a>
-                                        </li>
-                                    </ul>
+                                    
                                 </dd>
                                 
                                 <dd>
@@ -298,14 +293,7 @@
                             <p>
                                 <a data-type="indexterm" data-primary="monitoring distributed systems" data-secondary="resolution" id="id-yYCASpFxsr"></a>Different aspects of a system should be measured with different levels of granularity. For example:
                             </p>
-                            <ul>
-                                <li>Observing CPU load over the time span of a minute won’t reveal even quite long-lived spikes that drive high tail latencies.
-                                </li>
-                                <li>On the other hand, for a web service targeting no more than 9 hours aggregate downtime per year (99.9% annual uptime), probing for a 200 (success) status more than once or twice a minute is probably unnecessarily frequent.
-                                </li>
-                                <li>Similarly, checking hard drive fullness for a service targeting 99.9% availability more than once every 1–2 minutes is probably unnecessary.
-                                </li>
-                            </ul>
+                            
                             <p>
                                 Take care in how you structure the granularity of your measurements. Collecting per-second measurements of CPU load might yield interesting data, but such frequent measurements may be very expensive to collect, store, and analyze. If your monitoring goal calls for high resolution but doesn’t require extremely low latency, you can reduce these costs by performing internal sampling on the server, then configuring an external system to collect and aggregate that distribution over time or across servers. You might:
                             </p>
@@ -328,28 +316,14 @@
                             <p>
                                 <a data-type="indexterm" data-primary="monitoring distributed systems" data-secondary="avoiding complexity in" id="id-VMCPSrFpHm"></a>Piling all these requirements on top of each other can add up to a very complex monitoring system—your system might end up with the following levels of complexity:
                             </p>
-                            <ul>
-                                <li>Alerts on different latency thresholds, at different percentiles, on all kinds of different metrics
-                                </li>
-                                <li>Extra code to detect and expose possible causes
-                                </li>
-                                <li>Associated dashboards for each of these possible causes
-                                </li>
-                            </ul>
+                            
                             <p>
                                 The sources of potential complexity are never-ending. Like all software systems, monitoring can become so complex that it’s fragile, complicated to change, and a maintenance burden.
                             </p>
                             <p>
                                 Therefore, design your monitoring system with an eye toward simplicity. In choosing what to monitor, keep the following guidelines in mind:
                             </p>
-                            <ul>
-                                <li>The rules that catch real incidents most often should be as simple, predictable, and reliable as possible.
-                                </li>
-                                <li>Data collection, aggregation, and alerting configuration that is rarely exercised (e.g., less than once a quarter for some SRE teams) should be up for removal.
-                                </li>
-                                <li>Signals that are collected, but not exposed in any prebaked dashboard nor used by any alert, are candidates for removal.
-                                </li>
-                            </ul>
+                            
                             <p>
                                 In Google’s experience, basic collection and aggregation of metrics, paired with alerting and dashboards, has worked well as a relatively standalone system. (In fact Google’s monitoring system is broken up into several binaries, but typically people learn about all aspects of these binaries.) It can be tempting to combine monitoring with other aspects of inspecting complex systems, such as detailed system profiling, single-process debugging, tracking details about exceptions or crashes, load testing, log collection and analysis, or traffic inspection. While most of these subjects share commonalities with basic monitoring, blending together too many results in overly complex and fragile systems. As in many other aspects of software engineering, maintaining distinct systems with clear, simple, loosely coupled points of integration is a better strategy (for example, using web APIs for pulling summary data in a format that can remain constant over an extended period of time).
                             </p>
@@ -364,31 +338,11 @@
                             <p>
                                 <a data-type="indexterm" data-primary="monitoring distributed systems" data-secondary="creating rules for" id="id-wqC7SDIvfj"></a>When creating rules for monitoring and alerting, asking the following questions can help you avoid false positives and pager burnout:<sup><a data-type="noteref" id="id-a82udF8IBfx-marker" href="#id-a82udF8IBfx">24</a></sup>
                             </p>
-                            <ul>
-                                <li>Does this rule detect <em>an otherwise undetected condition</em> that is urgent, actionable, and actively or imminently user-visible?<sup><a data-type="noteref" id="id-0vYuEFpSjSMtLfG-marker" href="#id-0vYuEFpSjSMtLfG">25</a></sup>
-                                </li>
-                                <li>Will I ever be able to ignore this alert, knowing it’s benign? When and why will I be able to ignore this alert, and how can I avoid this scenario?
-                                </li>
-                                <li>Does this alert definitely indicate that users are being negatively affected? Are there detectable cases in which users aren’t being negatively impacted, such as drained traffic or test deployments, that should be filtered out?
-                                </li>
-                                <li>Can I take action in response to this alert? Is that action urgent, or could it wait until morning? Could the action be safely automated? Will that action be a long-term fix, or just a short-term workaround?
-                                </li>
-                                <li>Are other people getting paged for this issue, therefore rendering at least one of the pages unnecessary?
-                                </li>
-                            </ul>
+                            
                             <p>
                                 <a data-type="indexterm" data-primary="monitoring distributed systems" data-secondary="monitoring philosophy" id="id-PnCpSwhJfa"></a>These questions reflect a fundamental philosophy on pages and pagers:
                             </p>
-                            <ul>
-                                <li>Every time the pager goes off, I should be able to react with a sense of urgency. I can only react with a sense of urgency a few times a day before I become fatigued.
-                                </li>
-                                <li>Every page should be actionable.
-                                </li>
-                                <li>Every page response should require intelligence. If a page merely merits a robotic response, it shouldn’t be a page.
-                                </li>
-                                <li>Pages should be about a novel problem or an event that hasn’t been seen before.
-                                </li>
-                            </ul>
+                            
                             <p>
                                 Such a perspective dissipates certain distinctions: if a page satisfies the preceding four bullets, it’s irrelevant whether the page is triggered by white-box or black-box monitoring. This perspective also amplifies certain distinctions: it’s better to spend much more effort on catching symptoms than causes; when it comes to causes, only worry about very definite, very imminent causes.
                             </p>

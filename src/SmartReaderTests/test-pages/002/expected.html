@@ -114,16 +114,7 @@ console.<span>log</span><span>(</span>reqHeaders.<span>getAll</span><span>(</spa
                 have a <strong>guard</strong> property. This is not exposed to the Web, but
                 it affects which mutation operations are allowed on the Headers object.
                 <br>Possible values are:</p>
-            <ul>
-                <li>“none”: default.</li>
-                <li>“request”: guard for a Headers object obtained from a Request (<code>Request.headers</code>).</li>
-                <li>“request-no-cors”: guard for a Headers object obtained from a Request
-                    created
-                    <br>with mode “no-cors”.</li>
-                <li>“response”: naturally, for Headers obtained from Response (<code>Response.headers</code>).</li>
-                <li>“immutable”: Mostly used for ServiceWorkers, renders a Headers object
-                <br>read-only.</li>
-            </ul>
+            
             <p>The details of how each guard affects the behaviors of the Headers object
                 are
                 <br>in the <a href="https://fetch.spec.whatwg.org">specification</a>. For example,
@@ -264,20 +255,7 @@ apiCall.<span>then</span><span>(</span><span>function</span><span>(</span>respon
             <p>Response also has a <code>type</code>, which is “basic”, “cors”, “default”,
                 “error” or
                 <br>“opaque”.</p>
-            <ul>
-                <li><code>"basic"</code>: normal, same origin response, with all headers exposed
-                    except
-                    <br>“Set-Cookie” and “Set-Cookie2″.</li>
-                <li><code>"cors"</code>: response was received from a valid cross-origin request.
-                    <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors">Certain headers and the body</a>may be accessed.</li>
-                <li><code>"error"</code>: network error. No useful information describing
-                    the error is available. The Response’s status is 0, headers are empty and
-                    immutable. This is the type for a Response obtained from <code>Response.error()</code>.</li>
-                <li><code>"opaque"</code>: response for “no-cors” request to cross-origin
-                resource. <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">Severely<br>
-  restricted</a>
-                </li>
-            </ul>
+            
             <p>The “error” type results in the <code>fetch()</code> Promise rejecting with
                 TypeError.</p>
             <p>There are certain attributes that are useful only in a ServiceWorker scope.
@@ -304,36 +282,11 @@ apiCall.<span>then</span><span>(</span><span>function</span><span>(</span>respon
                 over it because of the various data types body may contain, but we will
                 cover it in detail now.</p>
             <p>A body is an instance of any of the following types.</p>
-            <ul>
-                <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer">ArrayBuffer</a>
-                </li>
-                <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView">ArrayBufferView</a> (Uint8Array
-                    and friends)</li>
-                <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Blob">Blob</a>/
-                    <a href="https://developer.mozilla.org/en-US/docs/Web/API/File">File</a>
-                </li>
-                <li>string</li>
-                <li><a href="https://url.spec.whatwg.org/#interface-urlsearchparams">URLSearchParams</a>
-                </li>
-                <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/FormData">FormData</a> –
-                    currently not supported by either Gecko or Blink. Firefox expects to ship
-                    this in version 39 along with the rest of Fetch.</li>
-            </ul>
+            
             <p>In addition, Request and Response both offer the following methods to
                 extract their body. These all return a Promise that is eventually resolved
                 with the actual content.</p>
-            <ul>
-                <li><code>arrayBuffer()</code>
-                </li>
-                <li><code>blob()</code>
-                </li>
-                <li><code>json()</code>
-                </li>
-                <li><code>text()</code>
-                </li>
-                <li><code>formData()</code>
-                </li>
-            </ul>
+            
             <p>This is a significant improvement over XHR in terms of ease of use of
                 non-text data!</p>
             <p>Request bodies can be set by passing <code>body</code> parameters:</p>

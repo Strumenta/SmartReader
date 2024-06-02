@@ -70,17 +70,7 @@
                     <p>
                         WebAssembly can only access the APIs it receives as imports - the core Wasm spec has no concrete API details. Given the current trajectory of Wasm, it looks like there will be 3 main categories of APIs that people import and use:
                     </p>
-                    <ul>
-                        <li>
-                            <strong>Web APIs</strong>: This is what Wasm programs use on the Web, which are the existing standardized APIs that JavaScript can use too. Currently these are called indirectly, through JS glue code, but in the future with <a href="https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md">interface types</a> they will be called directly.
-                        </li>
-                        <li>
-                            <strong>WASI APIs</strong>: WASI focuses on standardizing APIs for Wasm on the server.
-                        </li>
-                        <li>
-                            <strong>Other APIs</strong>: Various custom embeddings will define their own application-specific APIs. For example, we gave the example earlier of an image editor with Wasm plugins that implement an API to do visual effects. Note that a plugin might also have access to “system” APIs, like a native dynamic library would, or it might be very sandboxed and have no imports at all (if the embedding just calls its methods).
-                        </li>
-                    </ul>
+                    
                     <p>
                         WebAssembly is in the interesting position of having <a href="https://www.goodreads.com/quotes/589703-the-good-thing-about-standards-is-that-there-are-so">two standardized sets of APIs</a>. This does makes sense in that one is for the Web and one for the server, and those environments do have different requirements; for similar reasons Node.js does not have identical APIs to JavaScript on the Web.
                     </p>
@@ -138,14 +128,7 @@
                     <p>
                         We saw that Emscripten uses WASI APIs as much as possible to avoid <strong>unnecessary</strong> API differences. Are there any <strong>necessary</strong> ones? Sadly, yes - some WASI APIs require tradeoffs. For example:
                     </p>
-                    <ul>
-                        <li>WASI does not support various POSIX features, like <a href="https://github.com/WebAssembly/WASI/issues/122">user/group/world file permissions</a>, as a result of which you can't fully implement a (Linux) system <code>ls</code> for example (see details in that link). Emscripten's existing filesystem layer does support some of those things, so if we switched to WASI APIs for all filesystem operations then we'd be <a href="https://github.com/emscripten-core/emscripten/issues/9479#issuecomment-542815711">losing some POSIX support</a>.
-                        </li>
-                        <li>WASI's <code>path_open</code> <a href="https://github.com/WebAssembly/WASI/issues/109">has a cost in code size</a> because it forces extra permissions handling in the Wasm itself. That code is unnecessary on the Web.
-                        </li>
-                        <li>WASI doesn't provide a <a href="https://github.com/WebAssembly/WASI/issues/82">notification API for memory growth</a>, and as a result, JS runtimes must constantly check if memory grew and if so update their views, on every import and export. To avoid that overhead, Emscripten provides a notification API, <code>emscripten_notify_memory_growth</code>, which <a href="https://github.com/zeux/meshoptimizer/blob/bdc3006532dd29b03d83dc819e5fa7683815b88e/js/meshopt_decoder.js#L10">you can see implemented in a single line</a> in zeux's meshoptimizer that we mentioned earlier.
-                        </li>
-                    </ul>
+                    
                     <p>
                         In time WASI may add more POSIX support, a memory growth notification, etc. - WASI is still highly experimental and expected to change significantly. For now, to avoid regressions in Emscripten we do not emit 100% WASI binaries if you use certain features. In particular, opening files uses a POSIX method instead of WASI, which means that if you call <code>fopen</code> then the resulting Wasm file will not be 100% WASI - however, if all you do is use <code>printf</code>, which operates on the already-open <code>stdout</code>, then it will be 100% WASI, as in the "hello world" example we saw near the beginning, where Emscripten's output does run in WASI runtimes.
                     </p>
@@ -161,14 +144,7 @@
                     <p>
                         Quite a lot works already! The main limitations are:
                     </p>
-                    <ul>
-                        <li>
-                            <strong>WebAssembly limitations</strong>: Various features, like C++ exceptions, setjmp, and pthreads, depend on JavaScript due to Wasm limitations, and there is no good non-JS replacement yet. (Emscripten may start to support some of them <a href="https://www.youtube.com/watch?v=qQOP6jqZqf8&amp;list=PLqh1Mztq_-N2OnEXkdtF5yymcihwqG57y&amp;index=2&amp;t=0s">using Asyncify</a>, or maybe we'll just wait for <a href="https://github.com/WebAssembly/exception-handling/blob/master/proposals/Exceptions.md">native Wasm features</a> to arrive to VMs.)
-                        </li>
-                        <li>
-                            <strong>WASI limitations</strong>: Libraries and APIs like OpenGL and SDL don't have corresponding WASI APIs yet.
-                        </li>
-                    </ul>
+                    
                     <p>
                         You <strong>can</strong> still use all those in Emscripten's standalone mode, but the output will contain calls to JS runtime support code. As a result, it will not be 100% WASI (for similar reasons those features also do not work in the WASI SDK). Those Wasm files won't run in WASI runtimes, but you can use them on the Web and you can write your own JS runtime for them. You can also use them as plugins; for example, a game engine could have plugins that render using OpenGL, and the developer would compile them in standalone mode and then implement the OpenGL imports in the engine's Wasm runtime. Standalone Wasm mode still helps here because it makes the output as standalone as Emscripten can make it.
                     </p>

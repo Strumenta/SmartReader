@@ -106,9 +106,9 @@ namespace SmartReaderTests
             };            
 
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
-
+            
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
-
+            
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
