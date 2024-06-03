@@ -1,0 +1,41 @@
+.head-block {
+	margin: 2em 0 0 0;
+}
+
+.feature-section {
+	margin-bottom: 30px;
+	background-color: #ffffff;
+	align: center;
+}
+
+.feature-section-alternate {
+	margin-bottom: 30px;
+	background-color: #f7f7f9;
+}
+
+.closer-top {
+	margin-top: -60px;
+}
+
+.last-block {
+	background-color: #ffffff;
+	padding-bottom: 115px;
+}
+
+.btn-primary {
+	background-color: #2a363c;
+}
+
+.b-example-divider {
+	width: 100%;
+	height: 3rem;
+	background-color: rgba(0, 0, 0, .1);
+	border: solid rgba(0, 0, 0, .15);
+	border-width: 1px 0;
+	box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.bi {
+  vertical-align: -.125em;
+  fill: currentColor;
+}

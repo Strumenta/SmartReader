@@ -2,56 +2,48 @@
 title: SmartReader
 documentType: index
 ---
-<div class="jumbotron">
-	<div class="h1 closer-top" align="center">
-		<br>
-		<img src="/images/logo.png" width="256" alt="SmartReader">
-		<br>
-		SmartReader
-		<br>
-	</div>
-	<div class="head-block text-center center-block">
-		<p class="h4 text-center">A .NET Standard library to extract the main content of a web page.</p>
-	</div>
-	
-	<div class="head-block text-center center-block">
-		<a type="button" class="btn btn-primary btn-lg" href="/articles/quickstart.html">Get Started</a>
-		<a type="button" class="btn btn-primary btn-lg" href="https://github.com/strumenta/SmartReader">View on GitHub</a>
-	</div>
-</div>
-<div class="feature-section">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 col-md-offset-2 text-center">        
-        <section>
-          <h2>Remove the clutter</h2>
-          <p class="lead">SmartReader gives you a clean article without ads, sidebars, etc. Available both as HTML and lightly formatted text.</p>
-        </section>
+
+<div class="px-4 py-5 my-5 text-center">
+    <img class="d-block mx-auto mb-4" src="images/logo.png" width="256" alt="SmartReader"">
+    <h1 class="display-5 fw-bold text-body-emphasis">SmartReader</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4">A .NET Standard library to extract the main content of a web page.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+	    <a type="button" class="btn btn-primary btn-lg" href="~/articles/quickstart.md">Get Started</a>
+		<a type="button" class="btn btn-primary btn-lg" href="https://github.com/strumenta/SmartReader">View on GitHub</a>        
       </div>
     </div>
   </div>
-</div>
-<div class="feature-section-alternate">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 col-md-offset-2 text-center">        
-        <section>
-          <h2>Useful metadata</h2>
-          <p class="lead">SmartReader can (usually) find all the metadata you need: author, publication date, site name, language, the excerpt of the article, the featured image, a list of images found (it can optionally also download them and store as data URI), an estimate of the time needed to read the article.</p>
-        </section>
+
+  <div class="b-example-divider"></div>
+
+<div class="text-secondary px-4 py-5 text-center">
+    <div class="py-5">
+      <h2 class="display-5 fw-bold text-white">Remove the clutter</h2>
+      <div class="col-lg-9 mx-auto">
+        <p class="fs-5 mb-4">SmartReader gives you a clean article without ads, sidebars, etc. Available both as HTML and lightly formatted text.</p>        
       </div>
     </div>
   </div>
-</div>
-<div class="last-block">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-8 col-md-offset-2 text-center">        
-        <section>
-          <h2>Well tested algorithm</h2>
-          <p class="lead">The core algorithm is a port of the Readability library, used in Firefox by millions of people.</p>
-        </section>
+
+  <div class="b-example-divider"></div>
+
+<div class="text-secondary px-4 py-5 text-center">
+    <div class="py-5">
+      <h2 class="display-5 fw-bold text-white">Useful metadata</h2>
+      <div class="col-lg-9 mx-auto">
+        <p class="fs-5 mb-4">SmartReader can (usually) find all the metadata you need: author, publication date, site name, language, the excerpt of the article, the featured image, a list of images found (it can optionally also download them and store as data URI), an estimate of the time needed to read the article.</p>        
       </div>
     </div>
   </div>
-</div>
+
+  <div class="b-example-divider"></div>
+
+<div class="text-secondary px-4 py-5 text-center">
+    <div class="py-5">
+      <h2 class="display-5 fw-bold text-white">Well tested algorithm</h2>
+      <div class="col-lg-9 mx-auto">
+        <p class="fs-5 mb-4">The core algorithm is a port of the Readability library, used in Firefox by millions of people.</p>        
+      </div>
+    </div>
+  </div>
