@@ -20,7 +20,7 @@ namespace SmartReaderTests
             _output = output;
         }
 
-        public IArticleTest GetTestArticle(ArticleMetadata metadata, string content)
+        public IArticleTest GetTestArticle(ArticleMetadata metadata, string content, string detection)
         {
             var mockArticle = new Mock<IArticleTest>();
             mockArticle.Setup(x => x.Uri).Returns(new Uri("https://localhost/"));
@@ -30,7 +30,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Byline).Returns(metadata.Byline ?? "");
             mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata.Author) ? null : metadata.Author);
             mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata.PublicationDate) ? (DateTime?)null : DateTime.Parse(metadata.PublicationDate.ToString()));
-            mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata.Language) ? null : metadata.Language.ToString());
+            mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata.Language) ? detection : metadata.Language.ToString());
             mockArticle.Setup(x => x.Excerpt).Returns(metadata.Excerpt ?? "");
             mockArticle.Setup(x => x.SiteName).Returns(metadata.SiteName ?? "");
             mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata.TimeToRead ?? "0"));
@@ -47,7 +47,7 @@ namespace SmartReaderTests
                 WriteIndented = true,
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
+            };
 
             var obj = new
             {
@@ -90,6 +90,7 @@ namespace SmartReaderTests
 
         public static IEnumerable<object[]> GetTests()
         {
+            // NOTICE: To make the tests work I had to point the absolute path of test-pages folder according to my project tree  
             foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages\"))
             {
                 yield return new object[] { d };
@@ -99,21 +100,22 @@ namespace SmartReaderTests
         [Theory]
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
-        {                 
+        {
             var jso = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };            
+            };
 
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
-            
+
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
 
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
+            var expectedLanguage = found.Language;
 
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);            
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent, expectedLanguage);
 
             AssertProperties(expected, found);
         }

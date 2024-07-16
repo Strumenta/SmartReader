@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using AngleSharp.Dom;
+using DetectLanguage;
 
 namespace SmartReader
 {
@@ -38,7 +39,7 @@ namespace SmartReader
         /// <value>The excerpt provided by the metadata</value>
         public string? Excerpt { get; }
 
-        /// <value>The language provided by the metadata</value>
+        /// <value>The language provided by the metadata or detected from DetectLanguage function when metatadata is missing</value>
         public string? Language { get; }
 
         /// <value>The author, which can be parsed or read in the metadata</value>
@@ -114,7 +115,9 @@ namespace SmartReader
             Dir = dir;
             Content = Serializer(element);
             Excerpt = metadata.Excerpt;
-            Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
+            /* When the language code is missing from the retrieved metadata, we call the DetectLanguage function,
+             either passing the article title (if present, to lighten the function load) or the article content. */
+            Language = string.IsNullOrWhiteSpace(metadata.Language) ? DetectLanguage(metadata.Title ?? Content).Result : metadata.Language;
             PublicationDate = metadata.PublicationDate;
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
@@ -146,6 +149,55 @@ namespace SmartReader
             PublicationDate = new DateTime();
             Errors.Add(exception);
         }
+
+        /// <summary>
+        /// Detects the language of a given piece of text.
+        /// </summary>
+        /// <param name="pieceOfText">The text to detect the language of.</param>
+        /// <returns>The detected language code.</returns>
+        public async Task<string> DetectLanguage(string pieceOfText)
+        {
+            try
+            {
+                string envName = "DETECT_LANGUAGE_API_KEY";
+                string apiKey = Environment.GetEnvironmentVariable(envName);
+
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    Console.WriteLine($"---- API key not found in environment variable: {envName}. Skipping language detection ----");
+                    return string.Empty; // return empty string
+                }
+
+                Console.WriteLine("---- Undetected language code from article metadata: attempting automatic detection ----");
+                Console.WriteLine("---- Initializing DetectLanguageClient ----");
+
+                DetectLanguageClient client = new(apiKey);
+                UserStatus userStatus = await client.GetUserStatusAsync();
+
+                // Checking the availability of the API service; the free plan offers 1000 call per day with a overall limit of 1MB of text
+                if (userStatus.status == "ACTIVE")
+                {
+                    Console.WriteLine($"---- Service available: {1000 - userStatus.requests} requests left ----");
+
+                    string languageCode = await client.DetectCodeAsync(pieceOfText);
+                    Console.WriteLine($"---- Language Code Detected: {languageCode} ----");
+                    return languageCode;
+                }
+                else
+                {
+                    Console.WriteLine("---- Service unavailable: requests limit reached ----");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"---- Error in DetectLanguage: {ex.Message} ----");
+                Errors.Add(ex); // Add exceptions to error list
+            }
+
+            return string.Empty;
+        }
+
+
 
         /// <summary>
         /// Finds images contained in the article.
@@ -253,7 +305,7 @@ namespace SmartReader
         /// </returns>  
         private static string ConvertToPlaintext(IElement doc)
         {
-            var sb = new StringBuilder();           
+            var sb = new StringBuilder();
 
             ConvertToText(doc, sb);
 
@@ -264,7 +316,7 @@ namespace SmartReader
             string text = sb.ToString();
             // fix whitespace 
             // replace tabs with one space
-            text = RE_EliminateTabs.Replace(text, " ");            
+            text = RE_EliminateTabs.Replace(text, " ");
 
             var stringBuilder = new StringBuilder(text);
 
@@ -303,7 +355,7 @@ namespace SmartReader
         /// The function that converts HTML markup to text
         /// </summary>
         private static void ConvertToText(IElement doc, StringBuilder text)
-        {            
+        {
             if (doc.NodeType == NodeType.Element && doc.NodeName is "P" or "BR")
             {
                 text.AppendLine();
