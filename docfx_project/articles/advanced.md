@@ -12,14 +12,14 @@ You can customize the regular expressions that are used to determine whether a p
 The type `RegularExpression` is an `enum` that can have one of the following values, corresponding to a regular expression:
 - UnlikelyCandidates
 - PossibleCandidates
-  - Positive (increases chances to keep the element)
-  - Negative (decreases chances to keep the element)
-  - Extraneous (note: this regular expression is not used anywhere at the moment)
-  - Byline
-  - Videos
-  - ShareElements
+- Positive (increases chances to keep the element)
+- Negative (decreases chances to keep the element)
+- Byline
+- Videos
+- ShareElements
+- Extraneous (note: this regular expression is not used anywhere at the moment. We keep it for alignment with the original library)
 
-Except for the *Videos* regular expression, they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used.
+Except for the *Videos* regular expression, they all represent values of attributes, classes, etc. of tags. You should look at the code to understand how each of the regular expression is used. For instance, if you add the string `"niceContent"` to `RegularExpression.Positive`, a `div` containing `niceContent` in its `class` attribute, or `id`, will be more likely to be included in the final output.
 
 The *Videos* regular expression represents a domain of origin of an embedded video. Since this is a string representing a regular expression, you have to remember to escape any dot present. This option is used to determine if an embed should be maintained in the article, because people generally want to see videos. If an embed matches one of the domains of this option is maintained, otherwise it is not.
 
