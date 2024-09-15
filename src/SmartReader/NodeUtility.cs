@@ -205,9 +205,14 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>  
         internal static bool IsSingleImage(IElement element)
         {
-            if (element.TagName is "IMG") return true;
-            if (element.Children.Length != 1 || element.TextContent.AsSpan().Trim().Length != 0) return false;
-            return IsSingleImage(element.Children[0]);
+            while(element != null)
+            {
+                if (element.TagName is "IMG") return true;
+                if (element.Children.Length != 1 || element.TextContent.AsSpan().Trim().Length != 0) return false;
+                element = element.Children[0];
+            }
+
+            return false;
         }
 
         /// <summary>
