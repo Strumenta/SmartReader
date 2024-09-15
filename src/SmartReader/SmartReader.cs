@@ -156,6 +156,12 @@ namespace SmartReader
         /// <value>Default: false</value>
         public bool ForceHeaderEncoding { get; set; } = false;
 
+        /// <summary>
+        /// A number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa
+        /// </summary>
+        /// <value>Default: false</value>
+        public double LinkDensityModifier { get; set; } = 0.0;
+
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -1896,12 +1902,12 @@ namespace SmartReader
                             errs.Add($"Suspiciously short. (headingDensity={headingDensity}, img={img}, linkDensity={linkDensity})");
                         }
 
-                        if (!isList && weight < 25 && linkDensity > 0.2)
+                        if (!isList && weight < 25 && linkDensity > (0.2 + LinkDensityModifier))
                         {
                             errs.Add($"Low weight and a little linky. (linkDensity={linkDensity})");
                         }
 
-                        if (weight >= 25 && linkDensity > 0.5)
+                        if (weight >= 25 && linkDensity > (0.5 + LinkDensityModifier))
                         {
                             errs.Add($"High weight and mostly links. (linkDensity={linkDensity})");
                         }
