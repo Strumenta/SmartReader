@@ -59,5 +59,6 @@ docfx --serve
 - [Sander Schutten](https://github.com/sschutten)
 - [sucrose](https://github.com/sucrose0413 )
 - [Ian Smirlis](https://github.com/iansmirlis)
+- [Peter Hagen](https://github.com/PeterHagen)
 
 Thanks to all the people involved.

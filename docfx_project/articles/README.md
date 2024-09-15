@@ -114,6 +114,7 @@ if(article.IsReadable)
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header. This will convert the stream to the encoding set in the header before passing it to the HTML parser<br>*Default: false*
 - `int` **AncestorsDepth** <br>The default level of depth a node must have to be used for scoring.Nodes without as many ancestors as this level are not counted<br>*Default: 5*
 - `int` **ParagraphThreshold** <br>The default number of characters a node must have in order to be used for scoring<br>*Default: 25*
+- `linkDensityModifier` (number, default `0.0`): a number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.
 
 ### Settings Notes
 

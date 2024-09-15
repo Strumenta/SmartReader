@@ -131,7 +131,7 @@ The following settings on the `Reader` class can be modified.
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header.<br>*Default: false*
 - `int` **AncestorsDepth** <br>The default level of depth a node must have to be used for scoring.Nodes without as many ancestors as this level are not counted<br>*Default: 5*
 - `int` **ParagraphThreshold** <br>The default number of characters a node must have in order to be used for scoring<br>*Default: 25*
-- `double` **linkDensityModifier** <br>A number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.<br>*Default: 0*
+- `double` **linkDensityModifier** <br>A number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.<br>*Default: 0.0*
 
 ### Settings Notes
 
