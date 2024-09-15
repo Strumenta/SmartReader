@@ -240,9 +240,9 @@ namespace SmartReader
             {
                 // Check if we have an heading containing this exact string, so we
                 // could assume it's the full title.
-                var headings = NodeUtility.ConcatNodeLists(
-                  doc.GetElementsByTagName("h1"),
-                  doc.GetElementsByTagName("h2")
+                var headings = NodeUtility.GetAllNodesWithTag(
+                    doc.DocumentElement,
+                    new string[] { "h1", "h2" }
                 );
                 var trimmedTitle = curTitle.Trim();
                 var match = headings.Any(heading => heading.TextContent.AsSpan().Trim().SequenceEqual(trimmedTitle.AsSpan()));
