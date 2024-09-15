@@ -173,7 +173,7 @@ namespace SmartReader
         private Regex RE_ShareElements        = G_RE_ShareElements;        
 
         // Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
-        private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote|reacties|commentaires|Kommentare|comentarios", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_OkMaybeItsACandidate = new Regex(@"and|article|body|column|content|main|shadow", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Positive = new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Negative = new Regex(@"-ad-|hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|foot|footer|footnote|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|tool|widget", RegexOptions.IgnoreCase | RegexOptions.Compiled);
