@@ -37,7 +37,7 @@ namespace SmartReaderConsole
 
             Article.Serializer = Program.RemoveSpace;
 
-            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
+            var pages = Directory.EnumerateDirectories(Path.Combine("..", "SmartReaderTests/test-pages"));
 
             Random random = new Random();
             var index = random.Next(pages.Count());
@@ -160,7 +160,7 @@ namespace SmartReaderConsole
                 siteName = article.SiteName,
                 featuredImage = article.FeaturedImage
             };
-            
+
             File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonSerializer.Serialize(obj, jso), System.Text.Encoding.UTF8);
         }
 
@@ -168,10 +168,10 @@ namespace SmartReaderConsole
         {
             Reader reader = new Reader(url);
             Article article = reader.GetArticle();
-            
+
             Console.WriteLine(article.Content);
             Console.WriteLine(article.Title);
-        }        
+        }
 
         static void Main(string[] args)
         {
