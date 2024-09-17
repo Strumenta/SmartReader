@@ -7,3 +7,6 @@ src/SmartReaderDemo/obj/
 
 # JetBrains Rider files
 .idea
+
+# User files
+*.DotSettings.user
