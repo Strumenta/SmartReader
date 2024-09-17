@@ -203,7 +203,95 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("it", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).Language);
+            Assert.Equal("it",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                    .Language);
+        }
+
+        [Fact]
+        public void TestGetMetadataAlternativeLanguageUris_WhenNoLinkTagPresent_IsEmpty()
+        {
+            // Arrange
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head></head>
+               <body></body>
+               </html>");
+
+            // Act
+            var metadata = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "",
+                new Dictionary<string, string>());
+
+            // Assert
+            Assert.Empty(metadata.AlternativeLanguageUris);
+        }
+
+        [Fact]
+        public void TestGetMetadataAlternativeLanguageUris_IgnoresAlternateLinkWithoutHreflang()
+        {
+            // Arrange
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>
+                    <link rel=""alternate"" media=""only screen and (max-width: 640px)"" href=""https://m.example.com""/>
+               </head>
+               <body></body>
+               </html>");
+
+            // Act
+            var metadata = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "",
+                new Dictionary<string, string>());
+
+            // Assert
+            Assert.Empty(metadata.AlternativeLanguageUris);
+        }
+
+        [Fact]
+        public void TestGetMetadataAlternativeLanguageUris_IgnoresXDefaultPage()
+        {
+            // Arrange
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>
+                    <link rel=""alternate"" hreflang=""x-default"" href=""https://m.example.com"" />
+               </head>
+               <body></body>
+               </html>");
+
+            // Act
+            var metadata = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "",
+                new Dictionary<string, string>());
+
+            // Assert
+            Assert.Empty(metadata.AlternativeLanguageUris);
+        }
+
+        [Fact]
+        public void TestGetMetadataAlternativeLanguageUris()
+        {
+            // Arrange
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>
+                    <link rel=""alternate"" href=""https://www.apple.com/en"" hreflang=""en-US"">
+                    <link rel=""alternate"" href=""https://www.apple.com/it"" hreflang=""it-IT"">
+                    <link rel=""alternate"" href=""https://www.apple.com/de"" hreflang=""de-DE"">
+               </head>
+               <body></body>
+               </html>");
+            var expected = new Dictionary<string, Uri>
+            {
+                {"en-US", new Uri("https://www.apple.com/en")},
+                {"it-IT", new Uri("https://www.apple.com/it")},
+                {"de-DE", new Uri("https://www.apple.com/de")},
+            };
+
+            // Act
+            var metadata = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "",
+                new Dictionary<string, string>());
+
+            // Assert
+            Assert.Equal(expected, metadata.AlternativeLanguageUris);
         }
 
         [Fact]

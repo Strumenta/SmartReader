@@ -615,6 +615,27 @@ namespace SmartReader
 
             metadata.Language = FirstNonEmptyValueOrDefault(LanguageHeuristics()) ?? "";
 
+            // Alternative language uris
+            var linkElements = doc.GetElementsByTagName("link");
+
+            foreach (var link in linkElements)
+            {
+                if (link.GetAttribute("rel") == "alternate")
+                {
+                    var hrefValue = link.GetAttribute("href");
+                    var hreflangValue = link.GetAttribute("hreflang");
+
+                    if (!string.IsNullOrWhiteSpace(hrefValue)
+                        && !string.IsNullOrWhiteSpace(hreflangValue)
+                        && hreflangValue != "x-default"
+                        && !metadata.AlternativeLanguageUris.ContainsKey(hreflangValue!))
+                    {
+                        metadata.AlternativeLanguageUris.Add(hreflangValue!, new Uri(hrefValue));
+                    }
+                }
+            }
+
+
             // Find the featured image of the article
             IEnumerable<string?> FeaturedImageKeys()
             {

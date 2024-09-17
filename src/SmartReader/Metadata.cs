@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SmartReader
 {
@@ -9,6 +10,8 @@ namespace SmartReader
         internal string? Excerpt { get; set; }
 
         internal string? Language { get; set; }
+
+        internal Dictionary<string, Uri> AlternativeLanguageUris { get; set; } = new();
 
         internal string? FeaturedImage { get; set; }
 
