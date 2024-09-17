@@ -371,9 +371,9 @@ namespace SmartReaderTests
             var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
 
             // check that the text returned is correct
-            Assert.Equal("This is a paragraph with some text.\r\n" +
-                         "\r\nThis is a paragraph with some other text and lots of whitespace .\r\n" +
-                         "\r\nThis is a paragraph with different\r\nother text.", article.TextContent);
+            Assert.Equal($"This is a paragraph with some text.{Environment.NewLine}" +
+                         $"{Environment.NewLine}This is a paragraph with some other text and lots of whitespace .{Environment.NewLine}" +
+                         $"{Environment.NewLine}This is a paragraph with different{Environment.NewLine}other text.", article.TextContent);
         }
 
         [Fact]
