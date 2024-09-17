@@ -90,7 +90,7 @@ namespace SmartReaderTests
 
         public static IEnumerable<object[]> GetTests()
         {
-            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages\"))
+            foreach (var d in Directory.EnumerateDirectories(Path.Combine("..", "..", "..", "test-pages")))
             {
                 yield return new object[] { d };
             }
@@ -99,21 +99,21 @@ namespace SmartReaderTests
         [Theory]
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
-        {                 
+        {
             var jso = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };            
+            };
 
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
-            
+
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
 
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
 
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);            
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
 
             AssertProperties(expected, found);
         }

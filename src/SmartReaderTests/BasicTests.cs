@@ -305,10 +305,10 @@ namespace SmartReaderTests
             var mockHttp = new MockHttpMessageHandler();
 
             mockHttp.When("https://localhost/small_image.png")
-                    .Respond("image/png", File.OpenRead(@"..\..\..\test-images\small_image.png"));
+                    .Respond("image/png", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "small_image.png")));
 
             mockHttp.When("https://localhost/big_image.jpg")
-                    .Respond("image/jpeg", File.OpenRead(@"..\..\..\test-images\big_image.jpg"));
+                    .Respond("image/jpeg", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "big_image.jpg")));
 
             var reader = new Reader("https://localhost/article");
 
@@ -537,21 +537,21 @@ namespace SmartReaderTests
             var mockHttp = new MockHttpMessageHandler();
 
             mockHttp.When("https://localhost/article")
-                    .Respond(HttpStatusCode.Forbidden);           
+                    .Respond(HttpStatusCode.Forbidden);
 
             var reader = new Reader("https://localhost/article");
 
-            Reader.SetBaseHttpClientHandler(mockHttp);            
-            Assert.False(reader.GetArticle().Completed);                        
+            Reader.SetBaseHttpClientHandler(mockHttp);
+            Assert.False(reader.GetArticle().Completed);
         }
 
         [Fact]
         public void TestMaxElemsToParseThrowException()
-        {                        
+        {
             // setting up mocking HttpClient
             var mockHttp = new MockHttpMessageHandler();
 
-            mockHttp.When("https://localhost/article")                    
+            mockHttp.When("https://localhost/article")
                     .Respond("text/html", @"<html>
                <head></head>
                <body>
