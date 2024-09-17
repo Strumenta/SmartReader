@@ -16,6 +16,7 @@ namespace SmartReaderTests
     public class BasicTests
     {
         private readonly ITestOutputHelper _output;
+
         public BasicTests(ITestOutputHelper output)
         {
             _output = output;
@@ -159,7 +160,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("The best article there is. Right here", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).Excerpt);
+            Assert.Equal("The best article there is. Right here",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en",
+                    new Dictionary<string, string>()).Excerpt);
         }
 
         [Fact]
@@ -173,7 +176,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Some Good Site", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).SiteName);
+            Assert.Equal("Some Good Site",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en",
+                    new Dictionary<string, string>()).SiteName);
         }
 
         [Fact]
@@ -188,7 +193,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Some Good Idea", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en", new Dictionary<string, string>()).Title);
+            Assert.Equal("Some Good Idea",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en",
+                    new Dictionary<string, string>()).Title);
         }
 
         [Fact]
@@ -305,7 +312,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).FeaturedImage);
+            Assert.Equal("https://it.wikipedia.org/static/images/project-logos/itwiki-2x.png",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                    .FeaturedImage);
         }
 
         [Fact]
@@ -319,7 +328,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).Author);
+            Assert.Equal("Secret Man",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                    .Author);
         }
 
         [Fact]
@@ -331,7 +342,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Null(Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Null(Readability
+                .GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                .PublicationDate);
         }
 
         [Fact]
@@ -345,7 +358,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 21),
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                    .PublicationDate);
         }
 
         [Fact]
@@ -357,7 +372,9 @@ namespace SmartReaderTests
                <body><p>Hello. I am talking to you, <time datetime=""1980-09-01"" pubDate=""pubDate"">now</time></p></body>
                </html>");
 
-            Assert.Equal(new DateTime(1980, 9, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(1980, 9, 1),
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", new Dictionary<string, string>())
+                    .PublicationDate);
         }
 
         [Fact]
@@ -369,9 +386,15 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal(new DateTime(2110, 10, 21), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21/"), "", new Dictionary<string, string>()).PublicationDate);
-            Assert.Equal(new DateTime(2110, 10, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/37"), "", new Dictionary<string, string>()).PublicationDate);
-            Assert.Equal(new DateTime(2010, 10, 1), Readability.GetArticleMetadata(doc, new Uri("https://localhost/2010/10/change_of_plans.html"), "", new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 21),
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/21/"), "",
+                    new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2110, 10, 1),
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/2110/10/37"), "",
+                    new Dictionary<string, string>()).PublicationDate);
+            Assert.Equal(new DateTime(2010, 10, 1),
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/2010/10/change_of_plans.html"), "",
+                    new Dictionary<string, string>()).PublicationDate);
         }
 
         [Fact]
@@ -393,16 +416,17 @@ namespace SmartReaderTests
             var mockHttp = new MockHttpMessageHandler();
 
             mockHttp.When("https://localhost/small_image.png")
-                    .Respond("image/png", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "small_image.png")));
+                .Respond("image/png", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "small_image.png")));
 
             mockHttp.When("https://localhost/big_image.jpg")
-                    .Respond("image/jpeg", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "big_image.jpg")));
+                .Respond("image/jpeg", File.OpenRead(Path.Combine("..", "..", "..", "test-images", "big_image.jpg")));
 
             var reader = new Reader("https://localhost/article");
 
             Reader.SetBaseHttpClientHandler(mockHttp);
 
-            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en",
+                "Nobody", doc.Body, new Metadata(), true, reader);
 
             article.ConvertImagesToDataUriAsync().Wait();
 
@@ -439,29 +463,31 @@ namespace SmartReaderTests
             // creating element
             var parser = new HtmlParser(new HtmlParserOptions());
             var text = "<html>\r\n" +
-               "<head></head>\r\n" +
-               "<body>\r\n" +
-               "     <p> </p>\r\n" +
-               "     <p>This is a paragraph with some text.</p>\r\n" +
-               "\r\n" +
-               "     <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>\r\n" +
-               "\r\n" +
-               "\r\n" +
-               "\r\n" +
-               "     <p>This is 			a paragraph with different<br> other text.</p>\r\n" +
-               "</body>\r\n" +
-               "</html>";
+                       "<head></head>\r\n" +
+                       "<body>\r\n" +
+                       "     <p> </p>\r\n" +
+                       "     <p>This is a paragraph with some text.</p>\r\n" +
+                       "\r\n" +
+                       "     <p>This  	 is a paragraph   with some other text and lots of whitespace  .</p>\r\n" +
+                       "\r\n" +
+                       "\r\n" +
+                       "\r\n" +
+                       "     <p>This is 			a paragraph with different<br> other text.</p>\r\n" +
+                       "</body>\r\n" +
+                       "</html>";
 
             var doc = parser.ParseDocument(text);
 
             var reader = new Reader("https://localhost/article");
 
-            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en",
+                "Nobody", doc.Body, new Metadata(), true, reader);
 
             // check that the text returned is correct
             Assert.Equal($"This is a paragraph with some text.{Environment.NewLine}" +
                          $"{Environment.NewLine}This is a paragraph with some other text and lots of whitespace .{Environment.NewLine}" +
-                         $"{Environment.NewLine}This is a paragraph with different{Environment.NewLine}other text.", article.TextContent);
+                         $"{Environment.NewLine}This is a paragraph with different{Environment.NewLine}other text.",
+                article.TextContent);
         }
 
         [Fact]
@@ -484,21 +510,24 @@ namespace SmartReaderTests
 
             static string serializer(IElement element)
             {
-                return Regex.Replace(Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><(?!pre).*?>)\s+", "${endBefore}").Trim();
+                return Regex
+                    .Replace(
+                        Regex.Replace(element.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)",
+                            "${endBefore}${startAfter}"), @"(?<endBefore><(?!pre).*?>)\s+", "${endBefore}").Trim();
             }
 
             Article.Serializer = serializer;
 
-            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en",
+                "Nobody", doc.Body, new Metadata(), true, reader);
 
             // restore standard serializer
-            Article.Serializer = (AngleSharp.Dom.IElement element) =>
-            {
-                return element.InnerHtml;
-            };
+            Article.Serializer = (AngleSharp.Dom.IElement element) => { return element.InnerHtml; };
 
             // check that the text returned is correct
-            Assert.Equal(@"<p></p><p>This is a paragraph with some text.</p><p>This  	 is a paragraph   with some other text and lots of whitespace  .</p><p>This is 			a paragraph with different<br>other text.</p><pre>   Space inside here is       magic</pre>", article.Content);
+            Assert.Equal(
+                @"<p></p><p>This is a paragraph with some text.</p><p>This  	 is a paragraph   with some other text and lots of whitespace  .</p><p>This is 			a paragraph with different<br>other text.</p><pre>   Space inside here is       magic</pre>",
+                article.Content);
         }
 
         [Fact]
@@ -524,7 +553,8 @@ namespace SmartReaderTests
 
             Article.Converter = converter;
 
-            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en", "Nobody", doc.Body, new Metadata(), true, reader);
+            var article = new Article(new Uri("https://localhost/article"), "Great article", "by Ulysses", "", "en",
+                "Nobody", doc.Body, new Metadata(), true, reader);
 
             // check that the text returned is correct
             Assert.Equal(@"********** is a great language for system programming.", article.TextContent);
@@ -554,7 +584,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Real Author", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+            Assert.Equal("Real Author",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc))
+                    .Author);
         }
 
         [Fact]
@@ -581,7 +613,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Real Author, Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+            Assert.Equal("Real Author, Secret Man",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc))
+                    .Author);
         }
 
         [Fact]
@@ -605,7 +639,9 @@ namespace SmartReaderTests
                <body></body>
                </html>");
 
-            Assert.Equal("Secret Man", Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc)).Author);
+            Assert.Equal("Secret Man",
+                Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "", Readability.GetJSONLD(doc))
+                    .Author);
         }
 
         [Fact]
@@ -625,7 +661,7 @@ namespace SmartReaderTests
             var mockHttp = new MockHttpMessageHandler();
 
             mockHttp.When("https://localhost/article")
-                    .Respond(HttpStatusCode.Forbidden);
+                .Respond(HttpStatusCode.Forbidden);
 
             var reader = new Reader("https://localhost/article");
 
@@ -640,7 +676,7 @@ namespace SmartReaderTests
             var mockHttp = new MockHttpMessageHandler();
 
             mockHttp.When("https://localhost/article")
-                    .Respond("text/html", @"<html>
+                .Respond("text/html", @"<html>
                <head></head>
                <body>
                     <p>This is a paragraph with some text.</p>
@@ -659,4 +695,3 @@ namespace SmartReaderTests
         }
     }
 }
-
