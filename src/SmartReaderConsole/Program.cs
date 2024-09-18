@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -89,6 +90,7 @@ namespace SmartReaderConsole
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
             Console.WriteLine($"Images Found: {images.Result?.Count}");
+            Console.WriteLine($"Alternative language URIs: {AlternativeLanguageUrisToString(article.AlternativeLanguageUris)}");
 
             article.ConvertImagesToDataUriAsync().Wait();
 
@@ -173,6 +175,17 @@ namespace SmartReaderConsole
             Console.WriteLine(article.Title);
         }
 
+        static string AlternativeLanguageUrisToString(Dictionary<string, Uri> alternativeLanguageUris)
+        {
+            StringBuilder sb = new();
+
+            foreach (var item in alternativeLanguageUris)
+            {
+                sb.Append($"[{item.Key}]-[{item.Value}], ");
+            }
+
+            return sb.ToString();
+        }
         static void Main(string[] args)
         {
             RunRandomExample();

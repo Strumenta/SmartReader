@@ -7,5 +7,8 @@
   "timeToRead": "00:08:00",
   "publicationDate": "2019-02-21T09:00:08+01:00",
   "siteName": "",
-  "featuredImage": "https://static01.nyt.com/images/2019/02/21/nyregion/21winterutilities1/00winterutilities1-facebookJumbo.jpg"
+  "featuredImage": "https://static01.nyt.com/images/2019/02/21/nyregion/21winterutilities1/00winterutilities1-facebookJumbo.jpg",
+  "alternativeLanguageUris": {
+    "en-US": "https://www.nytimes.com/2019/02/21/nyregion/winter-weather-manholes-pipes.html"
+  }
 }

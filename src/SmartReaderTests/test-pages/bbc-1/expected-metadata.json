@@ -6,5 +6,9 @@
   "language": "en",
   "timeToRead": "00:04:00",
   "siteName": "BBC News",
-  "featuredImage": "http://ichef.bbci.co.uk/news/1024/cpsprodpb/3D8B/production/_84455751_84455749.jpg"
+  "featuredImage": "http://ichef.bbci.co.uk/news/1024/cpsprodpb/3D8B/production/_84455751_84455749.jpg",
+  "alternativeLanguageUris": {
+    "en-gb": "http://www.bbc.co.uk/news/world-us-canada-33646704",
+    "en": "http://www.bbc.com/news/world-us-canada-33646704"
+  }
 }

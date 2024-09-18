@@ -41,6 +41,9 @@ namespace SmartReader
         /// <value>The language provided by the metadata</value>
         public string? Language { get; }
 
+        /// <value>Contains URIs for pages in alternative languages, where the key is the language code</value>
+        public Dictionary<string, Uri> AlternativeLanguageUris { get; set; } = new();
+
         /// <value>The author, which can be parsed or read in the metadata</value>
         public string? Author { get; }
 
@@ -66,11 +69,11 @@ namespace SmartReader
         }
 
         /// <summary>The function that will serialize the HTML content of the article</summary>
-        /// <value>Default: return InnerHTML property</value>       
+        /// <value>Default: return InnerHTML property</value>
         public static Func<IElement, string> Serializer { get; set; } = new Func<IElement, string>(el => el.InnerHtml);
 
         /// <summary>The function that will extract the text from the HTML content</summary>
-        /// <value>Default: the ConvertToPlaintext method</value>       
+        /// <value>Default: the ConvertToPlaintext method</value>
         public static Func<IElement, string> Converter { get; set; } = ConvertToPlaintext;
 
         private readonly IElement? _element = null;
@@ -115,6 +118,7 @@ namespace SmartReader
             Content = Serializer(element);
             Excerpt = metadata.Excerpt;
             Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
+            AlternativeLanguageUris = metadata.AlternativeLanguageUris;
             PublicationDate = metadata.PublicationDate;
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
             SiteName = metadata.SiteName;
@@ -150,10 +154,10 @@ namespace SmartReader
         /// <summary>
         /// Finds images contained in the article.
         /// </summary>
-        /// <param name="minSize">The minium size in bytes to be considered a image.</param>        
+        /// <param name="minSize">The minium size in bytes to be considered a image.</param>
         /// <returns>
         /// A Task object with the images found
-        /// </returns>  
+        /// </returns>
         public async Task<IReadOnlyList<Image>> GetImagesAsync(long minSize = 75_000)
         {
             var imgs = _element?.GetElementsByTagName("img");
@@ -208,10 +212,10 @@ namespace SmartReader
         /// <summary>
         /// Convert images contained in the article to their data URI scheme representation
         /// </summary>
-        /// <param name="minSize">The minium size in bytes to be considered a image. Smaller images are removed</param>        
+        /// <param name="minSize">The minium size in bytes to be considered a image. Smaller images are removed</param>
         /// <returns>
         /// An empty Task object
-        /// </returns>  
+        /// </returns>
         public async Task ConvertImagesToDataUriAsync(long minSize = 75000)
         {
             if (_element is null) return;
@@ -247,13 +251,13 @@ namespace SmartReader
 
         /// <summary>
         /// Convert the article content from HTML to Text cleaning the results
-        /// </summary>      
+        /// </summary>
         /// <returns>
         /// A string representing the text
-        /// </returns>  
+        /// </returns>
         private static string ConvertToPlaintext(IElement doc)
         {
-            var sb = new StringBuilder();           
+            var sb = new StringBuilder();
 
             ConvertToText(doc, sb);
 
@@ -262,9 +266,9 @@ namespace SmartReader
             int index = 0;
 
             string text = sb.ToString();
-            // fix whitespace 
+            // fix whitespace
             // replace tabs with one space
-            text = RE_EliminateTabs.Replace(text, " ");            
+            text = RE_EliminateTabs.Replace(text, " ");
 
             var stringBuilder = new StringBuilder(text);
 
@@ -303,7 +307,7 @@ namespace SmartReader
         /// The function that converts HTML markup to text
         /// </summary>
         private static void ConvertToText(IElement doc, StringBuilder text)
-        {            
+        {
             if (doc.NodeType == NodeType.Element && doc.NodeName is "P" or "BR")
             {
                 text.AppendLine();

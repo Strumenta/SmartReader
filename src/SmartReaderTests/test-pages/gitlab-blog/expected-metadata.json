@@ -7,5 +7,13 @@
   "timeToRead": "00:04:00",
   "author": "Dave Steer",
   "siteName": "GitLab",
-  "featuredImage": "https://images.ctfassets.net/r9o86ar0p03f/Wz5s9ag9lbHesTOe6DEpF/64e9498cf34ee867e5fa5f6876733782/fy25-global-devsecops-report-blog-image.png?fm=webp&w=820&h=500"
+  "featuredImage": "https://images.ctfassets.net/r9o86ar0p03f/Wz5s9ag9lbHesTOe6DEpF/64e9498cf34ee867e5fa5f6876733782/fy25-global-devsecops-report-blog-image.png?fm=webp&w=820&h=500",
+  "alternativeLanguageUris": {
+    "de": "https://about.gitlab.com/de-de/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/",
+    "de-de": "https://about.gitlab.com/de-de/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/",
+    "fr": "https://about.gitlab.com/fr-fr/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/",
+    "fr-fr": "https://about.gitlab.com/fr-fr/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/",
+    "ja": "https://about.gitlab.com/ja-jp/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/",
+    "ja-jp": "https://about.gitlab.com/ja-jp/blog/2024/06/25/3-surprising-findings-from-our-2024-global-devsecops-survey/"
+  }
 }
