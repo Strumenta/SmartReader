@@ -274,6 +274,31 @@ namespace SmartReaderTests
         }
 
         [Fact]
+        public void TestGetMetadataAlternativeLanguageUris_DuplicateLinks_IgnoresSecond()
+        {
+            // Arrange
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head>
+                    <link rel=""alternate"" href=""https://www.first-domain.com"" hreflang=""it-IT"">
+                    <link rel=""alternate"" href=""https://www.second-domain.com"" hreflang=""it-IT"">
+               </head>
+               <body></body>
+               </html>");
+            var expected = new Dictionary<string, Uri>
+            {
+                {"it-IT", new Uri("https://www.first-domain.com")},
+            };
+
+            // Act
+            var metadata = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "",
+                new Dictionary<string, string>());
+
+            // Assert
+            Assert.Equal(expected, metadata.AlternativeLanguageUris);
+        }
+
+        [Fact]
         public void TestGetMetadataAlternativeLanguageUris()
         {
             // Arrange
