@@ -1,11 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.9.6 - 2024/09/15
+## 0.9.6 - 2024/10/09
 - Added fixes from latest updates of Readability up until August 2024
 - Allow option to modify link density value
 - Small performance improvements
 - Fix issue #64, by reducing value of comments containers in different languages (Dutch, Spanish, French)  (thanks to [PeterHagen](https://github.com/PeterHagen))
+- Fix vulnerability by updating dependency System.Text.Json to 8.0.5
+- Update dependency AngleSharp to 1.1.2
 
 ## 0.9.5 - 2024/06/02
 - Added fixes from latest updates of Readability up until May 2024
