@@ -9,5 +9,8 @@
   "publicationDate": null,
   "author": null,
   "siteName": "MSN",
-  "featuredImage": "http://img-s-msn-com.akamaized.net/tenant/amp/entityid/AAkk5fh.img"
+  "featuredImage": "http://img-s-msn-com.akamaized.net/tenant/amp/entityid/AAkk5fh.img",
+  "alternativeLanguageUris": {
+    "en-us": "http://www.msn.com/en-us/news/technology/nintendos-first-iphone-game-will-launch-in-december-for-dollar10/ar-AAkm7Xj"
+  }
 }

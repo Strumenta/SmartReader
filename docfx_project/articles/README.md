@@ -135,6 +135,7 @@ The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable<
 - `String` **TextContent**<br>The plain text of the article with basic formatting
 - `String` **Excerpt**<br>A summary of the article, based on metadata or first paragraph
 - `String` **Language**<br>Language string (es. 'en-US')
+- `Dictionary<string, Uri>` **AlternativeLanguageUris**<br>Contains URIs for pages in alternative languages, where the key is the language code (es. 'en-US': 'https://www.example.com/en')
 - `String` **Author**<br>Author of the article
 - `String` **SiteName**<br>Name of the site that hosts the article
 - `int` **Length**<br>Length of the text of the article

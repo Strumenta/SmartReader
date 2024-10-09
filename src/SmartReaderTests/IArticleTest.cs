@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SmartReaderTests
 {
@@ -12,6 +13,7 @@ namespace SmartReaderTests
         string TextContent { get; set; }
         string Excerpt { get; set; }
         string Language { get; set; }
+        Dictionary<string, Uri> AlternativeLanguageUris { get; set; }
         string Author { get; set; }
         string SiteName { get; set; }
         string FeaturedImage { get; set; }

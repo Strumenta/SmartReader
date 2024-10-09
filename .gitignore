@@ -4,3 +4,9 @@ packages/
 .vs/
 src/SmartReader/SmartReader.xml
 src/SmartReaderDemo/obj/
+
+# JetBrains Rider files
+.idea
+
+# User files
+*.DotSettings.user

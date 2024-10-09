@@ -1,4 +1,7 @@
-﻿namespace SmartReaderTests
+﻿using System;
+using System.Collections.Generic;
+
+namespace SmartReaderTests
 {
     public sealed class ArticleMetadata
     {
@@ -17,6 +20,8 @@
         public string PublicationDate { get; init; }
 
         public string Language { get; init; }
+
+        public Dictionary<string, Uri> AlternativeLanguageUris { get; set; } = new();
 
         public string Excerpt { get; init; }
 

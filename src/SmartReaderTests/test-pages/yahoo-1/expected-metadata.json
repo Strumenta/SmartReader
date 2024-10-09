@@ -6,5 +6,12 @@
   "language": "en-US",
   "timeToRead": "00:03:00",
   "siteName": "",
-  "featuredImage": "http://l3.yimg.com/uu/api/res/1.2/4eRCPf9lJt_3q29.outekQ--/aD02Njk7dz03NDQ7c209MTthcHBpZD15dGFjaHlvbg--/http://media.zenfs.com/en/homerun/feed_manager_auto_publish_494/4406ef57dcb40376c513903b03bef048"
+  "featuredImage": "http://l3.yimg.com/uu/api/res/1.2/4eRCPf9lJt_3q29.outekQ--/aD02Njk7dz03NDQ7c209MTthcHBpZD15dGFjaHlvbg--/http://media.zenfs.com/en/homerun/feed_manager_auto_publish_494/4406ef57dcb40376c513903b03bef048",
+  "alternativeLanguageUris": {
+    "en-CA": "https://ca.finance.yahoo.com/news/best-psvr-games-170003443.html",
+    "en-GB": "https://uk.finance.yahoo.com/news/best-psvr-games-170003443.html",
+    "en-IN": "https://in.finance.yahoo.com/news/best-psvr-games-170003443.html",
+    "en-SG": "https://sg.finance.yahoo.com/news/best-psvr-games-170003443.html",
+    "en-US": "http://finance.yahoo.com/news/best-psvr-games-170003443.html"
+  }
 }
