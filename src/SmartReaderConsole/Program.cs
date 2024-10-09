@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -37,7 +38,7 @@ namespace SmartReaderConsole
 
             Article.Serializer = Program.RemoveSpace;
 
-            var pages = Directory.EnumerateDirectories(@"..\..\..\..\SmartReaderTests\test-pages\");
+            var pages = Directory.EnumerateDirectories(Path.Combine("..", "SmartReaderTests/test-pages"));
 
             Random random = new Random();
             var index = random.Next(pages.Count());
@@ -89,6 +90,7 @@ namespace SmartReaderConsole
             Console.WriteLine($"Content:\n {article.Content}");
             Console.WriteLine($"Featured Image: {article.FeaturedImage}");
             Console.WriteLine($"Images Found: {images.Result?.Count}");
+            Console.WriteLine($"Alternative language URIs: {AlternativeLanguageUrisToString(article.AlternativeLanguageUris)}");
 
             article.ConvertImagesToDataUriAsync().Wait();
 
@@ -160,7 +162,7 @@ namespace SmartReaderConsole
                 siteName = article.SiteName,
                 featuredImage = article.FeaturedImage
             };
-            
+
             File.WriteAllText(Path.Combine(directory, @"expected-metadata.json"), JsonSerializer.Serialize(obj, jso), System.Text.Encoding.UTF8);
         }
 
@@ -168,11 +170,22 @@ namespace SmartReaderConsole
         {
             Reader reader = new Reader(url);
             Article article = reader.GetArticle();
-            
+
             Console.WriteLine(article.Content);
             Console.WriteLine(article.Title);
-        }        
+        }
 
+        static string AlternativeLanguageUrisToString(Dictionary<string, Uri> alternativeLanguageUris)
+        {
+            StringBuilder sb = new();
+
+            foreach (var item in alternativeLanguageUris)
+            {
+                sb.Append($"[{item.Key}]-[{item.Value}], ");
+            }
+
+            return sb.ToString();
+        }
         static void Main(string[] args)
         {
             RunRandomExample();

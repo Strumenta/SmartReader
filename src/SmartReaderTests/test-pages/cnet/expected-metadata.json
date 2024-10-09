@@ -9,5 +9,11 @@
   "publicationDate": null,
   "author": "Steven Musil",
   "siteName": "CNET",
-  "featuredImage": "https://cnet3.cbsistatic.com/img/1JaRRjqhoGxDVkFxTRRWkZgyK2Q=/670x503/2014/03/21/863df5d9-e8b8-4b38-851b-5e3f77f2cf0e/mark-zuckerberg-facebook-home-10671610x407.jpg"
+  "featuredImage": "https://cnet3.cbsistatic.com/img/1JaRRjqhoGxDVkFxTRRWkZgyK2Q=/670x503/2014/03/21/863df5d9-e8b8-4b38-851b-5e3f77f2cf0e/mark-zuckerberg-facebook-home-10671610x407.jpg",
+  "alternativeLanguageUris": {
+    "en-au": "https://www.cnet.com/au/news/zuckerberg-offers-peek-at-facebooks-acquisition-strategies/",
+    "en-gb": "https://www.cnet.com/uk/news/zuckerberg-offers-peek-at-facebooks-acquisition-strategies/",
+    "en-ie": "https://www.cnet.com/uk/news/zuckerberg-offers-peek-at-facebooks-acquisition-strategies/",
+    "en-us": "https://www.cnet.com/news/zuckerberg-offers-peek-at-facebooks-acquisition-strategies/"
+  }
 }

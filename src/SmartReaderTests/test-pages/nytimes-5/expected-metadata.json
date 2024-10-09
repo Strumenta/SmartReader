@@ -6,5 +6,15 @@
   "language": "es",
   "timeToRead": "00:02:00",
   "siteName": "",
-  "featuredImage": "https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png"
+  "featuredImage": "https://static01.nyt.com/newsgraphics/images/icons/defaultPromoCrop.png",
+  "alternativeLanguageUris": {
+    "en-US": "https://www.nytimes.com",
+    "en": "https://www.nytimes.com/international/",
+    "en-GB": "https://www.nytimes.com/international/",
+    "en-AU": "https://www.nytimes.com/international/",
+    "en-CA": "https://www.nytimes.com/ca/",
+    "es": "https://www.nytimes.com/es/",
+    "zh-Hans": "https://cn.nytimes.com/",
+    "zh-Hant": "https://cn.nytimes.com/zh-hant/"
+  }
 }

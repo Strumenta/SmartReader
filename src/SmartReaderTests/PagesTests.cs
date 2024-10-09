@@ -31,6 +31,7 @@ namespace SmartReaderTests
             mockArticle.Setup(x => x.Author).Returns(string.IsNullOrEmpty(metadata.Author) ? null : metadata.Author);
             mockArticle.Setup(x => x.PublicationDate).Returns(string.IsNullOrEmpty(metadata.PublicationDate) ? (DateTime?)null : DateTime.Parse(metadata.PublicationDate.ToString()));
             mockArticle.Setup(x => x.Language).Returns(string.IsNullOrEmpty(metadata.Language) ? null : metadata.Language.ToString());
+            mockArticle.Setup(x => x.AlternativeLanguageUris).Returns(metadata.AlternativeLanguageUris);
             mockArticle.Setup(x => x.Excerpt).Returns(metadata.Excerpt ?? "");
             mockArticle.Setup(x => x.SiteName).Returns(metadata.SiteName ?? "");
             mockArticle.Setup(x => x.TimeToRead).Returns(TimeSpan.Parse(metadata.TimeToRead ?? "0"));
@@ -81,6 +82,7 @@ namespace SmartReaderTests
             Assert.Equal(expected.Author, found.Author);
             Assert.Equal(expected.PublicationDate?.ToString(), found.PublicationDate?.ToString());
             Assert.Equal(expected.Language, found.Language);
+            Assert.Equal(expected.AlternativeLanguageUris, found.AlternativeLanguageUris);
             Assert.Equal(expected.Excerpt, found.Excerpt);
             Assert.Equal(expected.SiteName, found.SiteName);
             Assert.Equal(expected.TimeToRead, found.TimeToRead);
@@ -90,7 +92,7 @@ namespace SmartReaderTests
 
         public static IEnumerable<object[]> GetTests()
         {
-            foreach (var d in Directory.EnumerateDirectories(@"..\..\..\test-pages\"))
+            foreach (var d in Directory.EnumerateDirectories(Path.Combine("..", "..", "..", "test-pages")))
             {
                 yield return new object[] { d };
             }
@@ -99,21 +101,21 @@ namespace SmartReaderTests
         [Theory]
         [MemberData(nameof(GetTests))]
         public void TestPages(string directory)
-        {                 
+        {
             var jso = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };            
+            };
 
             var sourceContent = File.ReadAllText(Path.Combine(directory, @"source.html"));
-            
+
             Article found = Reader.ParseArticle("https://localhost/", text: sourceContent);
 
             var expectedContent = File.ReadAllText(Path.Combine(directory, @"expected.html"));
             var expectedMetadataText = File.ReadAllText(Path.Combine(directory, @"expected-metadata.json"));
             var expectedMetadata = JsonSerializer.Deserialize<ArticleMetadata>(expectedMetadataText, jso);
 
-            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);            
+            IArticleTest expected = GetTestArticle(expectedMetadata, expectedContent);
 
             AssertProperties(expected, found);
         }
