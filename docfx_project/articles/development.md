@@ -60,5 +60,6 @@ docfx --serve
 - [sucrose](https://github.com/sucrose0413 )
 - [Ian Smirlis](https://github.com/iansmirlis)
 - [Peter Hagen](https://github.com/PeterHagen)
+- [Andrea Bondanini](https://github.com/AndreBonda)
 
 Thanks to all the people involved.

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Allow option to modify link density value
 - Small performance improvements
 - Fix issue #64, by reducing value of comments containers in different languages (Dutch, Spanish, French)  (thanks to [PeterHagen](https://github.com/PeterHagen))
+- Add support for finding articles in alternative languages (thanks to [Andrea Bondanini](https://github.com/AndreBonda))
 - Fix vulnerability by updating dependency System.Text.Json to 8.0.5
 - Update dependency AngleSharp to 1.1.2
 
