@@ -318,7 +318,7 @@ namespace SmartReader
         /// <param name="element">The element to operate on</param>
         internal static void RemoveComments(IElement element)
         {
-            element.Descendents<IComment>().ToList().ForEach(el => el.Remove());
+            element.Descendants<IComment>().ToList().ForEach(el => el.Remove());
         }            
 
         /// <summary>

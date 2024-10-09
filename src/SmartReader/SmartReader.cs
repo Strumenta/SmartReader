@@ -1812,7 +1812,7 @@ namespace SmartReader
                     var input = 0d;                     // var input = node.getElementsByTagName("input").length;
                     var embeds = new List<IElement>();  // this._getAllNodesWithTag(node, ["object", "embed", "iframe"]);
 
-                    foreach (var descendentNode in node.Descendents())
+                    foreach (var descendentNode in node.Descendants())
                     {
                         if (descendentNode is IElement el)
                         {
