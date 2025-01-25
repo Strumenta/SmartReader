@@ -201,7 +201,7 @@ namespace SmartReader
 
         private static readonly Regex RE_Whitespace = new Regex(@"^\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION" };
+        private readonly string[] alterToDivExceptions = { "ARTICLE", "DIV", "P", "SECTION", "OL", "UL" };
 
         private static readonly string[] unlikelyRoles = { "menu", "menubar", "complementary", "navigation", "alert", "alertdialog", "dialog" };
 

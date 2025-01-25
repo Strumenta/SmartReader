@@ -117,7 +117,7 @@ namespace SmartReaderConsole
                 if (lines[lines.Count - 2][lines[lines.Count - 2].Length - 1] != ',')
                     lines[lines.Count - 2] += ",";
 
-                // insert the new filed before the end of the JSON object
+                // insert the new field before the end of the JSON object
                 lines.Insert(lines.Count - 1, $"  \"{field.First().ToString().ToLower() + field.Substring(1)}\": \"{article.GetType().GetProperty(field).GetValue(article)}\"");
 
                 File.WriteAllLines(Path.Combine(p, "expected-metadata.json"), lines);
