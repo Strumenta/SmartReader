@@ -1660,11 +1660,11 @@ namespace SmartReader
                         }
                     }
 
-                    // Here we assume if image is less than 100 bytes (or 133B after encoded to base64)
+                    // Here we assume if image is less than 100 bytes (or 133 after encoded to base64)
                     // it will be too small, therefore it might be placeholder image.
                     if (srcCouldBeRemoved)
                     {
-                        var b64starts = Regex.Match(src, @"base64\s*").Index + 7;
+                        var b64starts = parts.Groups[0].Length;
                         var b64length = src.Length - b64starts;
                         if (b64length < 133)
                         {
