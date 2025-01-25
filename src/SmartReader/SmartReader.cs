@@ -700,14 +700,12 @@ namespace SmartReader
             // Remove extra paragraphs
             NodeUtility.RemoveNodes(articleContent.GetElementsByTagName("p"), static paragraph =>
             {
-                var imgCount = paragraph.GetElementsByTagName("img").Length;
-                var embedCount = paragraph.GetElementsByTagName("embed").Length;
-                var objectCount = paragraph.GetElementsByTagName("object").Length;
                 // At this point, nasty iframes have been removed, only remain embedded video ones.
-                var iframeCount = paragraph.GetElementsByTagName("iframe").Length;
-                var totalCount = imgCount + embedCount + objectCount + iframeCount;
-
-                return totalCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
+                var contentElementCount = NodeUtility.GetAllNodesWithTag(paragraph, new string[] { 
+                        "img", "embed", "object", "iframe" 
+                    }).Length;
+                
+                return contentElementCount == 0 && string.IsNullOrEmpty(NodeUtility.GetInnerText(paragraph, false));
             });
 
             NodeUtility.ForEachElement(articleContent.GetElementsByTagName("br"), static br =>
@@ -805,16 +803,22 @@ namespace SmartReader
                 : 0D;
         }
 
-        private bool CheckByline(IElement node, string matchString)
+        /// <summary>
+        /// <para>Check whether an element node contains a valid byline.</para>
+        /// </summary>
+        /// <param name="node">the node to check</param>
+        /// <param name="matchString">a string representing the node to match for a byline</param>
+        /// <returns>Whether the input string is a byline</returns>  
+        private bool IsValidByline(IElement node, string matchString)
         {
             if (!string.IsNullOrEmpty(articleByline))
             {
                 return false;
             }
 
-
             string? rel = null;
             string? itemprop = null;
+            int bylineLength = node.TextContent.Trim().Length;
 
             if (node is IElement && node.GetAttribute("rel") is { Length: > 0 } relValue)
             {
@@ -822,7 +826,7 @@ namespace SmartReader
                 itemprop = node.GetAttribute("itemprop");
             }
 
-            if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && Readability.IsValidByline(node.TextContent.AsSpan()))
+            if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && (bylineLength is > 0 and < 100))
             {
                 if (rel is "author")
                 {
@@ -908,7 +912,7 @@ namespace SmartReader
                     }
 
                     // Check to see if this node is a byline, and remove it if it is.
-                    if (CheckByline(node, matchString))
+                    if (IsValidByline(node, matchString))
                     {
                         node = NodeUtility.RemoveAndGetNext(node);
                         continue;

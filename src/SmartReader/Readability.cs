@@ -325,19 +325,7 @@ namespace SmartReader
             var uniqTokensB = tokensB.Where(token => !tokensA.Contains(token));
             var distanceB = (float)string.Join(" ", uniqTokensB).Length / string.Join(" ", tokensB).Length;
             return 1 - distanceB;
-        }
-
-        /// <summary>
-        /// <para>Check whether the input string could be a byline.</para>
-        /// <para>This verifies that the input is a string, and that the length
-        /// is less than 100 chars.</para>
-        /// </summary>
-        /// <param name="byline">a string to check whether its a byline</param>
-        /// <returns>Whether the input string is a byline</returns>
-        internal static bool IsValidByline(ReadOnlySpan<char> byline)
-        {
-            return byline.Trim().Length is > 0 and < 100;
-        }
+        }           
 
         /// <summary>
         /// Try to extract metadata from JSON-LD object.
