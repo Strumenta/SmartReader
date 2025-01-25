@@ -804,12 +804,12 @@ namespace SmartReader
         }
 
         /// <summary>
-        /// <para>Check whether an element node contains a valid byline.</para>
+        /// <para>Check and assign whether an element node contains a valid byline.</para>
         /// </summary>
         /// <param name="node">the node to check</param>
         /// <param name="matchString">a string representing the node to match for a byline</param>
         /// <returns>Whether the input string is a byline</returns>  
-        private bool IsValidByline(IElement node, string matchString)
+        private bool CheckByline(IElement node, string matchString)
         {
             if (!string.IsNullOrEmpty(articleByline))
             {
@@ -822,8 +822,12 @@ namespace SmartReader
 
             if (node is IElement && node.GetAttribute("rel") is { Length: > 0 } relValue)
             {
-                rel = relValue;
-                itemprop = node.GetAttribute("itemprop");
+                rel = relValue;                
+            }
+
+            if (node is IElement && node.GetAttribute("itemprop") is { Length: > 0 } itemValue)
+            {
+                itemprop = itemValue;                
             }
 
             if ((rel is "author" || (itemprop is { Length: > 0 } && itemprop.Contains("author")) || RE_Byline.IsMatch(matchString)) && (bylineLength is > 0 and < 100))
@@ -838,11 +842,37 @@ namespace SmartReader
                     {
                         author = tempAuthor.TextContent.Trim();
                     }
+                }                
+
+                // Find child node matching [itemprop="name"] and use that if it exists for a more accurate author name byline
+                var endOfSearchMarkerNode = NodeUtility.GetNextNode(node, true);
+                var next = NodeUtility.GetNextNode(node);
+                IElement itemPropNameNode = null;
+                while (next != null && next != endOfSearchMarkerNode)
+                {
+                    itemprop = next.GetAttribute("itemprop");
+                    if (itemprop != null && itemprop.Contains("name"))
+                    {
+                        itemPropNameNode = next;
+                        break;
+                    }
+                    else
+                    {
+                        next = NodeUtility.GetNextNode(next);
+                    }
                 }
 
-                articleByline = node.TextContent.Trim();
-                // we remove residual mustache (or similar templating) references
-                articleByline = Regex.Replace(articleByline.StartsWith("by", StringComparison.Ordinal) ? articleByline.Substring(2) : articleByline, @"{{.*?}}", "").Trim();
+                if (itemPropNameNode != null && itemPropNameNode.TextContent.Trim().Length > 0)
+                    articleByline = itemPropNameNode.TextContent.Trim();
+                else if (node != null && node.TextContent.Trim().Length > 0)
+                    articleByline = node.TextContent.Trim();
+                
+                if (articleByline != null)
+                {
+                    // we remove residual mustache (or similar templating) references
+                    articleByline = Regex.Replace(articleByline.StartsWith("by", StringComparison.Ordinal) ? articleByline.Substring(2) : articleByline, @"{{.*?}}", "").Trim();
+                }
+
                 return true;
             }
 
@@ -912,8 +942,8 @@ namespace SmartReader
                     }
 
                     // Check to see if this node is a byline, and remove it if it is.
-                    if (IsValidByline(node, matchString))
-                    {
+                    if (string.IsNullOrEmpty(articleByline) && CheckByline(node, matchString))
+                    {                        
                         node = NodeUtility.RemoveAndGetNext(node);
                         continue;
                     }

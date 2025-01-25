@@ -478,6 +478,12 @@ namespace SmartReader
             return jsonLDMetadata;
         }
 
+        private static bool IsUrl(string? url)
+        {
+            Uri uri;
+            return url != null ? Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri) : false;
+        }
+
 #nullable enable
 
         /// <summary>
@@ -684,9 +690,11 @@ namespace SmartReader
             }
 
             metadata.FeaturedImage = FirstNonEmptyValueOrDefault(FeaturedImageKeys()) ?? "";
-
+            
+            string? articleAuthor = values.GetValueOrDefault("article:author") != null && !IsUrl(values.GetValueOrDefault("article:author")) ?
+                values.GetValueOrDefault("article:author") : null;
             // We try to find a meta tag for the author.
-            // Note that there is Open Grapg tag for an author,
+            // Note that there is Open Graph tag for an author,
             // but it usually contains a profile URL of the author.
             // So we do not use it
             IEnumerable<string?> AuthorKeys()
@@ -696,6 +704,7 @@ namespace SmartReader
                 yield return values.GetValueOrDefault("dcterm:creator");
                 yield return values.GetValueOrDefault("author");
                 yield return values.GetValueOrDefault("parsely-author");
+                yield return articleAuthor;
             }
 
             metadata.Author = FirstNonEmptyValueOrDefault(AuthorKeys()) ?? "";
