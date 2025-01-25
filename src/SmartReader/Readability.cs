@@ -367,8 +367,18 @@ namespace SmartReader
                             }
                         }
 
-                        if (!root.TryGetProperty("@context", out value)
-                            || !Regex.IsMatch(value.GetString(), @"^https?\:\/\/schema\.org\/?$"))
+
+                        // Handle schema.org context objects
+                        var schemaDotOrgRegex = @"^https?\:\/\/schema\.org\/?$";
+                        var matches = (root.TryGetProperty("@context", out value)
+                            && value.ValueKind == JsonValueKind.String
+                            && Regex.IsMatch(value.GetString(), schemaDotOrgRegex)) ||
+                            (root.TryGetProperty("@context", out value)
+                            && value.ValueKind == JsonValueKind.Object
+                            && value.GetProperty("vocab").ValueKind == JsonValueKind.String
+                            && Regex.IsMatch(value.GetProperty("vocab").GetString(), schemaDotOrgRegex));
+
+                        if (!matches)
                         {
                             return;
                         }
