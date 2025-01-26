@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartReaderConsole", "src\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartReader.WebDemo", "src\SmartReader.WebDemo\SmartReader.WebDemo.csproj", "{1BB5B723-674E-4C7E-88AE-E7B029C069D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartReader.NaturalLanguageProcessing", "src\SmartReader.NaturalLanguageProcessing\SmartReader.NaturalLanguageProcessing.csproj", "{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{1BB5B723-674E-4C7E-88AE-E7B029C069D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BB5B723-674E-4C7E-88AE-E7B029C069D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BB5B723-674E-4C7E-88AE-E7B029C069D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{5B80BC12-1CEB-4FEA-B701-D832BCA1D539} = {3FF700FE-69B9-457C-B3D6-CD06EB019129}
 		{EA11AFA5-47DF-4EB6-8CC3-87D345B27989} = {3FF700FE-69B9-457C-B3D6-CD06EB019129}
 		{1BB5B723-674E-4C7E-88AE-E7B029C069D3} = {3FF700FE-69B9-457C-B3D6-CD06EB019129}
+		{3DC99FBA-9F8E-4E9E-A38C-C429E5B4D7F0} = {3FF700FE-69B9-457C-B3D6-CD06EB019129}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {15D3D2D6-F1AD-449A-996D-C8EDCA1F4F99}

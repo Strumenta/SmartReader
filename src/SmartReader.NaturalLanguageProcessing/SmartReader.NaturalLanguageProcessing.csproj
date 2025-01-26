@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <Title>SmartReader.NaturalLanguageProcessing</Title>
+	<GeneratePackageOnBuild>False</GeneratePackageOnBuild>    
+	<Authors>Gabriele Tomassetti</Authors>
+    <PackageProjectUrl>https://smartreader.inre.me</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
+    <PackageTags>Readability SmartReader reader article scraping reading web nlp language</PackageTags>
+    <Description>SmartReader is A .NET Standard library to extract the main content of a web page. This package adds natural language processing support to the library to improve the metadata about the article (e.g. the language of the article).</Description>
+	<PackageIcon>logo.png</PackageIcon>
+    <OutputType>Library</OutputType>
+	<AssemblyVersion>0.0.1</AssemblyVersion>
+	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="Catalyst">
+      <Version>1.0.54164</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartReader\SmartReader.csproj" />
+  </ItemGroup>
+
+</Project>

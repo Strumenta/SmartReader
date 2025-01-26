@@ -1,0 +1,8 @@
+is_global = true
+build_property.RootNamespace = SmartReader.NaturalLanguageProcessing
+build_property.ProjectDir = C:\Users\Gabriele\Progetti\C#\SmartReader\src\SmartReader.NaturalLanguageProcessing\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 
