@@ -35,10 +35,10 @@ namespace SmartReader
         /// <value>The HTML content</value>
         public string Content { get; private set; }
 
-        /// <value>The excerpt provided by the metadata</value>
+        /// <value>The excerpt, as provided by the metadata</value>
         public string? Excerpt { get; }
 
-        /// <value>The language provided by the metadata</value>
+        /// <value>The language, as found by the language identification algorithm</value>
         public string? Language { get; }
 
         /// <value>Contains URIs for pages in alternative languages, where the key is the language code</value>
@@ -106,6 +106,11 @@ namespace SmartReader
         private static readonly Regex RE_NormalizeNewLines = new Regex("(\\r?\\n){3,}", RegexOptions.Compiled);
 
 
+        /// <summary>The function that identify the language. The default method just returns the
+        /// second argument.</summary>
+        /// <value>Default: the IdentifyLanguage method</value>
+        public static Func<string, string, string?> LanguageIdentification { get; set; } = IdentifyLanguageUsingMetadata;
+
         internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
             _element = element;
@@ -117,7 +122,7 @@ namespace SmartReader
             Dir = dir;
             Content = Serializer(element);
             Excerpt = metadata.Excerpt;
-            Language = string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language;
+            Language = LanguageIdentification(TextContent, string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language);
             AlternativeLanguageUris = metadata.AlternativeLanguageUris;
             PublicationDate = metadata.PublicationDate;
             Author = string.IsNullOrWhiteSpace(metadata.Author) ? author : metadata.Author;
@@ -333,6 +338,18 @@ namespace SmartReader
 
             if (doc.NodeType is NodeType.Element && doc.NodeName is "P")
                 text.AppendLine();
+        }
+
+        /// <summary>
+        /// Identify the language of the article. The default implementation just returns the second
+        /// argument.
+        /// </summary>
+        /// <returns>
+        /// A string representing the language
+        /// </returns>
+        private static string? IdentifyLanguageUsingMetadata(string text, string? language)
+        {
+            return language;
         }
     }
 }
