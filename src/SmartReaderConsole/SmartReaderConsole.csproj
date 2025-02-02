@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SmartReader.NaturalLanguageProcessing\SmartReader.NaturalLanguageProcessing.csproj" />
     <ProjectReference Include="..\SmartReader\SmartReader.csproj" />
   </ItemGroup>
 

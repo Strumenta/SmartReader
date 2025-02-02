@@ -14,8 +14,4 @@
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
     <SourceRoot Include="C:\Program Files\dotnet\sdk\NuGetFallbackFolder\" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' AND '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Pkgvswhere Condition=" '$(Pkgvswhere)' == '' ">C:\Users\Gabriele\.nuget\packages\vswhere\2.8.4</Pkgvswhere>
-    <PkgNuGet_CommandLine Condition=" '$(PkgNuGet_CommandLine)' == '' ">C:\Users\Gabriele\.nuget\packages\nuget.commandline\5.11.5</PkgNuGet_CommandLine>
-  </PropertyGroup>
 </Project>

@@ -30,7 +30,7 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "C:\\Users\\Gabriele\\Progetti\\C#\\NomenOmen\\nupkgs": {},
+          "C:\\Users\\Gabriele\\Progetti\\C#\\LanguageTeller\\nupkgs": {},
           "C:\\Users\\Gabriele\\Progetti\\C#\\SmartReader\\src\\nupkgs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
@@ -68,6 +68,10 @@
         "netstandard2.0": {
           "targetAlias": "netstandard2.0",
           "dependencies": {
+            "LanguageTeller": {
+              "target": "Package",
+              "version": "[0.1.0, )"
+            },
             "NETStandard.Library": {
               "suppressParent": "All",
               "target": "Package",
@@ -91,9 +95,9 @@
         "netstandard2.1": {
           "targetAlias": "netstandard2.1",
           "dependencies": {
-            "Catalyst": {
+            "LanguageTeller": {
               "target": "Package",
-              "version": "[1.0.54164, )"
+              "version": "[0.1.0, )"
             }
           },
           "imports": [
@@ -142,7 +146,7 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "C:\\Users\\Gabriele\\Progetti\\C#\\NomenOmen\\nupkgs": {},
+          "C:\\Users\\Gabriele\\Progetti\\C#\\LanguageTeller\\nupkgs": {},
           "C:\\Users\\Gabriele\\Progetti\\C#\\SmartReader\\src\\nupkgs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
