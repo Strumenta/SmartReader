@@ -1013,7 +1013,7 @@
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "0.1.0",
     "restore": {
       "projectUniqueName": "C:\\Users\\Gabriele\\Progetti\\C#\\SmartReader\\src\\SmartReader.NaturalLanguageProcessing\\SmartReader.NaturalLanguageProcessing.csproj",
       "projectName": "SmartReader.NaturalLanguageProcessing",
