@@ -176,9 +176,23 @@ The **IsReadable** property will be false if no article was extracted, whatever 
 
 ### Natural Language Processing Features
 
-Often the webpage containing the article will contain metadata about the language used in the article. Sometimes this is not true, so the library comes with a delegate `LanguageIdentification` that can be used to identify the language based on the text itself. The default method just returns the language in the metadata. This is the old, standard behavior.
+Often the webpage containing the article will contain metadata about the language used in the article. Sometimes this is not true, so the library comes with a delegate `LanguageIdentification` in `Article`, that can be used to identify the language based on the text itself. This delegate will be called on the `TextContent` of the `Article`. The default method just returns the language in the metadata. This is the old, standard behavior.
 
 You can use the delegate to implement your own method to identify the language. We also provide a decent implementation, that actually does something, using FastText. This implementation is distributed in a separate nuget package, `SmartReader.NaturalLanguageProcessing`.
+To use the language identification feature you will need to call the `Enable` method.
+
+```
+NLP.Enable();
+```
+
+This will change the delegate `LanguageIdentification`, so it will automatically identify the language and set the property `Language` in every `Article` object created by the library.
+
+
+To restore the default behavior, instead use `RestoreDefaults`.
+
+```
+NLP.RestoreDefaults();
+```
 
 There is also a delegate to create a summary of the article : `CreateSummary`. Also in this case the default implementation returns the summary provided by the metadata. In practice this is usually a short summary meant for social media sharing. At this moment we do not provide any better implementation.
 
