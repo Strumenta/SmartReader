@@ -901,8 +901,11 @@ namespace SmartReader
             }
             else
             {
-                LoggerDelegate($"Original Body:");
-                LoggerDelegate(page.OuterHtml);
+                if (Debug || Logging == ReportLevel.Info)
+                {
+                    LoggerDelegate($"Original Body:");
+                    LoggerDelegate(page.OuterHtml);
+                }
             }
 
             var pageCacheHtml = page.InnerHtml;
