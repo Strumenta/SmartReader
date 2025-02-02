@@ -10,6 +10,7 @@
     <RepositoryUrl>https://github.com/strumenta/SmartReader</RepositoryUrl>
     <PackageTags>Readability SmartReader reader article scraping reading web nlp language</PackageTags>
     <Description>SmartReader is A .NET Standard library to extract the main content of a web page. This package adds natural language processing support to the library to improve the metadata about the article (e.g. determining the language of the article).</Description>
+	<Company>Strumenta</Company>
 	<PackageIcon>logo.png</PackageIcon>
     <OutputType>Library</OutputType>
 	<AssemblyVersion>0.1.0</AssemblyVersion>

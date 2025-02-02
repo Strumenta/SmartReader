@@ -235,7 +235,7 @@
           }
         }
       },
-      "SmartReader/0.9.6": {
+      "SmartReader/0.10.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v2.0",
         "dependencies": {
@@ -457,7 +457,7 @@
           }
         }
       },
-      "SmartReader/0.9.6": {
+      "SmartReader/0.10.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v2.1",
         "dependencies": {
@@ -990,7 +990,7 @@
         "version.txt"
       ]
     },
-    "SmartReader/0.9.6": {
+    "SmartReader/0.10.0": {
       "type": "project",
       "path": "../SmartReader/SmartReader.csproj",
       "msbuildProject": "../SmartReader/SmartReader.csproj"
@@ -1000,11 +1000,11 @@
     ".NETStandard,Version=v2.0": [
       "LanguageTeller >= 0.1.0",
       "NETStandard.Library >= 2.0.3",
-      "SmartReader >= 0.9.6"
+      "SmartReader >= 0.10.0"
     ],
     ".NETStandard,Version=v2.1": [
       "LanguageTeller >= 0.1.0",
-      "SmartReader >= 0.9.6"
+      "SmartReader >= 0.10.0"
     ]
   },
   "packageFolders": {
