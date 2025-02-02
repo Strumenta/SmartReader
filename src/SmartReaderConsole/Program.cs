@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using SmartReader;
+using SmartReader.NaturalLanguageProcessing;
 
 namespace SmartReaderConsole
 {
@@ -28,6 +29,41 @@ namespace SmartReaderConsole
         static string RemoveSpace(AngleSharp.Dom.IElement element)
         {
             return Regex.Replace(Regex.Replace(element?.InnerHtml, @"(?<endBefore></.*?>)\s+(?<startAfter><[^/]>)", "${endBefore}${startAfter}"), @"(?<endBefore><((?!pre).)*?>)\s+", "${endBefore}");
+        }
+
+        static void RunRandomExampleWithNaturalLanguageProcessing(int num = -1)
+        {
+            // At the present moment most content is UTF8, so this increases the chances
+            // to see the text as you would see in a browser
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            NLP.Enable();
+
+            var pages = Directory.EnumerateDirectories(Path.Combine("..", "SmartReaderTests/test-pages"));
+
+            Random random = new Random();
+            var index = random.Next(pages.Count());
+
+            if (num != -1)
+                index = num;
+
+            string sourceContent = File.ReadAllText(Path.Combine(pages.ElementAt(index), "source.html"));
+
+            Reader reader = new Reader("https://localhost/", sourceContent);
+            
+            reader.Debug = false;
+            reader.LoggerDelegate = Console.WriteLine;
+
+            // get the article
+            Article article = reader.GetArticle();
+            
+            Console.WriteLine($"Is Readable: {article.IsReadable}");
+            Console.WriteLine($"Uri: {article.Uri}");
+            Console.WriteLine($"Title: {article.Title}");
+            Console.WriteLine($"Site Name: {article.SiteName}");
+            Console.WriteLine($"Excerpt: {article.Excerpt}");
+            Console.WriteLine($"Detected Language: {article.Language}");
+            Console.WriteLine($"TextContent:\n {article.TextContent}");                                   
         }
 
         static void RunRandomExample(int num = -1)
@@ -188,7 +224,7 @@ namespace SmartReaderConsole
         }
         static void Main(string[] args)
         {
-            RunRandomExample();
+            RunRandomExampleWithNaturalLanguageProcessing();
         }
     }
 }
