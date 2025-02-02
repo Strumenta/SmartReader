@@ -111,6 +111,11 @@ namespace SmartReader
         /// <value>Default: the IdentifyLanguage method</value>
         public static Func<string, string, string?> LanguageIdentification { get; set; } = IdentifyLanguageUsingMetadata;
 
+        /// <summary>The function that identify the language. The default method just returns the
+        /// second argument.</summary>
+        /// <value>Default: the IdentifyLanguage method</value>
+        public static Func<string, string, string?> CreateSummary { get; set; } = CreateSummaryUsingMetadata;
+
         internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
             _element = element;
@@ -121,7 +126,7 @@ namespace SmartReader
             Byline = string.IsNullOrWhiteSpace(byline) ? metadata.Author : byline;
             Dir = dir;
             Content = Serializer(element);
-            Excerpt = metadata.Excerpt;
+            Excerpt = CreateSummary(TextContent, metadata.Excerpt);
             Language = LanguageIdentification(TextContent, string.IsNullOrWhiteSpace(metadata.Language) ? language : metadata.Language);
             AlternativeLanguageUris = metadata.AlternativeLanguageUris;
             PublicationDate = metadata.PublicationDate;
@@ -342,7 +347,7 @@ namespace SmartReader
 
         /// <summary>
         /// Identify the language of the article. The default implementation just returns the second
-        /// argument.
+        /// argument (i.e., what is in the metadata).
         /// </summary>
         /// <returns>
         /// A string representing the language
@@ -350,6 +355,18 @@ namespace SmartReader
         private static string? IdentifyLanguageUsingMetadata(string text, string? language)
         {
             return language;
+        }
+
+        /// <summary>
+        /// Create a summary of the article. The default implementation just returns the second
+        /// argument (i.e., what is in the metadata).
+        /// </summary>
+        /// <returns>
+        /// A string representing the summary
+        /// </returns>
+        private static string? CreateSummaryUsingMetadata(string text, string? summary)
+        {
+            return summary;
         }
     }
 }

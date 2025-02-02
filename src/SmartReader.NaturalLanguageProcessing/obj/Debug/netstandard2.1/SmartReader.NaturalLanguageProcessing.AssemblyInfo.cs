@@ -17,7 +17,7 @@ using System.Reflection;
     " This package adds natural language processing support to the library to improve" +
     " the metadata about the article (e.g. determining the language of the article).")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+704f3e656b4e587c94858a5332c7d4462848368e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+984d06ca12ba4e6e2e1064062e4454e6dff21674")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartReader.NaturalLanguageProcessing")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartReader.NaturalLanguageProcessing")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0")]

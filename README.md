@@ -174,6 +174,14 @@ The **TextContent** property is based on the pure text content of the HTML (i.e.
 
 The **IsReadable** property will be false if no article was extracted, whatever the reason (i.e., the algorithm did not found anything valuable or the request failed). The property **Completed** just indicated whether the process completed correctly or not. Previously we left to the user of the library to manage exceptions, but now we try to handle them ourselves.
 
+### Natural Language Processing Features
+
+Often the webpage containing the article will contain metadata about the language used in the article. Sometimes this is not true, so the library comes with a delegate `LanguageIdentification` that can be used to identify the language based on the text itself. The default method just returns the language in the metadata. This is the old, standard behavior.
+
+You can use the delegate to implement your own method to identify the language. We also provide a decent implementation, that actually does something, using FastText. This implementation is distributed in a separate nuget package, `SmartReader.NaturalLanguageProcessing`.
+
+There is also a delegate to create a summary of the article : `CreateSummary`. Also in this case the default implementation returns the summary provided by the metadata. In practice this is usually a short summary meant for social media sharing. At this moment we do not provide any better implementation.
+
 ## Exceptions
 
 The library could throw some exceptions, that should be caught and reported in the `Errors` property and set `Completed` to false.
@@ -186,14 +194,15 @@ If fetching an HTTP resource fails, the library will throw an `HttpRequestExcept
 
 This project has the following directory structure.
 
-| Folder                  | Description                                                  |
-| ----------------------- | ------------------------------------------------------------ |
-| docfx_project/          | Contains the DocFx project that generates the documentation website |
-| src/                    | The main source folder                                       |
-| src/SmartReader         | Source for the SmartReader library                           |
-| src/SmartReaderTests    | Source for the Tests                                         |
-| src/SmartReaderConsole  | Source for example console project                           |
-| src/SmartReader.WebDemo | Source for the demo web project                              |
+| Folder                                     | Description                                                  |
+| -------------------------------------------| ------------------------------------------------------------ |
+| docfx_project/                             | Contains the DocFx project that generates the documentation website |
+| src/                                       | The main source folder                                       |
+| src/SmartReader                            | Source for the SmartReader library                           |
+| src/SmartReader.NaturalLanguageProcessing  | Source for an implementation for NLP features                |
+| src/SmartReaderTests                       | Source for the Tests                                         |
+| src/SmartReaderConsole                     | Source for example console project                           |
+| src/SmartReader.WebDemo                    | Source for the demo web project                              |
 
 ## Demo
 

@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.10.0 - 2025/02/02
+- Added fixes from latest updates of Readability up until January 2025
+- Improving checking and assignment of byline
+- Improve parsing of JSON-LD element
+- Keep OL and UL tags in lists
+- Add support for automatic language identification
+
 ## 0.9.6 - 2024/10/09
 - Added fixes from latest updates of Readability up until August 2024
 - Allow option to modify link density value

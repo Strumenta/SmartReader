@@ -130,3 +130,19 @@ string MagicConverter(AngleSharp.Dom.IElement element)
 
 Article.Converter = MagicConverter;
 ```
+
+## Natural Language Processing
+
+Often the webpage containing the article will contain metadata about the language used in the article. Sometimes this is not true, so the library comes with a delegate `LanguageIdentification` that can be used to identify the language based on the text itself. The default method just returns the language in the metadata. This is the old, standard behavior. 
+
+The delegate accepts two arguments:
+- the first one will receive the text of the article
+- the second one will receive the language indicates in the metadata, if any. You can use this argument as hint or as a default value in case your method cannot identify the language
+
+You can use the delegate to implement your own method to identify the language. We also provide a decent implementation, that actually does something, using FastText.
+
+There is also a delegate to create a summary of the article : `CreateSummary`. Also in this case the default implementation returns the summary provided by the metadata. In practice this is usually a short summary meant for social media sharing. At this moment we do not provide any better implementation.
+
+The delegate accepts two arguments:
+- the first one will receive the text of the article
+- the second one will receive the summary present in the metadata, if any. You can use this argument as a default value in case your method cannot create a summary
