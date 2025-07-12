@@ -10,3 +10,4 @@ src/SmartReaderDemo/obj/
 
 # User files
 *.DotSettings.user
+/src/SmartReader.NaturalLanguageProcessing/obj
