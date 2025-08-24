@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.10.1 - 2025/08/24
+- Fixed performance issue in `ConvertToPlaintext` when dealing with large inputs (thanks to [Clay Lenhart](https://github.com/xclayl))
+- Added fixes from latest updates of Readability up until August 2025
+- Parsing of JSON-LD element can now handle arrays
+- Improve handling of titles with separators
+- Keep Bilibili videos and mathjax
+
 ## 0.10.0 - 2025/02/02
 - Added fixes from latest updates of Readability up until January 2025
 - Improving checking and assignment of byline
