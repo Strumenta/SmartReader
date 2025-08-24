@@ -273,36 +273,35 @@ namespace SmartReader
 
             bool previousSpace = false;
             bool previousNewline = false;
-            int index = 0;
+            bool nextNewLine = false;
 
             string text = sb.ToString();
             // fix whitespace
             // replace tabs with one space
             text = RE_EliminateTabs.Replace(text, " ");
 
-            var stringBuilder = new StringBuilder(text);
-
-            while (index < stringBuilder.Length)
+            var stringBuilder = new StringBuilder();
+          
+            for (int i = 0; i < text.Length; i++)
             {
                 // carriage return and line feed are not separator characters
-                bool isSpace = char.IsSeparator(stringBuilder[index]);
-                bool isNewline = stringBuilder[index] is '\r' or '\n';
+                bool isSpace = char.IsSeparator(text[i]);
+                bool isNewline = text[i] is '\r' or '\n';
+                bool isNextNewline = i < text.Length - 1 ? text[i + 1] is '\r' or '\n' : false;
 
                 // we remove a space before a newline
-                if (previousSpace && isNewline)
-                    stringBuilder.Remove(index - 1, 1);
-                // we remove a space after a newline
-                else if (previousNewline && isSpace)
-                    stringBuilder.Remove(index, 1);
-                // we remove series of spaces
-                else if (previousSpace && isSpace)
-                    stringBuilder.Remove(index, 1);
+                if ((isSpace && isNextNewline)                    
+                    // we remove a space after a newline
+                   || (previousNewline && isSpace)                    
+                    // we remove series of spaces
+                   || (previousSpace && isSpace))
+                    { }
                 else
-                    index++;
+                    stringBuilder.Append(text[i]);
 
                 previousSpace = isSpace;
                 previousNewline = isNewline;
-            }
+            }           
 
             // we trim all whitespace
             text = stringBuilder.ToString().Trim();
