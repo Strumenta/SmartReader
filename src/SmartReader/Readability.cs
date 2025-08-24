@@ -248,13 +248,12 @@ namespace SmartReader
             }
 
             // If there's a separator in the title, first remove the final part
-            if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
+            const string titleSeparators = @"\|\-–—\\\/>»";
+            if (Regex.IsMatch(curTitle, $"\\s[{titleSeparators}]\\s"))
             {
-                titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '\\', '»', '/', '>' }) != -1;
-                // curTitle = Regex.Replace(origTitle, @"(.*) [\|\-\\\/>»] .*", "$1", RegexOptions.IgnoreCase);
-                // var allSeparators = Array.From(origTitle.matchAll(/ [\|\-\\\/>»] / gi));
+                titleHadHierarchicalSeparators = Regex.IsMatch(curTitle, @"\\s[\\\/>»]\\s");
                 
-                Match lastSeparator = Regex.Matches(origTitle, @" [\-\|\/\\>»] ", RegexOptions.IgnoreCase)
+                Match lastSeparator = Regex.Matches(origTitle, $"\\s[{titleSeparators}]\\s", RegexOptions.IgnoreCase)
                     .Cast<Match>().LastOrDefault();                
 
                 // If a separator was found, get its index and return the substring.
@@ -262,7 +261,8 @@ namespace SmartReader
                 
                 // If the resulting title is too short, remove the first part instead:
                 if (wordCount(curTitle) < 3)
-                    curTitle = Regex.Replace(origTitle, @"^[\|\-\\\/>»]*[\|\-\\\/>»]", "", RegexOptions.IgnoreCase);
+                    curTitle = Regex.Replace(origTitle, $"^[{titleSeparators}]*[{titleSeparators}]", 
+                        "", RegexOptions.IgnoreCase);
             }
             else if (curTitle.Contains(": "))
             {
@@ -304,7 +304,7 @@ namespace SmartReader
             if (curTitleWordCount <= 4 && (
                     !titleHadHierarchicalSeparators ||
                     curTitleWordCount !=
-                    wordCount(Regex.Replace(origTitle, @"[\|\-\\\/>»: ]+", " ", RegexOptions.IgnoreCase)) - 1))
+                    wordCount(Regex.Replace(origTitle, @"\\s[" + titleSeparators + @"]\\s", "", RegexOptions.IgnoreCase)) - 1))
             {
                 curTitle = origTitle;
             }
