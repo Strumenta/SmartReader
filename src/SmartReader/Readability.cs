@@ -251,12 +251,18 @@ namespace SmartReader
             if (curTitle.IndexOfAny(new char[] { '|', '-', '»', '/', '>' }) != -1)
             {
                 titleHadHierarchicalSeparators = curTitle.IndexOfAny(new char[] { '\\', '»', '/', '>' }) != -1;
-                curTitle = Regex.Replace(origTitle, @"(.*) [\|\-\\\/>»] .*", "$1", RegexOptions.IgnoreCase);
+                // curTitle = Regex.Replace(origTitle, @"(.*) [\|\-\\\/>»] .*", "$1", RegexOptions.IgnoreCase);
+                // var allSeparators = Array.From(origTitle.matchAll(/ [\|\-\\\/>»] / gi));
+                
+                Match lastSeparator = Regex.Matches(origTitle, @" [\-\|\/\\>»] ", RegexOptions.IgnoreCase)
+                    .Cast<Match>().LastOrDefault();                
 
+                // If a separator was found, get its index and return the substring.
+                curTitle = lastSeparator != null ? origTitle.Substring(0, lastSeparator.Index) : origTitle;
+                
                 // If the resulting title is too short, remove the first part instead:
                 if (wordCount(curTitle) < 3)
-                    curTitle = Regex.Replace(origTitle, @"[^\|\-\\\/>»]* [\|\-\\\/>»](.*)", "$1",
-                        RegexOptions.IgnoreCase);
+                    curTitle = Regex.Replace(origTitle, @"^[\|\-\\\/>»]*[\|\-\\\/>»]", "", RegexOptions.IgnoreCase);
             }
             else if (curTitle.Contains(": "))
             {
