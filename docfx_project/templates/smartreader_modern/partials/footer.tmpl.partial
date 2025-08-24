@@ -9,8 +9,3 @@
     </div>
   </div>
 </footer>
-<!-- Privacy-respecting Analytics -->
-<noscript>
-    <img src="https://analytics.inre.me/ingress/a3ef55f5-2943-44f2-a6da-43f529f8def0/pixel.gif">
-</noscript>
-<script defer src="https://analytics.inre.me/ingress/a3ef55f5-2943-44f2-a6da-43f529f8def0/script.js"></script>

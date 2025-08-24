@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Web;
 using AngleSharp.Dom;
@@ -350,6 +351,21 @@ namespace SmartReader
                         using JsonDocument document = JsonDocument.Parse(content);
 
                         var root = document.RootElement;
+
+                        // JsonLD can contain an array of elements
+                        if(root.ValueKind == JsonValueKind.Array)
+                        {
+                            var elements = root.EnumerateArray();
+                            foreach (var obj in elements)
+                            {
+                                if (obj.TryGetProperty("@type", out JsonElement valueArray)
+                                    && JsonLdArticleTypes.Contains(valueArray.GetString()!))
+                                {
+                                    root = obj;
+                                    break;
+                                }
+                            }
+                        }
 
                         // JsonLD can contain an array of elements inside property @graph
                         if (!root.TryGetProperty("@type", out JsonElement value)
