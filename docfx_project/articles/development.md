@@ -61,5 +61,6 @@ docfx --serve
 - [Ian Smirlis](https://github.com/iansmirlis)
 - [Peter Hagen](https://github.com/PeterHagen)
 - [Andrea Bondanini](https://github.com/AndreBonda)
+- [Clay Lenhart](https://github.com/xclayl)
 
 Thanks to all the people involved.
