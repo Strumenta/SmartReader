@@ -180,13 +180,13 @@ namespace SmartReader
 
         // Use global Regex that are pre-compiled and shared across instances (that have not customized anything)
         private static readonly Regex G_RE_UnlikelyCandidates = new Regex(@"-ad-|ai2html|banner|breadcrumbs|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager|popup|yom-remote|reacties|commentaires|Kommentare|comentarios", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_OkMaybeItsACandidate = new Regex(@"and|article|body|column|content|main|shadow", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_OkMaybeItsACandidate = new Regex(@"and|article|body|column|content|main|mathjax|shadow", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Positive = new Regex(@"article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Negative = new Regex(@"-ad-|hidden|^hid$|hid$|hid|^hid|banner|combx|comment|com-|contact|footer|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|widget", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Extraneous = new Regex(@"print|archive|comment|discuss|e[\-]?mail|share|reply|all|login|sign|single|utility", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_Byline = new Regex(@"byline|author|dateline|writtenby|p-author", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ReplaceFonts = new Regex(@"<(\/?)font[^>]*>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex G_RE_Videos = new Regex(@"\/\/(www\.)?((dailymotion|youtube|youtube-nocookie|player\.vimeo|v\.qq|bilibili|live.bilibili)\.com|(archive|upload\.wikimedia)\.org|player\.twitch\.tv)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_NextLink = new Regex(@"(next|weiter|continue|>([^\|]|$)|»([^\|]|$))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_PrevLink = new Regex(@"(prev|earl|old|new|<|«)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex G_RE_ShareElements = new Regex(@"(\b|_)(share|sharedaddy)(\b|_)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
