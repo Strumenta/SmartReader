@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.10.2
+- Fixed issue #68, crash when uri in link tag is relative (thanks to [yandrapragada](https://github.com/yandrapragada))
+
 ## 0.10.1 - 2025/08/24
 - Fixed performance issue in `ConvertToPlaintext` when dealing with large inputs (thanks to [Clay Lenhart](https://github.com/xclayl))
 - Added fixes from latest updates of Readability up until August 2025
@@ -10,18 +13,18 @@ All notable changes to this project will be documented in this file.
 
 ## 0.10.0 - 2025/02/02
 - Added fixes from latest updates of Readability up until January 2025
-- Improving checking and assignment of byline
-- Improve parsing of JSON-LD element
+- Improved checking and assignment of byline
+- Improved parsing of JSON-LD element
 - Keep OL and UL tags in lists
-- Add support for automatic language identification
+- Added support for automatic language identification
 
 ## 0.9.6 - 2024/10/09
 - Added fixes from latest updates of Readability up until August 2024
 - Allow option to modify link density value
 - Small performance improvements
 - Fix issue #64, by reducing value of comments containers in different languages (Dutch, Spanish, French)  (thanks to [PeterHagen](https://github.com/PeterHagen))
-- Add support for finding articles in alternative languages (thanks to [Andrea Bondanini](https://github.com/AndreBonda))
-- Fix vulnerability by updating dependency System.Text.Json to 8.0.5
+- Added support for finding articles in alternative languages (thanks to [Andrea Bondanini](https://github.com/AndreBonda))
+- Fixed vulnerability by updating dependency System.Text.Json to 8.0.5
 - Update dependency AngleSharp to 1.1.2
 
 ## 0.9.5 - 2024/06/02
@@ -34,7 +37,7 @@ All notable changes to this project will be documented in this file.
 - Added performance improvements suggested to conversion to plain text (thanks to [malv007](https://github.com/malv007))
 
 ## 0.9.4 - 2023/08/27
-- Fix issue #58, data URIs in IMG SRC not preserved, treated as relative URL (thanks to [Acidus](https://github.com/acidus99))
+- Fixed issue #58, data URIs in IMG SRC not preserved, treated as relative URL (thanks to [Acidus](https://github.com/acidus99))
 - Added fixes from latest updates of Readability up until August 2023
 - Expanded comma detection to non-Latin commas
 

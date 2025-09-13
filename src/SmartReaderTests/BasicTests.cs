@@ -718,5 +718,24 @@ namespace SmartReaderTests
             Assert.False(article.Completed);
             Assert.Equal("Aborting parsing document; 5 elements found", article.Errors[0].Message);
         }
+
+        [Fact]
+        public void CheckRelativeURI()
+        {
+            var parser = new HtmlParser(new HtmlParserOptions());
+            var doc = parser.ParseDocument(@"<html>
+               <head><link rel=""alternate"" hreflang=""de"" href=""/dummy-de/dummy1/test"" title=""German | German""></head>
+               <body>
+                    <p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>
+                    <p>This is a paragraph with an image <a href='/dummy-de/dummy1/test'>Hello</a>.</p>
+               </body>
+               </html>");
+            
+            var result = Readability.GetArticleMetadata(doc, new Uri("https://localhost/"), "en",
+                    new Dictionary<string, string>());
+            Assert.Single(result.AlternativeLanguageUris);
+            Assert.Equal(new Uri("https://localhost/dummy-de/dummy1/test"), result.AlternativeLanguageUris["de"]);
+        }
     }
 }

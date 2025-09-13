@@ -686,7 +686,9 @@ namespace SmartReader
             {
                 if (link.GetAttribute("rel") == "alternate")
                 {
-                    var hrefValue = link.GetAttribute("href");
+                    var hrefValue = link.GetAttribute("href") != null 
+                        ? uri.ToAbsoluteURI(link.GetAttribute("href")!) 
+                        : null;
                     var hreflangValue = link.GetAttribute("hreflang");
 
                     if (!string.IsNullOrWhiteSpace(hrefValue)
