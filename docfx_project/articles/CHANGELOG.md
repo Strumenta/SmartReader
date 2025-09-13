@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.10.2
+## 0.10.2 - 2025/09/13
 - Fixed issue #68, crash when uri in link tag is relative (thanks to [yandrapragada](https://github.com/yandrapragada))
 
 ## 0.10.1 - 2025/08/24
