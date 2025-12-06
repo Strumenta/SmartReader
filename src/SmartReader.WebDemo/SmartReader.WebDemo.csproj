@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,9 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="1.1.2" />
+    <PackageReference Include="AngleSharp" Version="1.4.0" />
     <PackageReference Include="AngleSharp.Css" Version="0.17.0" />
-    <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
+    <PackageReference Include="HtmlSanitizer" Version="9.0.889" />
   </ItemGroup>
 
   <ItemGroup>
