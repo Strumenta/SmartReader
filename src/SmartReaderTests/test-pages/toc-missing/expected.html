@@ -20,8 +20,7 @@
                         <summary>
                             Table of Contents
                         </summary>
-                        <div>
-                            <ul>
+                        <div><ul>
                                 <li>
                                     <a href="#detecting-anomalies">Detecting Anomalies</a>
                                     <ul>
@@ -84,16 +83,12 @@
                                 <li>
                                     <a href="#conclusion">Conclusion</a>
                                 </li>
-                            </ul>
-                        </div>
+                            </ul></div>
                     </details>
                     <hr>
-                    <div>
-                        <p>
+                    <div><p>
                             Interactive Editor
-                        </p>
-                        
-                    </div>
+                        </p></div>
                     <hr>
                     <h2 id="detecting-anomalies">
                         <a href="#detecting-anomalies">Detecting Anomalies</a>
@@ -101,10 +96,8 @@
                     <p>
                         Anomaly in a data series is a significant deviation from some reasonable value. Looking at this series of numbers for example, which number stands out?
                     </p>
-                    <div>
-                        <pre>2, 3, 5, 2, 3, 12, 5, 3, 4
-</pre>
-                    </div>
+                    <div><pre>2, 3, 5, 2, 3, 12, 5, 3, 4
+</pre></div>
                     <p>
                         The number that stands out in this series is 12.
                     </p>
@@ -120,38 +113,33 @@
                     <p>
                         To find the anomaly in the series we first need to define what a reasonable value is, and then define how far away from this value we consider a significant deviation. A good place to start looking for a reasonable value is the mean:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span> <span>avg</span><span>(</span><span>n</span><span>)</span>
+                    <div><pre><span>SELECT</span> <span>avg</span><span>(</span><span>n</span><span>)</span>
 <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span><span>;</span>
 
 <span>       avg</span>
 <span>────────────────────</span>
 <span>4.3333333333333333</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         The mean is ~4.33.
                     </p>
                     <p>
                         Next, we need to define the deviation. Let's use <a href="https://en.wikipedia.org/wiki/Standard_deviation" rel="noopener">Standard Deviation</a>:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span> <span>stddev</span><span>(</span><span>n</span><span>)</span>
+                    <div><pre><span>SELECT</span> <span>stddev</span><span>(</span><span>n</span><span>)</span>
 <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span><span>;</span>
 
 <span>      stddev</span>
 <span>────────────────────</span>
 <span>3.0822070014844882</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Standard deviation is the square root of the <a href="https://en.wikipedia.org/wiki/Variance" rel="noopener">variance</a>, which is the average squared distance from the mean. In this case it's 3.08.
                     </p>
                     <p>
                         Now that we've defined a "reasonable" value and a deviation, we can define a <em>range</em> of acceptable values:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span>
+                    <div><pre><span>SELECT</span>
    <span>avg</span><span>(</span><span>n</span><span>)</span> <span>-</span> <span>stddev</span><span>(</span><span>n</span><span>)</span> <span>AS</span> <span>lower_bound</span><span>,</span>
    <span>avg</span><span>(</span><span>n</span><span>)</span> <span>+</span> <span>stddev</span><span>(</span><span>n</span><span>)</span> <span>AS</span> <span>upper_bound</span>
 <span>FROM</span>
@@ -160,13 +148,11 @@
 <span>    lower_bound    │     upper_bound</span>
 <span>───────────────────┼────────────────────</span>
 <span>1.2511263318488451 │ 7.4155403348178215</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         The range we defined is one standard deviation from the mean. Any value outside this range is considered an anomaly:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
    <span>SELECT</span> <span>*</span>
    <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span>
 <span>),</span>
@@ -195,8 +181,7 @@
 </span><span> 5 │ f</span>
 <span> 3 │ f</span>
 <span> 4 │ f</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Using the query we found that the value 12 is outside the range of acceptable values, and identified it as an anomaly.
                     </p>
@@ -206,8 +191,7 @@
                     <p>
                         Another way to represent a range of acceptable values is using a z-score. <a href="https://en.wikipedia.org/wiki/Standard_score" rel="noopener">z-score, or Standard Score</a>, is the number of standard deviations from the mean. In the previous section, our acceptable range was one standard deviation from the mean, or in other words, a z-score in the range ±1:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
    <span>SELECT</span> <span>*</span>
    <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span>
 <span>),</span>
@@ -236,13 +220,11 @@
 <span> 5 │  0.21629522817435006346</span>
 <span> 3 │ -0.43259045634870009448</span>
 <span> 4 │ -0.10814761408717501551</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Like before, we can detect anomalies by searching for values which are outside the acceptable range using the z-score:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
    <span>SELECT</span> <span>*</span>
    <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span>
 <span>),</span>
@@ -278,8 +260,7 @@
 </span><span> 5 │  0.21629522817435006346 │ f</span>
 <span> 3 │ -0.43259045634870009448 │ f</span>
 <span> 4 │ -0.10814761408717501551 │ f</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Using z-score, we also identified 12 as an anomaly in this series.
                     </p>
@@ -289,8 +270,7 @@
                     <p>
                         So far we used one standard deviation from the mean, or a z-score of ±1 to identify anomalies. Changing the z-score threshold can affect our results. For example, let's see what anomalies we identify when the z-score is greater than 0.5 and when it's greater than 3:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>series</span> <span>AS</span> <span>(</span>
    <span>SELECT</span> <span>*</span>
    <span>FROM</span> <span>unnest</span><span>(</span><span>array</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>12</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>AS</span> <span>n</span>
 <span>),</span>
@@ -328,8 +308,7 @@
 <span> 5 │  0.21629522817435006346 │ f              │ f            │ f</span>
 <span> 3 │ -0.43259045634870009448 │ f              │ f            │ f</span>
 <span> 4 │ -0.10814761408717501551 │ f              │ f            │ f</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Let's see what we got:
                     </p>
@@ -372,19 +351,16 @@
                     <p>
                         Parsing and processing logs is outside the scope of this article, so let's assume we did that and we have a table that looks like this:
                     </p>
-                    <div>
-                        <pre><span>CREATE</span> <span>TABLE</span> <span>server_log_summary</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>CREATE</span> <span>TABLE</span> <span>server_log_summary</span> <span>AS</span> <span>(</span>
    <span>period</span> <span>timestamptz</span><span>,</span>
    <span>status_code</span> <span>int</span><span>,</span>
    <span>entries</span> <span>int</span>
 <span>);</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         The table stores the number of entries for each status code at a given period. For example, our table stores how many responses returned each status code every minute:
                     </p>
-                    <div>
-                        <pre><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>server_log_summary</span> <span>ORDER</span> <span>BY</span> <span>period</span> <span>DESC</span> <span>LIMIT</span> <span>10</span><span>;</span>
+                    <div><pre><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>server_log_summary</span> <span>ORDER</span> <span>BY</span> <span>period</span> <span>DESC</span> <span>LIMIT</span> <span>10</span><span>;</span>
 
 <span>        period         │ status_code │ entries</span>
 <span>───────────────────────┼─────────────┼─────────</span>
@@ -398,13 +374,11 @@
 <span>2020-08-01 17:59:00+00 │         404 │       0</span>
 <span>2020-08-01 17:58:00+00 │         400 │       2</span>
 <span>2020-08-01 17:58:00+00 │         200 │    3850</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         Note that the table has a row for every minute, even if the status code was never returned in that minute. Given a table of statuses, it's very tempting to do something like this:
                     </p>
-                    <div>
-                        <pre><span>-- Wrong!</span>
+                    <div><pre><span>-- Wrong!</span>
 <span>SELECT</span>
    <span>date_trunc</span><span>(</span><span>'minute'</span><span>,</span> <span>timestamp</span><span>)</span> <span>AS</span> <span>period</span><span>,</span>
    <span>status_code</span><span>,</span>
@@ -414,13 +388,11 @@
 <span>GROUP</span> <span>BY</span>
    <span>period</span><span>,</span>
    <span>status_code</span><span>;</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         This is a common mistake and it can leave you with gaps in the data. Zero is a value, and it holds a significant meaning. A better approach is to create an "axis", and join to it:
                     </p>
-                    <div>
-                        <pre><span>-- Correct!</span>
+                    <div><pre><span>-- Correct!</span>
 <span>WITH</span> <span>axis</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
@@ -446,8 +418,7 @@
 <span>GROUP</span> <span>BY</span>
    <span>period</span><span>,</span>
    <span>status_code</span><span>;</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         First we generate an axis using a cartesian join between the status codes we want to track, and the times we want to monitor. To generate the axis we used two nice features of PostgreSQL:
                     </p>
@@ -492,8 +463,7 @@
                     <p>
                         To identify if the last datapoint is an anomaly, we start by calculating the mean and standard deviation for each status code in the past hour:
                     </p>
-                    <div>
-                        <pre><span>db=#</span> <span>WITH</span> <span>stats</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>db=#</span> <span>WITH</span> <span>stats</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
        <span>(</span><span>MAX</span><span>(</span><span>ARRAY</span><span>[</span><span>EXTRACT</span><span>(</span><span>'epoch'</span> <span>FROM</span> <span>period</span><span>),</span> <span>entries</span><span>]))[</span><span>2</span><span>]</span> <span>AS</span> <span>last_value</span><span>,</span>
@@ -516,16 +486,14 @@
 <span>        500 │          0 │ 0.15000000000000000000 │ 0.36008473579027553993</span>
 <span>        200 │       4084 │  2779.1000000000000000 │       689.219644702665</span>
 <span>        400 │         24 │ 0.73333333333333333333 │     3.4388935285299212</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         To get the last value in a GROUP BY in addition to the mean and standard deviation <a href="https://localhost/sql-group-by-first-last-value">we used a little array trick</a>.
                     </p>
                     <p>
                         Next, we calculate the z-score for the last value for each status code:
                     </p>
-                    <div>
-                        <pre><span>db=#</span> <span>WITH</span> <span>stats</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>db=#</span> <span>WITH</span> <span>stats</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
        <span>(</span><span>MAX</span><span>(</span><span>ARRAY</span><span>[</span><span>EXTRACT</span><span>(</span><span>'epoch'</span> <span>FROM</span> <span>period</span><span>),</span> <span>entries</span><span>]))[</span><span>2</span><span>]</span> <span>AS</span> <span>last_value</span><span>,</span>
@@ -552,8 +520,7 @@
 <span>        500 │          0 │ 0.150        │ 0.3600         │ -0.416</span>
 <span>        200 │       4084 │ 2779.100     │ 689.2196       │  1.893</span>
 <span><span>        400 │         24 │ 0.733        │ 3.4388         │  6.765</span>
-</span></pre>
-                    </div>
+</span></pre></div>
                     <p>
                         We calculated the z-score by finding the number of standard deviations between the last value and the mean. To <a href="https://localhost/sql-dos-and-donts#guard-against-division-by-zero-errors">avoid a "division by zero" error</a> we transform the denominator to NULL if it's zero.
                     </p>
@@ -563,8 +530,7 @@
                     <p>
                         Let's take a look at the raw data:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span> <span>*</span>
+                    <div><pre><span>SELECT</span> <span>*</span>
 <span>FROM</span> <span>server_log_summary</span>
 <span>WHERE</span> <span>status_code</span> <span>=</span> <span>400</span>
 <span>ORDER</span> <span>BY</span> <span>period</span> <span>DESC</span>
@@ -592,8 +558,7 @@
 <span>2020-08-01 17:43:00+00 │         400 │       0</span>
 <span>2020-08-01 17:42:00+00 │         400 │       0</span>
 <span>2020-08-01 17:41:00+00 │         400 │       0</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         It does look like in the last couple of minutes we are getting more errors than expected.
                     </p>
@@ -622,8 +587,7 @@
                     <p>
                         The first thing we need to do is to calculate the mean and the standard deviation for each status code up until every row, just as if it’s the current value. This is a classic job for a <a href="https://www.postgresql.org/docs/current/tutorial-window.html" rel="noopener">window function</a>:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
       <span>status_code</span><span>,</span>
       <span>period</span><span>,</span>
@@ -665,8 +629,7 @@
 <span>        404 │ 2020-08-01 17:56:00+00 │       0 │ 0.14754098360655737705 │ 0.35758754516763638735</span>
 <span>        400 │ 2020-08-01 17:56:00+00 │       1 │ 0.11475409836065573770 │ 0.32137001808599097120</span>
 <span>        500 │ 2020-08-01 17:56:00+00 │       0 │ 0.14754098360655737705 │ 0.35758754516763638735</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         To calculate the mean and standard deviation over a sliding window of 60 minutes, we use a <a href="https://www.postgresql.org/docs/current/tutorial-window.html" rel="noopener">window function</a>. To avoid having to repeat the <code>WINDOW</code> clause for every aggregate, we define a <a href="https://www.postgresql.org/docs/current/sql-select.html#SQL-WINDOW" rel="noopener">named window</a> called "status_window". This is another nice feature of PostgreSQL.
                     </p>
@@ -676,8 +639,7 @@
                     <p>
                         Now we can calculate the z-score for every row:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
       <span>status_code</span><span>,</span>
       <span>period</span><span>,</span>
@@ -734,13 +696,11 @@
 <span>        404 │ 2020-08-01 17:56:00+00 │ -0.41260101365496504</span>
 <span>        400 │ 2020-08-01 17:56:00+00 │     2.75460015502278</span>
 <span>        500 │ 2020-08-01 17:56:00+00 │ -0.41260101365496504</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         We now have z-scores for every row, and we can try to identify anomalies:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
        <span>period</span><span>,</span>
@@ -810,8 +770,7 @@
 <span>        500 │ 2020-08-01 14:37:00+00 │       1 │ 3.0027309973793774 │ t</span>
 <span>        400 │ 2020-08-01 14:35:00+00 │       1 │ 3.3190952747131184 │ t</span>
 <span>        400 │ 2020-08-01 14:32:00+00 │       1 │ 3.3190952747131184 │ t</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         We decided to classify values with z-score greater than 3 as anomalies. 3 is usually the magic number you’ll see in textbooks, but don’t get sentimental about it because you can definitely change it to get better results.
                     </p>
@@ -827,8 +786,7 @@
                     <p>
                         To eliminate rows with only a few entries we set a threshold:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
        <span>period</span><span>,</span>
@@ -889,8 +847,7 @@
 <span>        404 │ 2020-08-01 07:20:00+00 │      23 │  5.142126410098476 │ t</span>
 <span>        404 │ 2020-08-01 07:19:00+00 │      20 │  6.091200697920824 │ t</span>
 <span>        404 │ 2020-08-01 07:18:00+00 │      15 │   7.57547172423804 │ t</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         After eliminating potential anomalies with less than 10 entries we get much fewer, and probably more relevant results.
                     </p>
@@ -903,13 +860,11 @@
                     <p>
                         Let's have a look at the data for status code 400 after applying the threshold:
                     </p>
-                    <div>
-                        <pre>status_code │         period         │ entries │       zscore       │ alert
+                    <div><pre>status_code │         period         │ entries │       zscore       │ alert
 ────────────┼────────────────────────┼─────────┼────────────────────┼───────
         400 │ 2020-08-01 18:00:00+00 │      24 │  6.823777205473068 │ t
         400 │ 2020-08-01 17:59:00+00 │      12 │  7.445849602151508 │ t
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         The first alert happened in 17:59, and a minute later the z-score was still high with a large number of entries and so we classified the next rows at 18:00 as an anomaly as well.
                     </p>
@@ -919,8 +874,7 @@
                     <p>
                         Let's remove alerts where the previous period was also classified as an alert:
                     </p>
-                    <div>
-                        <pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
+                    <div><pre><span>WITH</span> <span>calculations_over_window</span> <span>AS</span> <span>(</span>
    <span>SELECT</span>
        <span>status_code</span><span>,</span>
        <span>period</span><span>,</span>
@@ -979,8 +933,7 @@
 <span>        400 │ 2020-08-01 17:59:00+00 │      12 │ 7.445849602151508 │ t</span>
 <span>        500 │ 2020-08-01 11:22:00+00 │    1022 │ 7.682189672504754 │ t</span>
 <span>        404 │ 2020-08-01 07:18:00+00 │      15 │  7.57547172423804 │ t</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         By eliminating alerts that were already triggered we get a very small list of anomalies that may have happened during the day. Looking at the results we can see what anomalies we would have discovered:
                     </p>
@@ -1104,8 +1057,7 @@
                     <p>
                         To give more weight to recent entries, you can use a <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" rel="noopener">weighted average</a>:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span>
+                    <div><pre><span>SELECT</span>
    <span>status_code</span><span>,</span>
    <span>avg</span><span>(</span><span>entries</span><span>)</span> <span>as</span> <span>mean</span><span>,</span>
    <span>sum</span><span>(</span>
@@ -1126,8 +1078,7 @@
 <span>         500 │ 0.15000000000000000000 │ 0.29508196721311475</span>
 <span>         200 │  2779.1000000000000000 │   5467.081967213115</span>
 <span>         400 │ 0.73333333333333333333 │  1.4426229508196722</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         In the results you can see the difference between the mean and the weighted mean for each status code.
                     </p>
@@ -1143,10 +1094,8 @@
                     <p>
                         For example, in the beginning of the article we used this series of values:
                     </p>
-                    <div>
-                        <pre>2, 3, 5, 2, 3, 12, 5, 3, 4
-</pre>
-                    </div>
+                    <div><pre>2, 3, 5, 2, 3, 12, 5, 3, 4
+</pre></div>
                     <p>
                         The mean of this series is 4.33, and we detected 12 as an anomaly.
                     </p>
@@ -1156,31 +1105,25 @@
                     <p>
                         A measure that is considered more robust is a <a href="https://en.wikipedia.org/wiki/Median" rel="noopener">median</a>. The median of a series is the value that half the series is greater than, and half the series is less than:
                     </p>
-                    <div>
-                        <pre><span>SELECT</span> <span>percentile_disc</span><span>(</span><span>0.5</span><span>)</span> <span>within</span> <span>group</span><span>(</span><span>order</span> <span>by</span> <span>n</span><span>)</span>
+                    <div><pre><span>SELECT</span> <span>percentile_disc</span><span>(</span><span>0.5</span><span>)</span> <span>within</span> <span>group</span><span>(</span><span>order</span> <span>by</span> <span>n</span><span>)</span>
 <span>FROM</span> <span>unnest</span><span>(</span><span>ARRAY</span><span>[</span><span>2</span><span>,</span> <span>3</span><span>,</span> <span>5</span><span>,</span> <span>2</span><span>,</span> <span>3</span><span>,</span> <span>120</span><span>,</span> <span>5</span><span>,</span> <span>3</span><span>,</span> <span>4</span><span>])</span> <span>as</span> <span>n</span><span>;</span>
 
 <span> median</span>
 <span>────────</span>
 <span>      3</span>
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         To calculate the median in PostgreSQL we use the function <a href="https://www.postgresql.org/docs/current/functions-aggregate.html#FUNCTIONS-ORDEREDSET-TABLE" rel="noopener"><code>percentile_disc</code></a>. In the series above, the median is 3. If we sort the list and cut it in the middle it will become more clear:
                     </p>
-                    <div>
-                        <pre>2, 2, 3, 3, 3
+                    <div><pre>2, 2, 3, 3, 3
 4, 5, 5, 12
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         If we change the value of 12 to 120, the median will not be affected at all:
                     </p>
-                    <div>
-                        <pre>2, 2, 3, 3, 3
+                    <div><pre>2, 2, 3, 3, 3
 4, 5, 5, 120
-</pre>
-                    </div>
+</pre></div>
                     <p>
                         This is why a median is considered more robust than mean.
                     </p>
