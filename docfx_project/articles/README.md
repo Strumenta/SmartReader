@@ -115,6 +115,8 @@ if(article.IsReadable)
 - `int` **AncestorsDepth** <br>The default level of depth a node must have to be used for scoring.Nodes without as many ancestors as this level are not counted<br>*Default: 5*
 - `int` **ParagraphThreshold** <br>The default number of characters a node must have in order to be used for scoring<br>*Default: 25*
 - `linkDensityModifier` (number, default `0.0`): a number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.
+- `bool` **PreCleanPage** <br>Some pages have structural issues that harms performance, such as hundred of thousands of empty paragraph nodes. This flag activates heuristics to pre-clean the page before it is analyzed by the library. In practice, the current implementation
+just eliminates empty paragraph nodes.<br>*Default: false*
 
 ### Settings Notes
 
