@@ -162,6 +162,11 @@ namespace SmartReader
         /// <value>Default: false</value>
         public double LinkDensityModifier { get; set; } = 0.0;
 
+        /// <summary>Some pages have structural issues that harms performance
+        /// Such as hundred of thousands of empty paragraph nodes. This flag activates some
+        /// heuristics to pre-clean the page before is analyzed by the library</summary>
+        /// <value>Default: false</value>          
+        public bool PreCleanPage { get; set; } = false;
 
         // All of the regular expressions in use within readability.
         // Defined up here so we don't instantiate them repeatedly in loops.
@@ -232,6 +237,55 @@ namespace SmartReader
 
             articleTitle = "";
         }
+        
+        private IHtmlDocument ParseDocument(string text)
+        {
+            var context = BrowsingContext.New(Configuration.Default);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+
+            if (PreCleanPage)
+            {
+                return parser.ParseDocument(
+                    Regex.Replace(
+                        text,
+                        @"<p[^>]*>\s*(?:&nbsp;|\s)*</p>", // Matches <p ...> with only spaces or &nbsp; inside
+                        string.Empty,
+                        RegexOptions.IgnoreCase | RegexOptions.Multiline
+                    )
+                );
+            }
+            else
+            {
+                return parser.ParseDocument(text);
+            }
+        }
+
+        private IHtmlDocument ParseDocument(Stream source)
+        {
+            var context = BrowsingContext.New(Configuration.Default);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+
+            if (PreCleanPage)
+            {
+                using var reader = new StreamReader(source, context.GetDefaultEncoding());
+                string htmlContent = reader.ReadToEnd();
+
+                string cleanedHtml = Regex.Replace(
+                    htmlContent,
+                    @"<p[^>]*>\s*(?:&nbsp;|\s)*</p>",
+                    string.Empty,
+                    RegexOptions.IgnoreCase | RegexOptions.Multiline
+                );
+
+                using var cleanedStream = new MemoryStream(context.GetDefaultEncoding().GetBytes(cleanedHtml));
+                
+                return parser.ParseDocument(cleanedStream);
+            }
+            else
+            {
+                return parser.ParseDocument(source);
+            }
+        }
 
         /// <summary>
         /// Reads content from the given text. It needs the uri to make some checks.
@@ -245,9 +299,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
 
-            var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
-            doc = parser.ParseDocument(text);
+            doc = ParseDocument(text);
 
             articleTitle = "";
         }
@@ -264,9 +316,7 @@ namespace SmartReader
         {
             this.uri = new Uri(uri);
 
-            var context = BrowsingContext.New(Configuration.Default);
-            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
-            doc = parser.ParseDocument(source);
+            doc = ParseDocument(source);
 
             articleTitle = "";
         }
@@ -382,13 +432,12 @@ namespace SmartReader
                         stream = new MemoryStream(bytes);
                     }
 
-                    doc = parser.ParseDocument(stream);
+                    doc = ParseDocument(stream);
                 }
-
             
                 return Parse();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 return new Article(uri, articleTitle, ex);
             }
@@ -401,7 +450,6 @@ namespace SmartReader
         /// <returns>
         /// An Article object with all the data extracted
         /// </returns>    
-
         public Article GetArticle()
         {
             try
@@ -418,11 +466,11 @@ namespace SmartReader
                     // In case it ignores, it uses the default UTF8 encoding
                     if (!string.IsNullOrEmpty(charset) && ForceHeaderEncoding)
                     {
-                        var bytes = Encoding.Convert(Encoding.GetEncoding("iso-8859-1"), Encoding.UTF8, ((MemoryStream)stream).ToArray());
+                        var bytes = Encoding.Convert(Encoding.GetEncoding(charset), Encoding.UTF8, ((MemoryStream)stream).ToArray());
                         stream = new MemoryStream(bytes);
                     }
 
-                    doc = parser.ParseDocument(stream);
+                    doc = ParseDocument(stream);
                 }
 
                 return Parse();
@@ -462,10 +510,8 @@ namespace SmartReader
                 var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
                 var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
-                var context = BrowsingContext.New(Configuration.Default);
-                var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
-
-                smartReader.doc = parser.ParseDocument(stream);
+                
+                smartReader.doc = smartReader.ParseDocument(stream);
 
                 return smartReader.Parse();
             }
@@ -878,6 +924,7 @@ namespace SmartReader
 
             return false;
         }
+       
 
         /// <summary>
         /// grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is
@@ -907,9 +954,9 @@ namespace SmartReader
                     LoggerDelegate(page.OuterHtml);
                 }
             }
-
-            var pageCacheHtml = page.InnerHtml;
             
+            var pageCacheHtml = page.InnerHtml;            
+
             while (true)
             {
                 if (Debug || Logging == ReportLevel.Info)
@@ -1000,6 +1047,33 @@ namespace SmartReader
                         elementsToScore.Add(node);
                     }
                     
+                    // Remove empty P nodes            
+                    if(node.TagName is "P")
+                    {
+                        if (node.ChildNodes.Length == 0)
+                        {
+                            node = NodeUtility.RemoveAndGetNext(node);
+                            continue;
+                        }
+
+                        if (node.ChildNodes.Length == 1)
+                        {
+                            var child = node.ChildNodes.First();
+
+                            if (child.NodeType == NodeType.Text)
+                            {
+                                string rawText = (child as IText).Text;
+
+                                // Check if the trimmed text is empty or contains only non-breaking space
+                                if (string.IsNullOrEmpty(rawText) || rawText.Equals("&nbsp;", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    node = NodeUtility.RemoveAndGetNext(node);
+                                    continue;                                                                
+                                }
+                            }
+                        }
+                    }                    
+
                     // Turn all divs that don't have children block level elements into p's
                     if (node.TagName is "DIV")
                     {
