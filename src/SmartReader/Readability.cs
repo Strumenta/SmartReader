@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Web;
+using AngleSharp.Common;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Text;
@@ -90,7 +91,7 @@ namespace SmartReader
 
             for (int i = 0; i < links.Length; i++)
             {
-                var link = links[i];
+                var link = links.GetItemByIndex(i);
 
                 var href = link.GetAttribute("href")!;
                 if (!string.IsNullOrWhiteSpace(href))
@@ -100,7 +101,7 @@ namespace SmartReader
                     if (href.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase))
                     {
                         // if the link only contains simple text content, it can be converted to a text node
-                        if (link.ChildNodes.Length == 1 && link.ChildNodes[0].NodeType == NodeType.Text)
+                        if (link.ChildNodes.Length == 1 && link.ChildNodes.GetItemByIndex(0).NodeType == NodeType.Text)
                         {
                             var text = doc.CreateTextNode(link.TextContent);
                             link.Parent!.ReplaceChild(text, link);
@@ -152,7 +153,7 @@ namespace SmartReader
             }
         }
 
-        private static readonly char[] titleSeperators = { '|', '-', '»', '/', '>' };
+        private static readonly char[] titleSeparators = { '|', '-', '»', '/', '>' };
 
         /// <summary>
         /// Clean the article title found in a tag
@@ -165,7 +166,7 @@ namespace SmartReader
         internal static string CleanTitle(string title, string? siteName)
         {
             // eliminate any text after a separator
-            if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(titleSeperators) != -1)
+            if (!string.IsNullOrEmpty(siteName) && title.IndexOfAny(titleSeparators) != -1)
             {
                 // we eliminate the text after the separator only if it is the site name
                 title = Regex.Replace(title, $"(.*) [\\|\\-\\\\/>»] {Regex.Escape(siteName)}.*", "$1",
@@ -201,10 +202,10 @@ namespace SmartReader
                     else if (NodeUtility.HasSingleTagInsideElement(node, "DIV") ||
                              NodeUtility.HasSingleTagInsideElement(node, "SECTION"))
                     {
-                        var child = node.Children[0];
+                        var child = node.Children.GetItemByIndex(0);
                         for (var i = 0; i < node.Attributes.Length; i++)
                         {
-                            NodeUtility.SafeSetAttribute(child, node.Attributes[i]!);
+                            NodeUtility.SafeSetAttribute(child, node.Attributes.GetItemByIndex(i)!);
                         }
 
                         node.Parent.ReplaceChild(child, node);
@@ -233,7 +234,7 @@ namespace SmartReader
             {
                 // If they had an element with id "title" in their HTML
                 if (typeof(string) != curTitle.GetType())
-                    curTitle = origTitle = NodeUtility.GetInnerText(doc.GetElementsByTagName("title")[0]);
+                    curTitle = origTitle = NodeUtility.GetInnerText(doc.GetElementsByTagName("title").GetItemByIndex(0));
             }
             catch (Exception)
             {
@@ -291,7 +292,7 @@ namespace SmartReader
                 var hOnes = doc.GetElementsByTagName("h1");
 
                 if (hOnes.Length == 1)
-                    curTitle = NodeUtility.GetInnerText(hOnes[0]);
+                    curTitle = NodeUtility.GetInnerText(hOnes.GetItemByIndex(0));
             }
 
             curTitle = RE_Normalize.Replace(curTitle.Trim(), " ");
@@ -670,8 +671,8 @@ namespace SmartReader
             IEnumerable<string?> LanguageHeuristics()
             {
                 yield return language;
-                yield return doc.GetElementsByTagName("html")[0].GetAttribute("lang");
-                yield return doc.GetElementsByTagName("html")[0].GetAttribute("xml:lang");
+                yield return doc.GetElementsByTagName("html").GetItemByIndex(0).GetAttribute("lang");
+                yield return doc.GetElementsByTagName("html").GetItemByIndex(0).GetAttribute("xml:lang");
                 yield return doc.QuerySelector("meta[http-equiv=\"Content-Language\"]")?.GetAttribute("content");
                 // this is wrong, but it's used
                 yield return doc.QuerySelector("meta[name=\"lang\"]")?.GetAttribute("value");

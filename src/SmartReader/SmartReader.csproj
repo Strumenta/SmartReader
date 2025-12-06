@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.4.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0" />
     <PackageReference Include="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
 

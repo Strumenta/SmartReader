@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-
+using AngleSharp.Common;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Text;
@@ -60,7 +60,7 @@ namespace SmartReader
 
             for (var i = 0; i < node.Attributes.Length; i++)
             {
-                var attr = node.Attributes[i]!;
+                var attr = node.Attributes.GetItemByIndex(i)!;
 
                 NodeUtility.SafeSetAttribute(replacement, attr);                
             }
@@ -141,7 +141,7 @@ namespace SmartReader
         {
             for (var i = elementList.Length - 1; i >= 0; i--)
             {
-                var node = elementList[i];
+                var node = elementList.GetItemByIndex(i);
                 var parentNode = node.Parent;
                 if (parentNode != null)
                 {
@@ -166,7 +166,7 @@ namespace SmartReader
         {
             for (int a = 0; a < nodeList.Length; a++)
             {
-                fn(nodeList[a]);
+                fn(nodeList.GetItemByIndex(a));
             }
         }
 
@@ -209,7 +209,7 @@ namespace SmartReader
             {
                 if (element.TagName is "IMG") return true;
                 if (element.Children.Length != 1 || element.TextContent.AsSpan().Trim().Length != 0) return false;
-                element = element.Children[0];
+                element = element.Children.GetItemByIndex(0);
             }
 
             return false;
@@ -231,7 +231,7 @@ namespace SmartReader
             {
                 for (var i = 0; i < img.Attributes.Length; i++)
                 {
-                    var attr = img.Attributes[i]!;
+                    var attr = img.Attributes.GetItemByIndex(i)!;
 
                     if (attr.Name is "src" or "srcset" or "data-src" or "data-srcset")
                     {
@@ -268,13 +268,13 @@ namespace SmartReader
                     var prevImg = prevElement;
                     if (prevImg.TagName is not "IMG")
                     {
-                        prevImg = prevElement.GetElementsByTagName("img")[0];
+                        prevImg = prevElement.GetElementsByTagName("img").GetItemByIndex(0);
                     }
 
-                    var newImg = tmp.GetElementsByTagName("img")[0];
+                    var newImg = tmp.GetElementsByTagName("img").GetItemByIndex(0);
                     for (var i = 0; i < prevImg.Attributes.Length; i++)
                     {
-                        var attr = prevImg.Attributes[i]!;
+                        var attr = prevImg.Attributes.GetItemByIndex(i)!;
                         if (attr.Value is "")
                         {
                             continue;
@@ -332,7 +332,7 @@ namespace SmartReader
         internal static bool HasSingleTagInsideElement(IElement element, string tagName)
         {
             // There should be exactly 1 element child with given tag:
-            if (element.Children.Length != 1 || !string.Equals(element.Children[0].TagName, tagName, StringComparison.Ordinal))
+            if (element.Children.Length != 1 || !string.Equals(element.Children.GetItemByIndex(0).TagName, tagName, StringComparison.Ordinal))
             {
                 return false;
             }
@@ -447,7 +447,7 @@ namespace SmartReader
             // Remove `style` and deprecated presentational attributes
             for (var i = 0; i < presentationalAttributes.Length; i++)
             {
-                el.RemoveAttribute(presentationalAttributes[i]);
+                el.RemoveAttribute(presentationalAttributes.GetItemByIndex(i));
             }
 
             if (deprecatedSizeAttributeElems.Contains(el.TagName))
@@ -567,7 +567,7 @@ namespace SmartReader
             var trs = table.GetElementsByTagName("tr");
             for (var i = 0; i < trs.Length; i++)
             {
-                string rowspan = trs[i].GetAttribute("rowspan") ?? "";
+                string rowspan = trs.GetItemByIndex(i).GetAttribute("rowspan") ?? "";
                 int rowSpanInt = 0;
                 if (!string.IsNullOrEmpty(rowspan))
                 {
@@ -576,11 +576,11 @@ namespace SmartReader
                 rows += rowSpanInt == 0 ? 1 : rowSpanInt;
                 // Now look for column-related info
                 var columnsInThisRow = 0;
-                var cells = trs[i].GetElementsByTagName("td");
+                var cells = trs.GetItemByIndex(i).GetElementsByTagName("td");
                 for (var j = 0; j < cells.Length; j++)
                 {
                     int colSpanInt = 0;
-                    if (cells[j].GetAttribute("colspan") is { Length: > 0 } colspan)
+                    if (cells.GetItemByIndex(j).GetAttribute("colspan") is { Length: > 0 } colspan)
                     {
                         int.TryParse(colspan, NumberStyles.None, CultureInfo.InvariantCulture, out colSpanInt);
                     }

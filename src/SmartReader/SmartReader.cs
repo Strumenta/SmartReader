@@ -885,7 +885,7 @@ namespace SmartReader
         /// </summary>
         /// <param name="page">a document to run upon. Needs to be a full document, complete with body</param>
         private IElement? GrabArticle(IElement? page = null)
-        {
+        {                        
             if (Debug || Logging == ReportLevel.Info)
                 LoggerDelegate("**** grabArticle ****");
 
@@ -1040,7 +1040,7 @@ namespace SmartReader
                         // algorithm with DIVs with are, in practice, paragraphs.
                         if (NodeUtility.HasSingleTagInsideElement(node, "P") && NodeUtility.GetLinkDensity(node) < 0.25)
                         {
-                            var newNode = node.Children[0];
+                            var newNode = node.Children.First();
                             // preserve the old DIV classes into the new P node
                             newNode.ClassName += " " + node.ClassName;
                             node.Parent!.ReplaceChild(newNode, node);
@@ -1055,7 +1055,7 @@ namespace SmartReader
                     }
                     node = NodeUtility.GetNextNode(node);
                 }
-
+                
                 /*
 				 * Loop through all paragraphs, and assign a score to them based on how content-y they look.
 				 * Then add their score to their parent node.
@@ -1119,7 +1119,7 @@ namespace SmartReader
 
                         AddToReadabilityScore(ancestorEl, contentScore / scoreDivider);
                     }, 0);
-                }
+                }                
 
                 // After we've calculated scores, loop through all of the possible
                 // candidate nodes we found and find the one with the highest score.
@@ -1260,7 +1260,7 @@ namespace SmartReader
                         InitializeNode(topCandidate);
                     }
                 }
-
+                
                 // Now that we have the top candidate, look through its siblings for content
                 // that might also be related. Things like preambles, content split by ads
                 // that we removed, etc.
@@ -1275,7 +1275,7 @@ namespace SmartReader
 
                 for (int s = 0, sl = siblings.Length; s < sl; s++)
                 {
-                    var sibling = siblings[s];
+                    var sibling = siblings.GetItemByIndex(s);
                     var append = false;
 
                     if (sibling == topCandidate)
@@ -1334,7 +1334,7 @@ namespace SmartReader
                         s -= 1;
                         sl -= 1;
                     }
-                }
+                }                
 
                 if (Debug || Logging == ReportLevel.Info)
                     LoggerDelegate("<h2>Article content pre-prep:</h2>" + articleContent.InnerHtml);
@@ -1493,7 +1493,7 @@ namespace SmartReader
                     // First, check the elements attributes to see if any of them contain youtube or vimeo
                     for (var i = 0; i < element.Attributes.Length; i++)
                     {
-                        if (RE_Videos.IsMatch(element.Attributes[i]!.Value))
+                        if (RE_Videos.IsMatch(element.Attributes.GetItemByIndex(i)!.Value))
                         {
                             return false;
                         }
@@ -1550,7 +1550,7 @@ namespace SmartReader
             var trs = table.GetElementsByTagName("tr");
             for (var i = 0; i < trs.Length; i++)
             {
-                string? rowspan = trs[i].GetAttribute("rowspan");
+                string? rowspan = trs.GetItemByIndex(i).GetAttribute("rowspan");
                 int rowSpanInt = 0;
                 if (rowspan is { Length: > 0 })
                 {
@@ -1559,10 +1559,10 @@ namespace SmartReader
                 rows += rowSpanInt == 0 ? 1 : rowSpanInt;
                 // Now look for column-related info
                 var columnsInThisRow = 0;
-                var cells = trs[i].GetElementsByTagName("td");
+                var cells = trs.GetItemByIndex(i).GetElementsByTagName("td");
                 for (var j = 0; j < cells.Length; j++)
                 {
-                    string? colspan = cells[j].GetAttribute("colspan");
+                    string? colspan = cells.GetItemByIndex(j).GetAttribute("colspan");
                     int colSpanInt = 0;
                     if (colspan is { Length: > 0 })
                     {
@@ -1587,7 +1587,7 @@ namespace SmartReader
             var tables = root.GetElementsByTagName("table");
             for (var i = 0; i < tables.Length; i++)
             {
-                var table = tables[i];
+                var table = tables.GetItemByIndex(i);
 
                 if (table.GetAttribute("role") is "presentation")
                 {
@@ -1680,7 +1680,7 @@ namespace SmartReader
                     var srcCouldBeRemoved = false;
                     for (var i = 0; i < elem.Attributes.Length; i++)
                     {
-                        var attr = elem.Attributes[i]!;
+                        var attr = elem.Attributes.GetItemByIndex(i)!;
                         if (attr.Name is "src")
                         {
                             continue;
@@ -1716,7 +1716,7 @@ namespace SmartReader
 
                 for (var i = 0; i < elem.Attributes.Length; i++)
                 {
-                    var attr = elem.Attributes[i]!;
+                    var attr = elem.Attributes.GetItemByIndex(i)!;
 
                     if (attr.Name is "src" or "srcset" or "alt")
                     {
@@ -1976,8 +1976,8 @@ namespace SmartReader
                     if (isList && haveToRemove)
                     {
                         for (var x = 0; x < node.Children.Length; x++)
-                        {
-                            var child = node.Children[x];
+                        {                            
+                            var child = node.Children.GetItemByIndex(x);
                             // Don't filter in lists with li's that contain more than one child
                             if (child.Children.Length > 1)
                             {
@@ -2191,7 +2191,7 @@ namespace SmartReader
                 var paragraphs = articleContent.GetElementsByTagName("p");
                 if (paragraphs.Length > 0)
                 {
-                    metadata.Excerpt = paragraphs[0].TextContent.Trim();
+                    metadata.Excerpt = paragraphs.First().TextContent.Trim();
                 }
             }
 
