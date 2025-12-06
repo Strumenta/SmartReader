@@ -909,7 +909,7 @@ namespace SmartReader
             }
 
             var pageCacheHtml = page.InnerHtml;
-
+            
             while (true)
             {
                 if (Debug || Logging == ReportLevel.Info)
@@ -999,37 +999,50 @@ namespace SmartReader
                     {
                         elementsToScore.Add(node);
                     }
-
+                    
                     // Turn all divs that don't have children block level elements into p's
                     if (node.TagName is "DIV")
                     {
-                        // Put phrasing content into paragraphs.
-                        INode? p = null;
+                        // Put phrasing content into paragraphs.                        
                         var childNode = node.FirstChild;
                         while (childNode != null)
                         {
                             var nextSibling = childNode.NextSibling;
                             if (NodeUtility.IsPhrasingContent(childNode))
                             {
-                                if (p != null)
+                                var fragment = doc.CreateDocumentFragment();
+                                // Collect all consecutive phrasing content into a fragment.
+                                do
                                 {
-                                    p.AppendChild(childNode);
+                                    nextSibling = childNode.NextSibling;
+                                    fragment.AppendChild(childNode);
+                                    childNode = nextSibling;
+                                } while (childNode != null && NodeUtility.IsPhrasingContent(childNode));
+
+                                // Trim leading and trailing whitespace from the fragment.
+                                while (
+                                  fragment.FirstChild != null &&
+                                  NodeUtility.IsWhitespace(fragment.FirstChild)
+                                )
+                                {
+                                    fragment.RemoveChild(fragment.FirstChild);                                    
                                 }
-                                else if (!NodeUtility.IsWhitespace(childNode))
-                                {
-                                    p = doc!.CreateElement("p");
-                                    node.ReplaceChild(p, childNode);
-                                    p.AppendChild(childNode);
-                                }
-                            }
-                            else if (p != null)
-                            {
-                                while (p.LastChild != null && NodeUtility.IsWhitespace(p.LastChild))
-                                {
-                                    p.RemoveChild(p.LastChild);
+                                while (
+                                  fragment.LastChild != null &&
+                                    NodeUtility.IsWhitespace(fragment.LastChild)
+                                )
+                                {                                    
+                                    fragment.RemoveChild(fragment.LastChild);
                                 }
 
-                                p = null;
+                                // If the fragment contains anything, wrap it in a paragraph and
+                                // insert it before the next non-phrasing node.
+                                if (fragment.FirstChild != null)
+                                {
+                                    var p = doc.CreateElement("p");
+                                    p.AppendChild(fragment);
+                                    node.InsertBefore(p, nextSibling);
+                                }
                             }
                             childNode = nextSibling;
                         }
