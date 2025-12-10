@@ -279,12 +279,39 @@ namespace SmartReader
                 );
 
                 using var cleanedStream = new MemoryStream(context.GetDefaultEncoding().GetBytes(cleanedHtml));
-                
+
                 return parser.ParseDocument(cleanedStream);
             }
             else
             {
                 return parser.ParseDocument(source);
+            }         
+        }
+
+        private Task<IHtmlDocument> ParseDocumentAsync(Stream source, CancellationToken token)
+        {
+            var context = BrowsingContext.New(Configuration.Default);
+            var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
+
+            if (PreCleanPage)
+            {
+                using var reader = new StreamReader(source, context.GetDefaultEncoding());
+                string htmlContent = reader.ReadToEnd();
+
+                string cleanedHtml = Regex.Replace(
+                    htmlContent,
+                    @"<p[^>]*>\s*(?:&nbsp;|\s)*</p>",
+                    string.Empty,
+                    RegexOptions.IgnoreCase | RegexOptions.Multiline
+                );
+
+                using var cleanedStream = new MemoryStream(context.GetDefaultEncoding().GetBytes(cleanedHtml));
+
+                return parser.ParseDocumentAsync(cleanedStream, token);
+            }
+            else
+            {
+                return parser.ParseDocumentAsync(source, token);
             }
         }
 
@@ -444,7 +471,7 @@ namespace SmartReader
                         stream = new MemoryStream(bytes);
                     }
 
-                    doc = ParseDocument(stream);
+                    doc = await ParseDocumentAsync(stream, token);
                 }
             
                 return Parse();

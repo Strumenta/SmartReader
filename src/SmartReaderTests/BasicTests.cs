@@ -768,5 +768,31 @@ namespace SmartReaderTests
             Assert.False(article.Completed);
             Assert.Equal("The operation was canceled.", article.Errors[0].Message);
         }
+
+        [Fact]
+        public async Task CheckCancellationIsHonoredDuringParsing()
+        {
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+
+            mockHttp.When("https://localhost/article")
+                .Respond("text/html", @"<html>
+               <head></head>
+               <body>" +
+                    string.Concat(Enumerable.Repeat(@"<p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>", 50000)) +
+               @"</body>
+               </html>");
+
+            var reader = new Reader("https://localhost/article");
+
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
+
+            Reader.SetBaseHttpClientHandler(mockHttp);
+            Article article = await reader.GetArticleAsync(cts.Token);
+
+            Assert.False(article.Completed);
+            Assert.Equal("The operation was canceled.", article.Errors[0].Message);            
+        }
     }
 }
