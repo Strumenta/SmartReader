@@ -474,7 +474,7 @@ namespace SmartReader
                     doc = await ParseDocumentAsync(stream, token);
                 }
             
-                return Parse();
+                return Parse(token);
             }
             catch(Exception ex)
             {
@@ -512,7 +512,7 @@ namespace SmartReader
                     doc = ParseDocument(stream);
                 }
 
-                return Parse();
+                return Parse(CancellationToken.None);
             }
             catch(Exception ex)
             {
@@ -567,7 +567,7 @@ namespace SmartReader
                 
                 smartReader.doc = smartReader.ParseDocument(stream);
 
-                return smartReader.Parse();
+                return smartReader.Parse(CancellationToken.None);
             }
             catch(Exception ex)
             {
@@ -588,7 +588,7 @@ namespace SmartReader
         {
             try
             {
-                return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse();
+                return new Reader(uri, text).SetCustomUserAgent(userAgent).Parse(CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -608,7 +608,7 @@ namespace SmartReader
         {
             try
             {
-                return new Reader(uri, source).Parse();
+                return new Reader(uri, source).Parse(CancellationToken.None);
             }
             catch (Exception ex)
             {
@@ -985,7 +985,7 @@ namespace SmartReader
         /// most likely to be the stuff a user wants to read.Then return it wrapped up in a div.
         /// </summary>
         /// <param name="page">a document to run upon. Needs to be a full document, complete with body</param>
-        private IElement? GrabArticle(IElement? page = null)
+        private IElement? GrabArticle(CancellationToken token, IElement? page = null)
         {                        
             if (Debug || Logging == ReportLevel.Info)
                 LoggerDelegate("**** grabArticle ****");
@@ -1008,11 +1008,20 @@ namespace SmartReader
                     LoggerDelegate(page.OuterHtml);
                 }
             }
-            
-            var pageCacheHtml = page.InnerHtml;            
+
+            // Cancel operation, if so requested
+            token.ThrowIfCancellationRequested();
+
+            var task = Task.Run(() => { return page.InnerHtml; }, token);
+            task.Wait(token);
+
+            var pageCacheHtml = task.Result;
 
             while (true)
             {
+                // Cancel operation, if so requested
+                token.ThrowIfCancellationRequested();
+
                 if (Debug || Logging == ReportLevel.Info)
                     LoggerDelegate("Starting grabArticle loop");
 
@@ -1195,8 +1204,8 @@ namespace SmartReader
                         }
                     }
                     node = NodeUtility.GetNextNode(node);
-                }
-                
+                }                
+
                 /*
 				 * Loop through all paragraphs, and assign a score to them based on how content-y they look.
 				 * Then add their score to their parent node.
@@ -1206,7 +1215,7 @@ namespace SmartReader
                 var candidates = new List<IElement>();
 
                 foreach (var elementToScore in elementsToScore)
-                {
+                {                    
                     if (elementToScore.Parent is null)
                         continue;
 
@@ -2261,7 +2270,7 @@ namespace SmartReader
         /// <returns>
         /// An article object with all the data extracted
         /// </returns> 
-        private Article Parse()
+        private Article Parse(CancellationToken token)
         {
             if (doc == null)
                 throw new Exception("No document found");
@@ -2276,6 +2285,9 @@ namespace SmartReader
                 }
             }
 
+            // Cancel operation, if so requested
+            token.ThrowIfCancellationRequested();
+
             var isReadable = IsProbablyReaderable();
 
             // we stop only if it's not readable and we are not debugging
@@ -2286,6 +2298,9 @@ namespace SmartReader
                 if (ContinueIfNotReadable == false)
                     return new Article(uri, articleTitle, false);
             }
+
+            // Cancel operation, if so requested
+            token.ThrowIfCancellationRequested();
 
             // perform custom operations at the start
             foreach (var operation in CustomOperationsStart)
@@ -2308,7 +2323,10 @@ namespace SmartReader
             var metadata = Readability.GetArticleMetadata(this.doc, this.uri, this.language, jsonLd);
             articleTitle = metadata.Title ?? "";
 
-            var articleContent = GrabArticle();
+            // Cancel operation, if so requested
+            token.ThrowIfCancellationRequested();
+
+            var articleContent = GrabArticle(token);
             if (articleContent is null)
                 return new Article(uri, articleTitle, false);
 
@@ -2316,6 +2334,9 @@ namespace SmartReader
                 LoggerDelegate("<h2>Grabbed:</h2>" + articleContent.InnerHtml);
 
             PostProcessContent(articleContent);
+
+            // Cancel operation, if so requested
+            token.ThrowIfCancellationRequested();
 
             // perform custom operations at the end
             foreach (var operation in CustomOperationsEnd)
