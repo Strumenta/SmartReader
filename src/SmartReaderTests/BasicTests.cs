@@ -10,6 +10,9 @@ using AngleSharp.Dom;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace SmartReaderTests
 {
@@ -736,6 +739,34 @@ namespace SmartReaderTests
                     new Dictionary<string, string>());
             Assert.Single(result.AlternativeLanguageUris);
             Assert.Equal(new Uri("https://localhost/dummy-de/dummy1/test"), result.AlternativeLanguageUris["de"]);
+        }
+
+        [Fact]
+        public async Task CheckCancellationIsHonored()
+        {
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+
+            mockHttp.When("https://localhost/article")
+                .Respond("text/html", @"<html>
+               <head></head>
+               <body>" +
+                    string.Concat(Enumerable.Repeat(@"<p>This is a paragraph with some text.</p>
+                    <p>This is a paragraph with some other text.</p>", 10000)) +
+               @"</body>
+               </html>");
+
+            var reader = new Reader("https://localhost/article");
+
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
+            // Wait to ensure activation of CancellationToken
+            Thread.Sleep(100);
+
+            Reader.SetBaseHttpClientHandler(mockHttp);            
+            Article article = await reader.GetArticleAsync(cts.Token);
+
+            Assert.False(article.Completed);
+            Assert.Equal("The operation was canceled.", article.Errors[0].Message);
         }
     }
 }
