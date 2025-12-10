@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -60,6 +61,32 @@ namespace SmartReaderTests
             var elapsedMs = watch.ElapsedMilliseconds;
 
             Assert.True(article.Completed);
+            Assert.True(elapsedMs < 10000);
+        }
+
+        [Fact]
+        public async void TestGetArticleIsCancelled()
+        {
+            // setting up mocking HttpClient
+            var mockHttp = new MockHttpMessageHandler();
+            var sourceContent = File.ReadAllText(Path.Combine("..", "..", "..", "test-performance", @"testFile2.html"));
+
+            string cleanedHtml = sourceContent;
+            mockHttp.When("https://localhost/article")
+                .Respond("text/html", cleanedHtml);
+
+            var reader = new Reader("https://localhost/article");            
+
+            Reader.SetBaseHttpClientHandler(mockHttp);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(8000));
+            
+            Article article = await reader.GetArticleAsync(cts.Token);
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            Assert.False(article.Completed);
             Assert.True(elapsedMs < 10000);
         }
     }

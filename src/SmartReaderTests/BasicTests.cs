@@ -786,14 +786,13 @@ namespace SmartReaderTests
 
             var reader = new Reader("https://localhost/article");
 
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
+            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(30));
 
             Reader.SetBaseHttpClientHandler(mockHttp);
             Article article = await reader.GetArticleAsync(cts.Token);
 
             Assert.False(article.Completed);
-            Assert.Equal("The operation was canceled.", article.Errors[0].Message);
-            Assert.Equal("AngleSharp", article.Errors[0].Source);
+            Assert.Equal("A task was canceled.", article.Errors[0].Message);
         }
 
         [Fact]

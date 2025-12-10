@@ -1,12 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.11.0 - 2025/12/06
+## 0.11.0 - 2025/12/11
 - Added fixes from latest updates of Readability up until November 2025
 - Improve paragraph wrapping
 - Update AngleSharp dependency and solve issues related to change dependency resolution from .NET 7.0 
 - Fixed issue #70, crash when AngleSharp updated to 1.3.0 or later (thanks to [Michael Chudinow](https://github.com/mchudinov))
 - Partial fix for issue #69, long time to parse some large pages (thanks to [Clay Lenhart](https://github.com/xclayl))
+- Added support for CancellationToken (issue #71) (thanks to [Clay Lenhart](https://github.com/xclayl))
 
 ## 0.10.2 - 2025/09/13
 - Fixed issue #68, crash when uri in link tag is relative (thanks to [yandrapragada](https://github.com/yandrapragada))
