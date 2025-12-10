@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AngleSharp;
@@ -414,11 +415,22 @@ namespace SmartReader
         /// </returns>    
         public async Task<Article> GetArticleAsync()
         {
+            return await GetArticleAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Read and parse the article asynchronously from the given URI.
+        /// </summary>
+        /// <returns>
+        /// An async Task Article object with all the data extracted
+        /// </returns>    
+        public async Task<Article> GetArticleAsync(CancellationToken token)
+        {
             try
             {
                 if (doc is null)
                 {
-                    var stream = await GetStreamAsync(uri).ConfigureAwait(false);
+                    var stream = await GetStreamAsync(uri, token).ConfigureAwait(false);
                     var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
                                                                 : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
                     var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
@@ -456,7 +468,7 @@ namespace SmartReader
             {
                 if (doc is null)
                 {
-                    var stream = GetStreamAsync(uri).GetAwaiter().GetResult();
+                    var stream = GetStreamAsync(uri, CancellationToken.None).GetAwaiter().GetResult();
                     var context = string.IsNullOrEmpty(charset) ? BrowsingContext.New(Configuration.Default)
                                                                 : BrowsingContext.New(Configuration.Default.With(new HeaderEncodingProvider(charset!)));
                     var parser = new HtmlParser(new HtmlParserOptions { IsScripting = true }, context);
@@ -489,9 +501,24 @@ namespace SmartReader
         /// <returns>
         /// An async Task Article object with all the data extracted
         /// </returns>    
-        public static async Task<Article> ParseArticleAsync(string uri, string? userAgent = null)
+        public static async Task<Article> ParseArticleAsync(string uri, 
+            string userAgent, CancellationToken token)
         {
-            return await new Reader(uri).SetCustomUserAgent(userAgent).GetArticleAsync();
+            return await new Reader(uri).SetCustomUserAgent(userAgent).GetArticleAsync(token);
+        }
+
+        /// <summary>
+        /// Read and parse asynchronously the article from the given URI.
+        /// </summary>
+        /// <param name="uri">A string representing the original URI to extract the content from.</param>
+        /// <param name="userAgent">A string representing a custom user agent.</param>
+        /// <returns>
+        /// An async Task Article object with all the data extracted
+        /// </returns>    
+        public static async Task<Article> ParseArticleAsync(string uri,
+            string? userAgent = null)
+        {
+            return await ParseArticleAsync(uri, userAgent, CancellationToken.None);
         }
 
         /// <summary>
@@ -509,7 +536,7 @@ namespace SmartReader
             {
                 var smartReader = new Reader(uri).SetCustomUserAgent(userAgent);
 
-                var stream = smartReader.GetStreamAsync(new Uri(uri)).GetAwaiter().GetResult();
+                var stream = smartReader.GetStreamAsync(new Uri(uri), CancellationToken.None).GetAwaiter().GetResult();
                 
                 smartReader.doc = smartReader.ParseDocument(stream);
 
@@ -2285,18 +2312,18 @@ namespace SmartReader
             return new Article(uri, articleTitle, articleByline, articleDir, language, author, articleContent, metadata, isReadable, this);
         }
 
-        private async Task<Stream> GetStreamAsync(Uri resource)
+        private async Task<Stream> GetStreamAsync(Uri resource, CancellationToken token)
         {
             using var httpClient = new HttpClient(_httpClientHandler.Value, false);
 
             httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(_userAgent);
 
-            var response = await httpClient.GetAsync(resource).ConfigureAwait(false);
+            var response = await httpClient.GetAsync(resource, token).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"Cannot GET resource {resource}. StatusCode: {response.StatusCode}");
-            }
+            }            
 
             if (response.Content.Headers.TryGetValues("Content-Language", out var contentLanguageHeader))
             {
