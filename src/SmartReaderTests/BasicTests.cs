@@ -791,8 +791,12 @@ namespace SmartReaderTests
             Reader.SetBaseHttpClientHandler(mockHttp);
             Article article = await reader.GetArticleAsync(cts.Token);
 
+            // The operation it is cancelled if the cancellation happens during parsing,
+            // which is the important thing. However, the parsing can happen before of later than
+            // 30 milliseconds, so it is difficult to make the test reliable
             Assert.False(article.Completed);
-            Assert.Equal("A task was canceled.", article.Errors[0].Message);
+            Assert.True("A task was canceled." == article.Errors[0].Message 
+                || "The operation was canceled." == article.Errors[0].Message);
         }
 
         [Fact]

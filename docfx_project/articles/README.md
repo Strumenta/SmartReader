@@ -48,14 +48,14 @@ PM> Install-Package SmartReader
 
 ## Usage
 
-There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`.
+There are mainly two ways to use the library. The first is by creating a new `Reader` object, with the URI as the argument, and then calling the `GetArticle` method to obtain the extracted `Article`. The second one is by using one of the static methods `ParseArticle` of `Reader` directly, to return an `Article`. Both ways are available also through an async method, called respectively `GetArticleAsync` and `ParseArticleAsync`. 
 The advantage of using an object, instead of the static method, is that it gives you the chance to set some options.
 
 There is also the option to parse directly a String or Stream that you have obtained by some other way. This is available either with `ParseArticle` methods or by using the proper `Reader` constructor. In either case, you also need to give the original URI. It will not re-download the text, but it needs the URI to make some checks and fixing the links present on the page. If you cannot provide the original uri, you can use a fake one, like `https:\\localhost`.
 
 If the extraction fails to extract an article, the returned `Article` object will have the field `IsReadable` set to `false`.
                 
-If fetching the resource fails, the library will catch the `HttpRequestException`, set `IsReadable` to `false`, `Completed` to `false` and add an Exception to the list of `Errors`.
+If fetching the resource fails, the library will catch the `HttpRequestException`, set `IsReadable` to `false`, `Completed` to `false` and add an Exception to the list of `Errors`. The async methods to extract an article support `CancellationToken` arguments to gracefully request for the interruption of the extraction. For instance, if the extraction takes too much time. If cancelled, they throw a `OperationCanceledException`, but the exception is caught by the library and added to the list of `Errors`.
 
 The content of the article is unstyled, but it is wrapped in a `div` with the id `readability-content` that you can style yourself.
 
@@ -206,6 +206,13 @@ The keys of `MinContentLengthReaderable` should be the English name of languages
 ```
 
 If you need to provide language-specific minimum content length, a good starting point may be the characters per minute settings in the `TimeToReadCalculator` class. These values represent how many characters per minute a reader of the language is typically able to read. We do not provide default values ourselves, because we do not have example articles to calculate meaningful values for each language.
+
+### Dealing with Long Extraction Time
+
+Even webpages that are large in terms of size can usually be dealt with in a reasonable time. Aside from bugs solved during the years, the only issue reported from pages in the wild has been a page with hundreds of thousands of `<p>&nbsp;<p>` nodes. The initial parsing of the pages was handled well by AngleSharp, the library we use to parse HTML. However, it then took a long time trying to dynamically create the `InnerHTML` property. The algorithm to extract the main content also took a long time, since it loops through all the nodes. The execution did actually concluded but it took hours.
+We found a fix for that particular problem, that can be activated by setting the property `PreCleanPage` to `true`. Unfortunately this is not a general fix, so that is why the flag is `false` by default.
+
+This solution does not solve the general problem, but we added support for `CancellationToken` to our async methods (like `GetArticleAsync`). This allow users of the library to cancel the request whenever they want and therefore lead however they prefer with long running time.
 
 ## License
 

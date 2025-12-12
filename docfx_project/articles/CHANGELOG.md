@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 0.11.0 - 2025/12/11
+## 0.11.0 - 2025/12/12
 - Added fixes from latest updates of Readability up until November 2025
 - Improve paragraph wrapping
 - Update AngleSharp dependency and solve issues related to change dependency resolution from .NET 7.0 
