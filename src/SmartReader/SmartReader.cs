@@ -525,11 +525,12 @@ namespace SmartReader
         /// </summary>
         /// <param name="uri">A string representing the original URI to extract the content from.</param>
         /// <param name="userAgent">A string representing a custom user agent.</param>
+        /// <param name="token">a token to govern the cancellation of the request.</param>
         /// <returns>
         /// An async Task Article object with all the data extracted
         /// </returns>    
         public static async Task<Article> ParseArticleAsync(string uri, 
-            string userAgent, CancellationToken token)
+            string? userAgent, CancellationToken token)
         {
             return await new Reader(uri).SetCustomUserAgent(userAgent).GetArticleAsync(token);
         }
@@ -947,7 +948,7 @@ namespace SmartReader
                 // Find child node matching [itemprop="name"] and use that if it exists for a more accurate author name byline
                 var endOfSearchMarkerNode = NodeUtility.GetNextNode(node, true);
                 var next = NodeUtility.GetNextNode(node);
-                IElement itemPropNameNode = null;
+                IElement? itemPropNameNode = null;
                 while (next != null && next != endOfSearchMarkerNode)
                 {
                     itemprop = next.GetAttribute("itemprop");
@@ -978,13 +979,14 @@ namespace SmartReader
 
             return false;
         }
-       
+
 
         /// <summary>
         /// grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is
         /// most likely to be the stuff a user wants to read.Then return it wrapped up in a div.
-        /// </summary>
-        /// <param name="page">a document to run upon. Needs to be a full document, complete with body</param>
+        /// </summary>        
+        /// <param name="token">a token to govern the cancellation of the request</param>
+        /// <param name="page">a document to run upon. Needs to be a full document, complete with body.</param>
         private IElement? GrabArticle(CancellationToken token, IElement? page = null)
         {                        
             if (Debug || Logging == ReportLevel.Info)
@@ -1125,7 +1127,7 @@ namespace SmartReader
 
                             if (child.NodeType == NodeType.Text)
                             {
-                                string rawText = (child as IText).Text;
+                                string rawText = (child as IText)?.Text ?? "";
 
                                 // Check if the trimmed text is empty or contains only non-breaking space
                                 if (string.IsNullOrEmpty(rawText) || rawText.Equals("&nbsp;", StringComparison.OrdinalIgnoreCase))
@@ -1147,7 +1149,7 @@ namespace SmartReader
                             var nextSibling = childNode.NextSibling;
                             if (NodeUtility.IsPhrasingContent(childNode))
                             {
-                                var fragment = doc.CreateDocumentFragment();
+                                var fragment = doc!.CreateDocumentFragment();
                                 // Collect all consecutive phrasing content into a fragment.
                                 do
                                 {

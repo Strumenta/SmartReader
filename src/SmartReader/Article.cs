@@ -109,12 +109,12 @@ namespace SmartReader
         /// <summary>The function that identify the language. The default method just returns the
         /// second argument.</summary>
         /// <value>Default: the IdentifyLanguage method</value>
-        public static Func<string, string, string?> LanguageIdentification { get; set; } = IdentifyLanguageUsingMetadata;
+        public static Func<string, string?, string?> LanguageIdentification { get; set; } = IdentifyLanguageUsingMetadata;
 
         /// <summary>The function that identify the language. The default method just returns the
         /// second argument.</summary>
         /// <value>Default: the IdentifyLanguage method</value>
-        public static Func<string, string, string?> CreateSummary { get; set; } = CreateSummaryUsingMetadata;
+        public static Func<string, string?, string?> CreateSummary { get; set; } = CreateSummaryUsingMetadata;
 
         internal Article(Uri uri, string title, string? byline, string? dir, string? language, string? author, IElement element, Metadata metadata, bool readable, Reader reader)
         {
@@ -272,8 +272,7 @@ namespace SmartReader
             ConvertToText(doc, sb);
 
             bool previousSpace = false;
-            bool previousNewline = false;
-            bool nextNewLine = false;
+            bool previousNewline = false;            
 
             string text = sb.ToString();
             // fix whitespace
