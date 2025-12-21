@@ -132,7 +132,7 @@ A brief overview of the Article model returned by the library:
 
 It's important to be aware that the fields **Byline**, **Author**, and **PublicationDate** are found independently of each other. Consequently, there might be inconsistencies or unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author", "@Author, @Date", or any other combination used by the publication.
 
-The **TimeToRead** calculation is based on research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages covered by the research, but it is an educated guess for other languages.
+The **TimeToRead** calculation is based on research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages covered by the research, but it is an educated guess for other languages. If you can point to any scientific research for missing languages, please open an issue.
 
 The **FeaturedImage** property holds the image indicated by the Open Graph or Twitter meta tags. If neither of these is present, and you called the `GetImagesAsync` method, it will be set to the first image found.
 
