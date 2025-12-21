@@ -1,5 +1,3 @@
-Here is the complete edited text, formatted as a Markdown file. You can copy the code block below and save it as `quickstart.md`.
-
 ## Quickstart
 
 This library supports .NET Standard 2.0. The core algorithm is a port of the [Mozilla Readability library](https://github.com/mozilla/readability). The original library is stable and used in production inside Firefox. By relying on a library maintained by a competent organization like Mozilla, we leverage their robust and well-tested work.
