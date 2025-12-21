@@ -1,5 +1,6 @@
 <h1 align="center">
-  <br>
+
+- `bool` **KeepClasses** <br>Whether to preserve or clean CSS classes.<br>*Default: false*  <br>
   <img src="https://raw.github.com/strumenta/SmartReader/master/logo.png" width="256" alt="SmartReader">
   <br>
   SmartReader
@@ -106,6 +107,7 @@ if(article.IsReadable)
 - `ReportLevel` **Logging** <br>Level of information written with the `LoggerDelegate`. The valid values are the ones for the enum `ReportLevel`: Issue or Info. The first level logs only errors or issue that could prevent correctly obtaining an article. The second level logs all the information needed for debugging a problematic article.<br>*Default: ReportLevel.Issue*
 - `bool` **ContinueIfNotReadable** <br> The library tries to determine if it will find an article before actually trying to do it. This option decides whether to continue if the library heuristics fails. This value is ignored if Debug is set to true <br> *Default: true*
 - `int` **CharThreshold** <br>The minimum number of characters an article must have in order to return a result. <br>*Default: 500*
+- `bool` **KeepClasses** <br>Whether to preserve or clean CSS classes.<br>*Default: false*
 - `String[]` **ClassesToPreserve** <br>The CSS classes that must be preserved in the article. <br>*Default: ["page"]*
 - `bool` **DisableJSONLD** <br> The library look first at JSON-LD to determine metadata. This setting gives you the option of disabling it<br> *Default: false*
 - `Dictionary<string, int>` **MinContentLengthReadearable** <br> The minimum node content length used to decide if the document is readerable (i.e., the library will find something useful).<br> You can provide a dictionary with values based on language.<br> *Default: 140*
@@ -114,26 +116,26 @@ if(article.IsReadable)
 - `bool` **ForceHeaderEncoding** <br>Whether to force the encoding provided in the response header. This will convert the stream to the encoding set in the header before passing it to the HTML parser<br>*Default: false*
 - `int` **AncestorsDepth** <br>The default level of depth a node must have to be used for scoring.Nodes without as many ancestors as this level are not counted<br>*Default: 5*
 - `int` **ParagraphThreshold** <br>The default number of characters a node must have in order to be used for scoring<br>*Default: 25*
-- `linkDensityModifier` (number, default `0.0`): a number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.
+- `double` **LinkDensityModifier**<br> A number that is added to the base link density threshold during the shadiness checks. This can be used to penalize nodes with a high link density or vice versa.<br>*Default: 0.0*
 - `bool` **PreCleanPage** <br>Some pages have structural issues that harms performance, such as hundred of thousands of empty paragraph nodes. This flag activates heuristics to pre-clean the page before it is analyzed by the library. In practice, the current implementation
 just eliminates empty paragraph nodes.<br>*Default: false*
 
 ### Settings Notes
 
-The settings <code>MinScoreReaderable</code>, <code>CharThreshold</code> and <code>MinContentLengthReadearable</code> are used in the process of determining if an article is readerable or if the result found is valid.
+The settings <code>MinScoreReaderable</code>, <code>CharThreshold</code>, and <code>MinContentLengthReadearable</code> are used in the process of determining if an article is readerable or if the result found is valid.
 
-The algorithm for scoring assign some score to each valid node, then it determines the best node depending on their relationships, i.e., what score ancestors and descendants of the node have. The settings <code>NTopCandidates</code>, <code>AncestorsDepth</code> and <code>ParagraphThreshold</code> can help you customize this process. It makes sense to change them if you are interested in some sites that uses a particular style or design of coding.
+The scoring algorithm assigns a score to each valid node, then determines the best node based on its relationships (i.e., the score of the node's ancestors and descendants). The settings <code>NTopCandidates</code>, <code>AncestorsDepth</code>, and <code>ParagraphThreshold</code> allow you to customize this process. It is useful to change them if you are targeting sites that use a specific coding style or design.
 
-The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable</code> and <code>CharThreshold</code> should be customized for content written in non-alphabetical languages.
+The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable</code>, and <code>CharThreshold</code> should be customized for content written in non-alphabetical languages.
 
 ## Article Model
 
-- `Uri` **Uri**<br>Original Uri
+- `Uri` **Uri**<br>Original URI
 - `String` **Title**<br>Title
 - `String` **Byline**<br>Byline of the article, usually containing author and publication date
 - `String` **Dir**<br>Direction of the text
 - `String` **FeaturedImage**<br>The main image of the article
-- `String` **Content**<br>Html content of the article
+- `String` **Content**<br>HTML content of the article
 - `String` **TextContent**<br>The plain text of the article with basic formatting
 - `String` **Excerpt**<br>A summary of the article, based on metadata or first paragraph
 - `String` **Language**<br>Language string (es. 'en-US')
@@ -143,15 +145,15 @@ The settings <code>ParagraphThreshold</code>, <code>MinContentLengthReadearable<
 - `int` **Length**<br>Length of the text of the article
 - `TimeSpan` **TimeToRead**<br>Average time needed to read the article
 - `DateTime?` **PublicationDate**<br>Date of publication of the article
-- `bool` **IsReadable**<br>Indicate whether we successfully find an article
+- `bool` **IsReadable**<br>Indicate whether an article was successfully found
 - `bool` **Completed**<br>Indicate whether we completed the process without getting an Exception (for instance, the HTTP request returned 403 Forbidden)
 - `List<Exception>` **Errors**<br>The list of errors generated during the process
 
-It's important to be aware that the fields **Byline**, **Author** and **PublicationDate** are found independently of each other. So there might be some inconsistencies and unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author" or "@Author, @Date" or any other combination used by the publication. 
+It's important to be aware that the fields **Byline**, **Author**, and **PublicationDate** are found independently of each other. Consequently, there might be inconsistencies or unexpected data. For instance, **Byline** may be a string in the form "@Date by @Author", "@Author, @Date", or any other combination used by the publication.
 
-The **TimeToRead** calculation is based on the research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages in the research, but it is just an educated guess for the others languages.
+The **TimeToRead** calculation is based on the research found in [Standardized Assessment of Reading Performance: The New International Reading Speed Texts IReST](http://iovs.arvojournals.org/article.aspx?articleid=2166061). It should be accurate if the article is written in one of the languages in the research, but it is just an educated guess for the others languages. If you can point to any scientific research for missing languages, please open an issue.
 
-The **FeaturedImage** property holds the image indicated by the Open Graph or Twitter meta tags. If neither of these is present, and you called the `GetImagesAsync` method, it will be set with the first image found. 
+The **FeaturedImage** property holds the image indicated by the Open Graph or Twitter meta tags. If neither of these is present, and you called the `GetImagesAsync` method, it will be set to the first image found.
 
 The **TextContent** property is based on the pure text content of the HTML (i.e., the concatenations of [text nodes](https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType). Then we apply some basic formatting, like removing double spaces or the newlines left by the formatting of the HTML code. We also add meaningful newlines for P and BR nodes.
 
