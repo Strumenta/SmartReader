@@ -218,6 +218,34 @@ namespace SmartReader
 
             return images;
         }
+        
+
+        public static bool IsBase64ImageDataUri(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            const string pattern = "data:image/";
+
+            if (!value.StartsWith(pattern, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            int base64Index = value.IndexOf(";base64,", StringComparison.OrdinalIgnoreCase);
+            if (base64Index < 0)
+                return false;
+
+            string base64Part = value.Substring(base64Index + ";base64,".Length);
+
+            try
+            {
+                Convert.FromBase64String(base64Part);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// Convert images contained in the article to their data URI scheme representation
@@ -234,8 +262,13 @@ namespace SmartReader
             {
                 if (img.GetAttribute("src") is string src)
                 {
+                    // ignore base64 images as they are already .... base64 images
+                    if (IsBase64ImageDataUri(src))
+                    {
+                        continue;
+                    }
                     var imageUri = new Uri(src);
-
+                    
                     try
                     {
                         // download image
