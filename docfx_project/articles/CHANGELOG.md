@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## 0.11.1 - 2026/07/25
+- Fixed bug in handling of base64 encoding of images (thanks to [Olivier Duhart](https://github.com/b3b00))
+- Update AngleSharp and other dependencies because of vulnerabilities
+- No updates of Readability since last time
+
 ## 0.11.0 - 2025/12/12
 - Added fixes from latest updates of Readability up until November 2025
 - Improve paragraph wrapping
