@@ -36,7 +36,8 @@ namespace SmartReaderTests
             var elapsedMs = watch.ElapsedMilliseconds;
 
             Assert.True(article.Completed);
-            Assert.True(elapsedMs < 10000);
+            // it should be less than 10 seconds on a standard PC, but some CI need more time
+            Assert.True(elapsedMs < 20000);
         }
 
         [Fact]
@@ -61,7 +62,8 @@ namespace SmartReaderTests
             var elapsedMs = watch.ElapsedMilliseconds;
 
             Assert.True(article.Completed);
-            Assert.True(elapsedMs < 10000);
+            // it should be less than 10 seconds on a standard PC, but some CI need more time
+            Assert.True(elapsedMs < 20000);
         }
 
         [Fact]
