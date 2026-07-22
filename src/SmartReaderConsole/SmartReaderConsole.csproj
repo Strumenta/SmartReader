@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="1.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SmartReader.NaturalLanguageProcessing\SmartReader.NaturalLanguageProcessing.csproj" />
     <ProjectReference Include="..\SmartReader\SmartReader.csproj" />
   </ItemGroup>

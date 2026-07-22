@@ -32,6 +32,7 @@
   </ItemGroup>
     
   <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="1.5.2" />
     <PackageReference Include="LanguageTeller" Version="0.1.0" />
   </ItemGroup>
 
