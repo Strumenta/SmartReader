@@ -218,9 +218,15 @@ namespace SmartReader
 
             return images;
         }
-        
 
-        public static bool IsBase64ImageDataUri(string value)
+        /// <summary>
+        /// Check whether the string representing the image data is already an encoded image
+        /// </summary>
+        /// <param name="value">The string containing the image data</param>
+        /// <returns>
+        /// The results of the analysis on the data
+        /// </returns>
+        private static bool IsBase64ImageDataUri(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return false;
